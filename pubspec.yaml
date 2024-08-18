@@ -38,7 +38,9 @@ dependencies:
   provider: ^6.1.2
   hive: ^2.2.3
   hive_flutter: ^1.1.0
-  any_link_preview: ^3.0.2
+  flutter_link_previewer: ^3.2.2
+  url_launcher: ^6.3.0
+  flutter_chat_types: ^3.6.2
 
   
 

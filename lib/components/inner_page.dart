@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:memno/functionality/code_gen.dart';
+import 'package:flutter_link_previewer/flutter_link_previewer.dart';
+import 'package:flutter_chat_types/flutter_chat_types.dart' show PreviewData;
 
 class InnerPage extends StatefulWidget {
   final int code;
@@ -13,6 +15,7 @@ class InnerPage extends StatefulWidget {
 class _InnerPageState extends State<InnerPage> {
   final TextEditingController _linkController = TextEditingController();
   final TextEditingController _editController = TextEditingController();
+  Map<String, PreviewData> fetched = {};
 
   @override
   Widget build(BuildContext context) {
@@ -30,19 +33,31 @@ class _InnerPageState extends State<InnerPage> {
                   child: ListView.builder(
                       itemCount: links.length,
                       itemBuilder: (context, index) {
-                        return ListTile(
-                          title: Text(links[index]),
-                          trailing: IconButton(
-                            icon: const Icon(Icons.delete),
-                            onPressed: () {
-                              codeProvider.deleteLink(widget.code, index);
+                        return Column(children: [
+                          ListTile(
+                            title: Text(links[index]),
+                            trailing: IconButton(
+                              icon: const Icon(Icons.delete),
+                              onPressed: () {
+                                codeProvider.deleteLink(widget.code, index);
+                              },
+                            ),
+                            onTap: () {
+                              _editLink(
+                                  context, codeProvider, index, links[index]);
                             },
                           ),
-                          onTap: () {
-                            _editLink(
-                                context, codeProvider, index, links[index]);
-                          },
-                        );
+                          const SizedBox(height: 8),
+                          LinkPreview(
+                              onPreviewDataFetched: (data) {
+                                setState(() {
+                                  fetched = {...fetched, links[index]: data};
+                                });
+                              },
+                              previewData: fetched[links[index]],
+                              text: links[index],
+                              width: MediaQuery.of(context).size.width)
+                        ]);
                       }),
                 ),
                 Padding(
