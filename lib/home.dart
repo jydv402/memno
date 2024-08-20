@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:memno/components/inner_page.dart';
 import 'package:memno/components/main_tile.dart';
 import 'package:memno/functionality/code_gen.dart';
 import 'package:memno/theme/theme_provider.dart';
@@ -42,7 +43,15 @@ class _HomePageState extends State<HomePage> {
       floatingActionButton: FloatingActionButton.large(
         backgroundColor: Theme.of(context).colorScheme.secondary,
         child: const Icon(Icons.add, color: Colors.black),
-        onPressed: () => context.read<CodeGen>().generateCode(),
+        onPressed: () {
+          context.read<CodeGen>().generateCode();
+          //forward to the newly created code
+          Navigator.push(
+              context,
+              MaterialPageRoute(
+                  builder: (context) =>
+                      InnerPage(code: context.read<CodeGen>().codeList.last)));
+        },
       ),
     );
   }
