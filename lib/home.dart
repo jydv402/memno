@@ -41,16 +41,29 @@ class _HomePageState extends State<HomePage> {
       ),
       body: const MainTile(),
       floatingActionButton: FloatingActionButton.large(
+        heroTag: 'fab_to_page',
         backgroundColor: Theme.of(context).colorScheme.secondary,
         child: const Icon(Icons.add, color: Colors.black),
         onPressed: () {
           context.read<CodeGen>().generateCode();
-          //forward to the newly created code
-          Navigator.push(
-              context,
-              MaterialPageRoute(
-                  builder: (context) =>
-                      InnerPage(code: context.read<CodeGen>().codeList.last)));
+          Navigator.of(context).push(PageRouteBuilder(
+            transitionDuration: const Duration(milliseconds: 600),
+            pageBuilder: (context, animation, secondaryAnimation) {
+              return InnerPage(code: context.read<CodeGen>().codeList.last);
+            },
+            transitionsBuilder:
+                (context, animation, secondaryAnimation, child) {
+              return ScaleTransition(
+                scale: Tween<double>(begin: 0.0, end: 1.0).animate(
+                  CurvedAnimation(
+                    parent: animation,
+                    curve: Curves.fastLinearToSlowEaseIn,
+                  ),
+                ),
+                child: child,
+              );
+            },
+          ));
         },
       ),
     );
