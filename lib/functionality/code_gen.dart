@@ -6,6 +6,8 @@ import 'package:hive_flutter/hive_flutter.dart';
 class CodeGen extends ChangeNotifier {
   late Box<CodeData> _codeBox;
   bool _isReady = false;
+  final bool liked = false;
+  final String date = DateTime.now().toString();
 
   CodeGen() {
     init();
@@ -19,8 +21,9 @@ class CodeGen extends ChangeNotifier {
 
   bool get isReady => _isReady;
 
-  List<int> get codeList =>
-      _codeBox.values.map((codeData) => codeData.code).toList();
+  List<int> get codeList {
+    return _codeBox.values.map((codeData) => codeData.code).toList();
+  }
 
   Future<void> generateCode() async {
     var rnd = Random();
@@ -29,7 +32,7 @@ class CodeGen extends ChangeNotifier {
       code = 100000 + (rnd.nextInt(900000));
     } while (_codeBox.values.any((codeData) => codeData.code == code));
 
-    await _codeBox.add(CodeData(code, []));
+    await _codeBox.add(CodeData(code, [], date, liked));
     notifyListeners();
   }
 
@@ -40,10 +43,35 @@ class CodeGen extends ChangeNotifier {
     notifyListeners();
   }
 
+  String getDateForCode(int code) {
+    final codeData = _codeBox.values.firstWhere(
+        (codeData) => codeData.code == code,
+        orElse: () => CodeData(code, [], date, liked));
+
+    return codeData.date;
+  }
+
+  bool getLikeForCode(int code) {
+    final codeData = _codeBox.values.firstWhere(
+        (codeData) => codeData.code == code,
+        orElse: () => CodeData(code, [], date, liked));
+    return codeData.liked;
+  }
+
+  //toggle like
+  Future<void> toggleLike(int code) async {
+    final codeData = _codeBox.values.firstWhere(
+        (codeData) => codeData.code == code,
+        orElse: () => CodeData(code, [], date, liked));
+    codeData.liked = !codeData.liked;
+    await codeData.save();
+    notifyListeners();
+  }
+
   List<String> getLinksForCode(int code) {
     final codeData = _codeBox.values.firstWhere(
         (codeData) => codeData.code == code,
-        orElse: () => CodeData(code, []));
+        orElse: () => CodeData(code, [], date, liked));
 
     return codeData.links;
   }
@@ -51,7 +79,7 @@ class CodeGen extends ChangeNotifier {
   Future<void> addLink(int code, String link) async {
     final codeData = _codeBox.values.firstWhere(
         (codeData) => codeData.code == code,
-        orElse: () => CodeData(code, []));
+        orElse: () => CodeData(code, [], date, liked));
     codeData.links.add(link);
     await codeData.save();
     notifyListeners();
@@ -60,7 +88,7 @@ class CodeGen extends ChangeNotifier {
   Future<void> editLink(int code, int index, String newLink) async {
     final codeData = _codeBox.values.firstWhere(
         (codeData) => codeData.code == code,
-        orElse: () => CodeData(code, []));
+        orElse: () => CodeData(code, [], date, liked));
     if (codeData.links.length > index) {
       codeData.links[index] = newLink;
       await codeData.save();
@@ -71,7 +99,7 @@ class CodeGen extends ChangeNotifier {
   Future<void> deleteLink(int code, int index) async {
     final codeData = _codeBox.values.firstWhere(
         (codeData) => codeData.code == code,
-        orElse: () => CodeData(code, []));
+        orElse: () => CodeData(code, [], date, liked));
     if (codeData.links.length > index) {
       codeData.links.removeAt(index);
       codeData.save();
@@ -81,7 +109,11 @@ class CodeGen extends ChangeNotifier {
 
   void display() {
     print(_codeBox.values
-        .map((codeData) => {codeData.code: codeData.links})
+        .map((codeData) => {
+              codeData.code: codeData.links,
+              "Date": codeData.date,
+              "liked": codeData.liked
+            })
         .toList());
   }
 }

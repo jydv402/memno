@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:memno/components/inner_page.dart';
+import 'package:memno/components/sub_tile.dart';
 import 'package:memno/functionality/code_gen.dart';
 import 'package:provider/provider.dart';
 
@@ -17,32 +17,17 @@ class MainTile extends StatelessWidget {
             ? Center(
                 child: Text(
                   "Generate Code to view",
-                  style: TextStyle(
-                      color: Theme.of(context).colorScheme.inversePrimary),
+                  style:
+                      TextStyle(color: Theme.of(context).colorScheme.primary),
                 ),
               )
             : ListView.builder(
                 itemCount: codeProvider.codeList.length,
                 itemBuilder: (context, index) {
                   final code = codeProvider.codeList[index];
-                  return ListTile(
-                    title: Text(
-                      "#$code",
-                      textAlign: TextAlign.center,
-                      style: const TextStyle(fontSize: 24),
-                    ),
-                    trailing: IconButton(
-                        onPressed: () {
-                          codeProvider.clearList(code);
-                        },
-                        icon: const Icon(Icons.delete)),
-                    onTap: () {
-                      Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                              builder: (context) => InnerPage(code: code)));
-                    },
-                  );
+                  final date = codeProvider.getDateForCode(code);
+                  final isLiked = codeProvider.getLikeForCode(code);
+                  return subTile(context, code, date, isLiked);
                 },
               );
       },
