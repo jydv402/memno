@@ -23,6 +23,7 @@ class MainTile extends StatelessWidget {
               )
             : ListView.builder(
                 itemCount: codeProvider.codeList.length,
+                padding: const EdgeInsets.only(bottom: 120),
                 itemBuilder: (context, index) {
                   final code = codeProvider.codeList[index];
                   final date = codeProvider.getDateForCode(code);

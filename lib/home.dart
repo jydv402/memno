@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:memno/components/inner_page.dart';
 import 'package:memno/components/main_tile.dart';
 import 'package:memno/functionality/code_gen.dart';
 import 'package:memno/theme/theme_provider.dart';
@@ -40,13 +41,31 @@ class _HomePageState extends State<HomePage> {
       ),
       body: const MainTile(),
       floatingActionButton: FloatingActionButton.large(
+        heroTag: 'fab_to_page',
         onPressed: () {
           context.read<CodeGen>().generateCode();
+          Navigator.of(context).push(PageRouteBuilder(
+            transitionDuration: const Duration(milliseconds: 600),
+            pageBuilder: (context, animation, secondaryAnimation) {
+              return InnerPage(code: context.read<CodeGen>().codeList.last);
+            },
+            transitionsBuilder:
+                (context, animation, secondaryAnimation, child) {
+              return ScaleTransition(
+                scale: Tween<double>(begin: 0.0, end: 1.0).animate(
+                  CurvedAnimation(
+                    parent: animation,
+                    curve: Curves.fastLinearToSlowEaseIn,
+                  ),
+                ),
+                child: child,
+              );
+            },
+          ));
         },
         backgroundColor: Theme.of(context).colorScheme.secondary,
         child: const Icon(Icons.add, color: Colors.black),
       ),
-      floatingActionButtonLocation: FloatingActionButtonLocation.startFloat,
     );
   }
 }

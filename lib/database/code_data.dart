@@ -16,5 +16,8 @@ class CodeData extends HiveObject {
   @HiveField(3)
   bool liked;
 
-  CodeData(this.code, this.links, this.date, this.liked);
+  @HiveField(4)
+  String head;
+
+  CodeData(this.code, this.links, this.date, this.liked, this.head);
 }

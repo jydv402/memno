@@ -8,6 +8,7 @@ class CodeGen extends ChangeNotifier {
   bool _isReady = false;
   final bool liked = false;
   final String date = DateTime.now().toString();
+  final String head = "";
 
   CodeGen() {
     init();
@@ -32,7 +33,7 @@ class CodeGen extends ChangeNotifier {
       code = 100000 + (rnd.nextInt(900000));
     } while (_codeBox.values.any((codeData) => codeData.code == code));
 
-    await _codeBox.add(CodeData(code, [], date, liked));
+    await _codeBox.add(CodeData(code, [], date, liked, head));
     notifyListeners();
   }
 
@@ -43,10 +44,18 @@ class CodeGen extends ChangeNotifier {
     notifyListeners();
   }
 
+  //return the lenght of link list
+  int getLinkListLength(int code) {
+    final codeData = _codeBox.values.firstWhere(
+        (codeData) => codeData.code == code,
+        orElse: () => CodeData(code, [], date, liked, head));
+    return codeData.links.length;
+  }
+
   String getDateForCode(int code) {
     final codeData = _codeBox.values.firstWhere(
         (codeData) => codeData.code == code,
-        orElse: () => CodeData(code, [], date, liked));
+        orElse: () => CodeData(code, [], date, liked, head));
 
     return codeData.date;
   }
@@ -54,7 +63,7 @@ class CodeGen extends ChangeNotifier {
   bool getLikeForCode(int code) {
     final codeData = _codeBox.values.firstWhere(
         (codeData) => codeData.code == code,
-        orElse: () => CodeData(code, [], date, liked));
+        orElse: () => CodeData(code, [], date, liked, head));
     return codeData.liked;
   }
 
@@ -62,7 +71,7 @@ class CodeGen extends ChangeNotifier {
   Future<void> toggleLike(int code) async {
     final codeData = _codeBox.values.firstWhere(
         (codeData) => codeData.code == code,
-        orElse: () => CodeData(code, [], date, liked));
+        orElse: () => CodeData(code, [], date, liked, head));
     codeData.liked = !codeData.liked;
     await codeData.save();
     notifyListeners();
@@ -71,15 +80,32 @@ class CodeGen extends ChangeNotifier {
   List<String> getLinksForCode(int code) {
     final codeData = _codeBox.values.firstWhere(
         (codeData) => codeData.code == code,
-        orElse: () => CodeData(code, [], date, liked));
+        orElse: () => CodeData(code, [], date, liked, head));
 
     return codeData.links;
+  }
+
+  //Add heading text
+  Future<void> addHead(int code, String head) async {
+    final codeData = _codeBox.values.firstWhere(
+        (codeData) => codeData.code == code,
+        orElse: () => CodeData(code, [], date, liked, head));
+    codeData.head = head;
+    await codeData.save();
+    notifyListeners();
+  }
+
+  String getHeadForCode(int code) {
+    final codeData = _codeBox.values.firstWhere(
+        (codeData) => codeData.code == code,
+        orElse: () => CodeData(code, [], date, liked, head));
+    return codeData.head;
   }
 
   Future<void> addLink(int code, String link) async {
     final codeData = _codeBox.values.firstWhere(
         (codeData) => codeData.code == code,
-        orElse: () => CodeData(code, [], date, liked));
+        orElse: () => CodeData(code, [], date, liked, head));
     codeData.links.add(link);
     await codeData.save();
     notifyListeners();
@@ -88,7 +114,7 @@ class CodeGen extends ChangeNotifier {
   Future<void> editLink(int code, int index, String newLink) async {
     final codeData = _codeBox.values.firstWhere(
         (codeData) => codeData.code == code,
-        orElse: () => CodeData(code, [], date, liked));
+        orElse: () => CodeData(code, [], date, liked, head));
     if (codeData.links.length > index) {
       codeData.links[index] = newLink;
       await codeData.save();
@@ -99,7 +125,7 @@ class CodeGen extends ChangeNotifier {
   Future<void> deleteLink(int code, int index) async {
     final codeData = _codeBox.values.firstWhere(
         (codeData) => codeData.code == code,
-        orElse: () => CodeData(code, [], date, liked));
+        orElse: () => CodeData(code, [], date, liked, head));
     if (codeData.links.length > index) {
       codeData.links.removeAt(index);
       codeData.save();
@@ -112,7 +138,8 @@ class CodeGen extends ChangeNotifier {
         .map((codeData) => {
               codeData.code: codeData.links,
               "Date": codeData.date,
-              "liked": codeData.liked
+              "liked": codeData.liked,
+              "head": codeData.head
             })
         .toList());
   }

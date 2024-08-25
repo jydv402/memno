@@ -21,13 +21,14 @@ class CodeDataAdapter extends TypeAdapter<CodeData> {
       (fields[1] as List).cast<String>(),
       fields[2] as String,
       fields[3] as bool,
+      fields[4] as String,
     );
   }
 
   @override
   void write(BinaryWriter writer, CodeData obj) {
     writer
-      ..writeByte(4)
+      ..writeByte(5)
       ..writeByte(0)
       ..write(obj.code)
       ..writeByte(1)
@@ -35,7 +36,9 @@ class CodeDataAdapter extends TypeAdapter<CodeData> {
       ..writeByte(2)
       ..write(obj.date)
       ..writeByte(3)
-      ..write(obj.liked);
+      ..write(obj.liked)
+      ..writeByte(4)
+      ..write(obj.head);
   }
 
   @override
