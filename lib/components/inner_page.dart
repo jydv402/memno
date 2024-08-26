@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:memno/functionality/inner_page_fun.dart';
 import 'package:provider/provider.dart';
 import 'package:memno/functionality/code_gen.dart';
 import 'package:flutter_link_previewer/flutter_link_previewer.dart';
@@ -62,66 +63,89 @@ class _InnerPageState extends State<InnerPage> {
                         itemCount: links.length,
                         itemBuilder: (context, index) {
                           final previewData = previewMap.cache[links[index]];
-                          return Column(
-                            crossAxisAlignment: CrossAxisAlignment.center,
-                            mainAxisAlignment: MainAxisAlignment.center,
+                          return Stack(
                             children: [
                               Container(
                                 key: ValueKey(links[index]),
-                                margin:
-                                    const EdgeInsets.fromLTRB(16, 32, 16, 6),
-                                decoration: const BoxDecoration(
-                                  borderRadius: BorderRadius.all(
-                                    Radius.circular(26),
+                                margin: const EdgeInsets.fromLTRB(2, 4, 2, 4),
+                                decoration: BoxDecoration(
+                                  borderRadius: const BorderRadius.all(
+                                    Radius.circular(50),
                                   ),
-                                  color: Color(0xFFf4dfcd),
+                                  color:
+                                      Theme.of(context).colorScheme.onSurface,
                                 ),
                                 child: ClipRRect(
                                     borderRadius: const BorderRadius.all(
-                                      Radius.circular(26),
+                                      Radius.circular(50),
                                     ),
-                                    child: LinkPreview(
-                                      requestTimeout:
-                                          const Duration(seconds: 10),
-                                      width: MediaQuery.of(context).size.width,
-                                      enableAnimation: true,
-                                      openOnPreviewImageTap: true,
-                                      openOnPreviewTitleTap: true,
-                                      onLinkPressed: (url) {
-                                        launchUrl(Uri.parse(links[index]));
-                                      },
-                                      onPreviewDataFetched: (data) {
-                                        setState(() {
-                                          previewMap.storePreview(
-                                              links[index], data);
-                                        });
-                                      },
-                                      previewData: previewData,
-                                      text: links[index],
+                                    child: Padding(
+                                      padding: const EdgeInsets.only(top: 70),
+                                      child: LinkPreview(
+                                        requestTimeout:
+                                            const Duration(seconds: 10),
+                                        width:
+                                            MediaQuery.of(context).size.width +
+                                                50,
+                                        enableAnimation: true,
+                                        openOnPreviewImageTap: true,
+                                        openOnPreviewTitleTap: true,
+                                        metadataTextStyle: TextStyle(
+                                          color: Theme.of(context)
+                                              .colorScheme
+                                              .primary,
+                                        ),
+                                        metadataTitleStyle: TextStyle(
+                                          color: Theme.of(context)
+                                              .colorScheme
+                                              .primary,
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                        onLinkPressed: (url) {
+                                          launchUrl(Uri.parse(links[index]));
+                                        },
+                                        onPreviewDataFetched: (data) {
+                                          setState(() {
+                                            previewMap.storePreview(
+                                                links[index], data);
+                                          });
+                                        },
+                                        previewData: previewData,
+                                        text: links[index],
+                                      ),
                                     )),
                               ),
-                              Container(
-                                margin:
-                                    const EdgeInsets.symmetric(horizontal: 16),
-                                decoration: const BoxDecoration(
-                                  borderRadius: BorderRadius.all(
-                                    Radius.circular(26),
-                                  ),
-                                  color: Color(0xFFf4dfcd),
-                                ),
-                                child: const Padding(
-                                  padding: EdgeInsets.all(16),
+                              Positioned(
+                                top: 5,
+                                right: 10,
+                                child: SizedBox(
+                                  width: 200,
+                                  height: 80,
                                   child: Row(
                                       mainAxisAlignment:
                                           MainAxisAlignment.center,
                                       children: [
-                                        Spacer(),
-                                        Text('1'),
-                                        Spacer(),
-                                        Text('2'),
-                                        Spacer(),
-                                        Text('3'),
-                                        Spacer(),
+                                        const Spacer(),
+                                        InnerPageButton(
+                                          onPressed: () {},
+                                          icon: Icons.copy_rounded,
+                                        ),
+                                        const Spacer(),
+                                        InnerPageButton(
+                                          icon: Icons.mode_edit_outline_rounded,
+                                          onPressed: () => _editLink(
+                                              context,
+                                              codeProvider,
+                                              index,
+                                              links[index]),
+                                        ),
+                                        const Spacer(),
+                                        InnerPageButton(
+                                          icon: Icons.delete_outline_rounded,
+                                          onPressed: () => codeProvider
+                                              .deleteLink(widget.code, index),
+                                        ),
+                                        const Spacer(),
                                       ]),
                                 ),
                               ),
@@ -172,7 +196,10 @@ class _InnerPageState extends State<InnerPage> {
       context: context,
       builder: (context) {
         return AlertDialog(
-          title: const Text("Edit Link"),
+          title: Text(
+            "Edit Link",
+            style: TextStyle(color: Theme.of(context).colorScheme.onPrimary),
+          ),
           content: TextField(
             controller: _editController,
             decoration: const InputDecoration(hintText: "Enter new link"),

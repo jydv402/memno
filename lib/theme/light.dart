@@ -6,7 +6,7 @@ ThemeData lightTheme = ThemeData(
   onSurface: Colors.white,
   primary: Colors.black,
   onPrimary: Colors.white,
-  secondary: Color(0xFFFFEA00),
+  secondary: Color(0xFFdbd4ff),
   onSecondary: Colors.black,
   tertiary: Color(0xFFEDEDED),
   onTertiary: Colors.black,

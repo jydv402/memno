@@ -52,6 +52,14 @@ class BgContainer extends StatelessWidget {
       height: 220,
       width: MediaQuery.of(context).size.width,
       decoration: BoxDecoration(
+        gradient: LinearGradient(
+          colors: [
+            Theme.of(context).colorScheme.tertiary,
+            Theme.of(context).colorScheme.onSurface,
+          ],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
         color: Theme.of(context).colorScheme.onSurface,
         borderRadius: BorderRadius.circular(radius),
       ),
@@ -69,13 +77,14 @@ class CodeText extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Positioned(
-      top: 100,
+      bottom: 16,
       left: 26,
-      child: Text(
+      child: SelectableText(
         "#$code",
         style: TextStyle(
-          color: Theme.of(context).colorScheme.primary,
-        ),
+            color: Theme.of(context).colorScheme.primary,
+            fontSize: 32,
+            fontWeight: FontWeight.bold),
         textAlign: TextAlign.center,
       ),
     );
@@ -170,7 +179,8 @@ class LikeButton extends StatelessWidget {
           context.read<CodeGen>().toggleLike(code);
         },
         child: isLiked == true
-            ? const Icon(Icons.favorite_rounded, color: Colors.red)
+            ? const Icon(Icons.favorite_rounded,
+                color: Color.fromRGBO(239, 154, 154, 1))
             : const Icon(Icons.favorite_border_rounded, color: Colors.white),
       ),
     );

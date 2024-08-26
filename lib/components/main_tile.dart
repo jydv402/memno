@@ -14,23 +14,56 @@ class MainTile extends StatelessWidget {
           return const Center(child: CircularProgressIndicator());
         }
         return codeProvider.codeList.isEmpty
-            ? Center(
+            ? const Center(
                 child: Text(
                   "Generate Code to view",
-                  style:
-                      TextStyle(color: Theme.of(context).colorScheme.primary),
                 ),
               )
             : ListView.builder(
-                itemCount: codeProvider.codeList.length,
-                padding: const EdgeInsets.only(bottom: 120),
+                itemCount: codeProvider.codeList.length + 1,
                 itemBuilder: (context, index) {
-                  final code = codeProvider.codeList[index];
-                  final date = codeProvider.getDateForCode(code);
-                  final isLiked = codeProvider.getLikeForCode(code);
-                  return subTile(context, code, date, isLiked);
-                },
-              );
+                  if (index == 0) {
+                    return Padding(
+                      padding: const EdgeInsets.fromLTRB(0, 0, 0, 4),
+                      child: Stack(
+                        children: [
+                          Container(
+                            height: 300,
+                            decoration: BoxDecoration(
+                              borderRadius:
+                                  const BorderRadius.all(Radius.circular(50.0)),
+                              color: Theme.of(context).colorScheme.secondary,
+                            ),
+                          ),
+                          Positioned(
+                            bottom: 16,
+                            right: 16,
+                            child: Container(
+                              width: 120,
+                              padding: const EdgeInsets.all(20),
+                              decoration: BoxDecoration(
+                                color: Theme.of(context).colorScheme.tertiary,
+                                borderRadius: BorderRadius.circular(50),
+                              ),
+                              child: Text(
+                                "Test",
+                                textAlign: TextAlign.center,
+                                style: TextStyle(
+                                  color: Theme.of(context).colorScheme.primary,
+                                ),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    );
+                  } else {
+                    final code = codeProvider.codeList[index - 1];
+                    final date = codeProvider.getDateForCode(code);
+                    final isLiked = codeProvider.getLikeForCode(code);
+                    return subTile(context, code, date, isLiked);
+                  }
+                });
       },
     );
   }
