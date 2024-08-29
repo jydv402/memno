@@ -18,24 +18,155 @@ Widget subTile(BuildContext context, int code, String date, bool isLiked) {
           ),
         ));
       },
-      child: Stack(
-        children: [
-          //Background Container
-          BgContainer(radius: radius),
-          //Code Text
-          CodeText(code: code),
-          //Length indicator
-          LengthIndicator(radius: radius, length: length),
-          //Date Time Indicator
-          DateTimeIndicator(date: date),
-          //Like Button
-          LikeButton(code: code, isLiked: isLiked),
-          //Delete Button
-          DltButton(code: code),
-        ],
-      ),
+      child: SubTileStack(
+          code: code,
+          date: date,
+          isLiked: isLiked,
+          length: length,
+          radius: radius),
     ),
   );
+}
+
+class SubTileStack extends StatefulWidget {
+  const SubTileStack(
+      {super.key,
+      required this.code,
+      required this.date,
+      required this.isLiked,
+      required this.length,
+      required this.radius});
+
+  final int code;
+  final String date;
+  final bool isLiked;
+  final int length;
+  final double radius;
+
+  @override
+  State<SubTileStack> createState() => _SubTileStackState();
+}
+
+class _SubTileStackState extends State<SubTileStack> {
+  bool showDltConfirm = false;
+
+  @override
+  Widget build(BuildContext context) {
+    return Stack(
+      children: [
+        //Background Container
+        BgContainer(radius: widget.radius),
+        if (!showDltConfirm) ...[
+          //Code Text
+          CodeText(code: widget.code),
+          //Length indicator
+          LengthIndicator(radius: widget.radius, length: widget.length),
+          //Date Time Indicator
+          DateTimeIndicator(date: widget.date),
+          //Like Button
+          LikeButton(code: widget.code, isLiked: widget.isLiked),
+          //Delete Button
+          DltButton(
+            code: widget.code,
+            onPressed: () {
+              setState(() {
+                showDltConfirm = true;
+              });
+            },
+          ),
+        ] else ...[
+          ShowDltPrompt(
+            length: widget.length,
+            radius: widget.radius,
+            onProceed: () {
+              context.read<CodeGen>().clearList(widget.code);
+              setState(() {
+                showDltConfirm = false;
+              });
+            },
+            onCancel: () {
+              setState(() {
+                showDltConfirm = false;
+              });
+            },
+          )
+        ]
+      ],
+    );
+  }
+}
+
+class ShowDltPrompt extends StatelessWidget {
+  const ShowDltPrompt({
+    super.key,
+    required this.length,
+    required this.radius,
+    required this.onProceed,
+    required this.onCancel,
+  });
+
+  final int length;
+  final double radius;
+  final VoidCallback onProceed;
+  final VoidCallback onCancel;
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      width: MediaQuery.of(context).size.width,
+      height: 220,
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Text("You sure you want to delete?\nCurrently contains $length items",
+              style: TextStyle(
+                  color: Theme.of(context).colorScheme.primary, fontSize: 16),
+              textAlign: TextAlign.center),
+          const SizedBox(height: 20),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              ContainerButton(onTap: onCancel, radius: radius, text: "No"),
+              const SizedBox(width: 20),
+              ContainerButton(onTap: onProceed, radius: radius, text: "Yes"),
+            ],
+          )
+        ],
+      ),
+    );
+  }
+}
+
+class ContainerButton extends StatelessWidget {
+  const ContainerButton({
+    super.key,
+    required this.onTap,
+    required this.radius,
+    required this.text,
+  });
+
+  final VoidCallback onTap;
+  final double radius;
+  final String text;
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+          width: 120,
+          padding: const EdgeInsets.all(20),
+          decoration: BoxDecoration(
+            color: Theme.of(context).colorScheme.tertiary,
+            borderRadius: BorderRadius.circular(radius),
+          ),
+          child: Text(
+            text,
+            textAlign: TextAlign.center,
+            style: const TextStyle(color: Colors.black),
+          )),
+    );
+  }
 }
 
 class BgContainer extends StatelessWidget {
@@ -125,31 +256,30 @@ class LengthIndicator extends StatelessWidget {
   }
 }
 
-class DltButton extends StatelessWidget {
-  const DltButton({
+class DateTimeIndicator extends StatelessWidget {
+  const DateTimeIndicator({
     super.key,
-    required this.code,
+    required this.date,
   });
 
-  final int code;
+  final String date;
+
   @override
   Widget build(BuildContext context) {
     return Positioned(
-      right: 10,
-      top: 14,
-      child: ElevatedButton(
-          style: ElevatedButton.styleFrom(
-            backgroundColor: Theme.of(context).colorScheme.primary,
-            shape: const CircleBorder(),
-            padding: const EdgeInsets.all(16),
-          ),
-          onPressed: () {
-            //call the clearList func
-            context.read<CodeGen>().clearList(code);
-          },
-          child: Icon(Icons.close_rounded,
-              color: Theme.of(context).colorScheme.onPrimary)),
-    );
+        top: 26,
+        left: 26,
+        child: Row(
+          children: [
+            const Icon(Icons.calendar_month_outlined),
+            const SizedBox(width: 8),
+            Text(
+              getFormattedDate(DateTime.parse(date)),
+              textAlign: TextAlign.center,
+              style: TextStyle(color: Theme.of(context).colorScheme.primary),
+            ),
+          ],
+        ));
   }
 }
 
@@ -187,30 +317,99 @@ class LikeButton extends StatelessWidget {
   }
 }
 
-class DateTimeIndicator extends StatelessWidget {
-  const DateTimeIndicator({
+class DltButton extends StatelessWidget {
+  const DltButton({
     super.key,
-    required this.date,
+    required this.code,
+    required this.onPressed,
   });
 
-  final String date;
+  final int code;
+  final VoidCallback onPressed;
+  @override
+  Widget build(BuildContext context) {
+    return Positioned(
+      right: 10,
+      top: 14,
+      child: ElevatedButton(
+          style: ElevatedButton.styleFrom(
+            backgroundColor: Theme.of(context).colorScheme.primary,
+            shape: const CircleBorder(),
+            padding: const EdgeInsets.all(16),
+          ),
+          onPressed: onPressed,
+          child: Icon(Icons.close_rounded,
+              color: Theme.of(context).colorScheme.onPrimary)),
+    );
+  }
+}
+
+class DeleteButton extends StatelessWidget {
+  final VoidCallback onPressed;
+
+  const DeleteButton({super.key, required this.onPressed});
 
   @override
   Widget build(BuildContext context) {
     return Positioned(
-        top: 26,
-        left: 26,
-        child: Row(
-          children: [
-            const Icon(Icons.calendar_month_outlined),
-            const SizedBox(width: 8),
-            Text(
-              "${date.substring(8, 10)} ${months[int.parse(date.substring(5, 7)) - 1]} ${date.substring(0, 4)}, ${date.substring(11, 16)}",
-              textAlign: TextAlign.center,
-              style: TextStyle(color: Theme.of(context).colorScheme.primary),
-            ),
-          ],
-        ));
+      right: 10,
+      top: 14,
+      child: ElevatedButton(
+        style: ElevatedButton.styleFrom(
+          backgroundColor: Theme.of(context).colorScheme.primary,
+          shape: const CircleBorder(),
+          padding: const EdgeInsets.all(16),
+        ),
+        onPressed: onPressed,
+        child: Icon(Icons.close_rounded,
+            color: Theme.of(context).colorScheme.onPrimary),
+      ),
+    );
+  }
+}
+
+class DeleteConfirmation extends StatelessWidget {
+  final VoidCallback onConfirm;
+  final VoidCallback onCancel;
+
+  const DeleteConfirmation(
+      {super.key, required this.onConfirm, required this.onCancel});
+
+  @override
+  Widget build(BuildContext context) {
+    return Center(
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Text(
+            'Are you sure you want to delete this item?',
+            style: TextStyle(
+                color: Theme.of(context).colorScheme.primary,
+                fontWeight: FontWeight.bold),
+            textAlign: TextAlign.center,
+          ),
+          const SizedBox(height: 20),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              ElevatedButton(
+                onPressed: onCancel,
+                style: ElevatedButton.styleFrom(
+                    backgroundColor: Theme.of(context).colorScheme.secondary),
+                child: const Text('Cancel'),
+              ),
+              const SizedBox(width: 20),
+              ElevatedButton(
+                onPressed: onConfirm,
+                style: ElevatedButton.styleFrom(
+                    backgroundColor: Theme.of(context).colorScheme.error),
+                child: const Text('Delete'),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
   }
 }
 
@@ -228,3 +427,11 @@ const List months = [
   "Nov",
   "Dec",
 ];
+
+String getFormattedDate(DateTime date) {
+  if (date.hour > 12) {
+    return "${date.day} ${months[date.month - 1]} ${date.year}, ${date.hour - 12}:${date.minute} pm";
+  } else {
+    return "${date.day} ${months[date.month - 1]} ${date.year}, ${date.hour}:${date.minute} am";
+  }
+}

@@ -6,6 +6,7 @@ import 'package:flutter_link_previewer/flutter_link_previewer.dart';
 import 'package:flutter_chat_types/flutter_chat_types.dart' show PreviewData;
 import 'package:url_launcher/url_launcher.dart';
 import 'package:memno/functionality/preview_map.dart';
+import 'package:any_link_preview/any_link_preview.dart';
 
 class InnerPage extends StatefulWidget {
   final int code;
@@ -30,9 +31,7 @@ class _InnerPageState extends State<InnerPage> {
       child: Material(
         color: Theme.of(context).colorScheme.secondary,
         child: Scaffold(
-          appBar: AppBar(
-            automaticallyImplyLeading: false,
-          ),
+          appBar: AppBar(),
           body: Consumer2<CodeGen, PreviewMap>(
             builder: (context, codeProvider, previewMap, child) {
               final links = codeProvider.getLinksForCode(widget.code);
@@ -40,24 +39,6 @@ class _InnerPageState extends State<InnerPage> {
               return SafeArea(
                 child: Column(
                   children: [
-                    Padding(
-                      padding: const EdgeInsets.fromLTRB(16, 0, 16, 0),
-                      child: TextField(
-                          controller: _headController,
-                          onChanged: (value) {
-                            codeProvider.addHead(
-                                widget.code, _headController.text);
-                          },
-                          decoration: InputDecoration(
-                            border: InputBorder.none,
-                            hintStyle: TextStyle(
-                              color: Theme.of(context).colorScheme.primary,
-                              fontSize: 48,
-                              fontWeight: FontWeight.bold,
-                            ),
-                            hintText: codeProvider.getHeadForCode(widget.code),
-                          )),
-                    ),
                     Expanded(
                       child: ListView.builder(
                         itemCount: links.length,
@@ -67,6 +48,7 @@ class _InnerPageState extends State<InnerPage> {
                             children: [
                               Container(
                                 key: ValueKey(links[index]),
+                                width: MediaQuery.of(context).size.width,
                                 margin: const EdgeInsets.fromLTRB(2, 4, 2, 4),
                                 decoration: BoxDecoration(
                                   borderRadius: const BorderRadius.all(
@@ -81,38 +63,56 @@ class _InnerPageState extends State<InnerPage> {
                                     ),
                                     child: Padding(
                                       padding: const EdgeInsets.only(top: 70),
-                                      child: LinkPreview(
-                                        requestTimeout:
-                                            const Duration(seconds: 10),
-                                        width:
-                                            MediaQuery.of(context).size.width +
-                                                50,
-                                        enableAnimation: true,
-                                        openOnPreviewImageTap: true,
-                                        openOnPreviewTitleTap: true,
-                                        metadataTextStyle: TextStyle(
-                                          color: Theme.of(context)
-                                              .colorScheme
-                                              .primary,
-                                        ),
-                                        metadataTitleStyle: TextStyle(
-                                          color: Theme.of(context)
-                                              .colorScheme
-                                              .primary,
-                                          fontWeight: FontWeight.bold,
-                                        ),
-                                        onLinkPressed: (url) {
-                                          launchUrl(Uri.parse(links[index]));
-                                        },
-                                        onPreviewDataFetched: (data) {
-                                          setState(() {
-                                            previewMap.storePreview(
-                                                links[index], data);
-                                          });
-                                        },
-                                        previewData: previewData,
-                                        text: links[index],
-                                      ),
+                                      child: AnyLinkPreview.isValidLink(
+                                              links[index])
+                                          ? LinkPreview(
+                                              requestTimeout:
+                                                  const Duration(seconds: 10),
+                                              width: MediaQuery.of(context)
+                                                      .size
+                                                      .width +
+                                                  50,
+                                              enableAnimation: true,
+                                              openOnPreviewImageTap: true,
+                                              openOnPreviewTitleTap: true,
+                                              metadataTextStyle: TextStyle(
+                                                color: Theme.of(context)
+                                                    .colorScheme
+                                                    .primary,
+                                              ),
+                                              metadataTitleStyle: TextStyle(
+                                                color: Theme.of(context)
+                                                    .colorScheme
+                                                    .primary,
+                                                fontWeight: FontWeight.bold,
+                                              ),
+                                              onLinkPressed: (url) {
+                                                launchUrl(
+                                                    Uri.parse(links[index]));
+                                              },
+                                              onPreviewDataFetched: (data) {
+                                                setState(() {
+                                                  previewMap.storePreview(
+                                                      links[index], data);
+                                                });
+                                              },
+                                              previewData: previewData,
+                                              text: links[index],
+                                            )
+                                          : Padding(
+                                              padding:
+                                                  const EdgeInsets.fromLTRB(
+                                                      36, 26, 26, 26),
+                                              child: Text(
+                                                links[index],
+                                                style: TextStyle(
+                                                  color: Theme.of(context)
+                                                      .colorScheme
+                                                      .primary,
+                                                  fontWeight: FontWeight.bold,
+                                                ),
+                                              ),
+                                            ),
                                     )),
                               ),
                               Positioned(

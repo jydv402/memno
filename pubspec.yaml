@@ -42,6 +42,7 @@ dependencies:
   url_launcher: ^6.3.0
   flutter_chat_types: ^3.6.2
   glassmorphism: ^3.0.0
+  any_link_preview: ^3.0.2
 
 
   
