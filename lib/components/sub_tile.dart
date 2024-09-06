@@ -46,7 +46,16 @@ class _SubTileStackState extends State<SubTileStack> {
     return Stack(
       children: [
         //Background Container
-        BgContainer(radius: widget.radius),
+        BgContainer(
+            radius: widget.radius,
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => InnerPage(code: widget.code),
+                ),
+              );
+            }),
         if (!showDltConfirm) ...[
           //Code Text
           CodeText(code: widget.code),
@@ -112,7 +121,8 @@ class ShowDltPrompt extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Text("You sure you want to delete?\nCurrently contains $length items",
-              style: TextStyle(color: colors.textClr, fontSize: 16),
+              style: TextStyle(
+                  color: colors.textClr, fontSize: 16, fontFamily: 'Product'),
               textAlign: TextAlign.center),
           const SizedBox(height: 20),
           Row(
@@ -156,7 +166,7 @@ class ContainerButton extends StatelessWidget {
           child: Text(
             text,
             textAlign: TextAlign.center,
-            style: const TextStyle(color: Colors.black),
+            style: TextStyle(color: colors.textClr, fontFamily: 'Product'),
           )),
     );
   }
@@ -166,19 +176,24 @@ class BgContainer extends StatelessWidget {
   const BgContainer({
     super.key,
     required this.radius,
+    required this.onTap,
   });
 
   final double radius;
+  final VoidCallback onTap;
 
   @override
   Widget build(BuildContext context) {
     final colors = Provider.of<AppColors>(context);
-    return Container(
-      height: 220,
-      width: MediaQuery.of(context).size.width,
-      decoration: BoxDecoration(
-        color: colors.box,
-        borderRadius: BorderRadius.circular(radius),
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        height: 220,
+        width: MediaQuery.of(context).size.width,
+        decoration: BoxDecoration(
+          color: colors.box,
+          borderRadius: BorderRadius.circular(radius),
+        ),
       ),
     );
   }
@@ -200,7 +215,10 @@ class CodeText extends StatelessWidget {
       child: SelectableText(
         "#$code",
         style: TextStyle(
-            color: colors.textClr, fontSize: 32, fontWeight: FontWeight.bold),
+            color: colors.textClr,
+            fontSize: 28,
+            fontWeight: FontWeight.w400,
+            fontFamily: 'Product'),
         textAlign: TextAlign.center,
       ),
     );
@@ -238,9 +256,10 @@ class LengthIndicator extends StatelessWidget {
             Icon(Icons.arrow_outward_rounded, color: colors.iconClr, size: 14),
             const Spacer(),
             Text(
-              length == 1 ? "$length entry" : "$length entries",
+              length == 1 ? "$length  Entry" : "$length Entries",
               textAlign: TextAlign.center,
               style: TextStyle(
+                fontFamily: 'Product',
                 color: colors.textClr,
               ),
             ),
@@ -267,13 +286,19 @@ class DateTimeIndicator extends StatelessWidget {
         top: 28,
         left: 26,
         child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            Icon(Icons.calendar_month_outlined, color: colors.iconClr),
+            Icon(
+              Icons.calendar_month_outlined,
+              color: colors.iconClr,
+              size: 22,
+            ),
             const SizedBox(width: 8),
             Text(
               getFormattedDate(DateTime.parse(date)),
               textAlign: TextAlign.center,
-              style: TextStyle(color: colors.textClr),
+              style: TextStyle(color: colors.textClr, fontFamily: 'Product'),
             ),
           ],
         ));
@@ -341,30 +366,6 @@ class DltButton extends StatelessWidget {
   }
 }
 
-class DeleteButton extends StatelessWidget {
-  final VoidCallback onPressed;
-
-  const DeleteButton({super.key, required this.onPressed});
-
-  @override
-  Widget build(BuildContext context) {
-    final colors = Provider.of<AppColors>(context);
-    return Positioned(
-      right: 10,
-      top: 14,
-      child: ElevatedButton(
-        style: ElevatedButton.styleFrom(
-          backgroundColor: colors.btnClr,
-          shape: const CircleBorder(),
-          padding: const EdgeInsets.all(16),
-        ),
-        onPressed: onPressed,
-        child: Icon(Icons.close_rounded, color: colors.btnIcon),
-      ),
-    );
-  }
-}
-
 class DeleteConfirmation extends StatelessWidget {
   final VoidCallback onConfirm;
   final VoidCallback onCancel;
@@ -381,8 +382,10 @@ class DeleteConfirmation extends StatelessWidget {
         children: [
           Text(
             'Are you sure you want to delete this item?',
-            style:
-                TextStyle(color: colors.textClr, fontWeight: FontWeight.bold),
+            style: TextStyle(
+                color: colors.textClr,
+                fontWeight: FontWeight.bold,
+                fontFamily: 'Product'),
             textAlign: TextAlign.center,
           ),
           const SizedBox(height: 20),
@@ -392,13 +395,21 @@ class DeleteConfirmation extends StatelessWidget {
               ElevatedButton(
                 onPressed: onCancel,
                 style: ElevatedButton.styleFrom(backgroundColor: colors.pill),
-                child: const Text('Cancel'),
+                child: Text(
+                  'Cancel',
+                  style:
+                      TextStyle(color: colors.textClr, fontFamily: 'Product'),
+                ),
               ),
               const SizedBox(width: 20),
               ElevatedButton(
                 onPressed: onConfirm,
                 style: ElevatedButton.styleFrom(backgroundColor: colors.pill),
-                child: const Text('Delete'),
+                child: Text(
+                  'Delete',
+                  style:
+                      TextStyle(color: colors.textClr, fontFamily: 'Product'),
+                ),
               ),
             ],
           ),

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:memno/components/inner_page.dart';
 import 'package:memno/components/main_tile.dart';
+import 'package:memno/components/settings_page.dart';
 import 'package:memno/functionality/code_gen.dart';
 import 'package:memno/theme/app_colors.dart';
 import 'package:provider/provider.dart';
@@ -28,7 +29,15 @@ class _HomePageState extends State<HomePage> {
       appBar: AppBar(
         backgroundColor: colors.bgClr,
         foregroundColor: colors.fgClr,
-        title: const Text("Memno"),
+        leading: IconButton(
+          onPressed: () => Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => const SettingsPage(),
+            ),
+          ),
+          icon: const Icon(Icons.menu_rounded),
+        ),
       ),
       drawer: Drawer(
         backgroundColor: colors.bgClr,

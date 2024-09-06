@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 class AppColors extends ChangeNotifier {
-  bool _isDarkMode = true;
+  bool _isDarkMode = false;
 
   bool get isDarkMode => _isDarkMode;
 
@@ -37,7 +37,7 @@ class LightColors {
   final Color iconClr = Colors.black;
   final Color btnClr = Colors.black;
   final Color btnIcon = Colors.white;
-  final Color pill = Colors.grey[200]!;
+  final Color pill = Colors.grey[300]!;
 }
 
 class DarkColors {
@@ -49,7 +49,7 @@ class DarkColors {
   final Color accntText = Colors.white;
   final Color textClr = Colors.white;
   final Color iconClr = Colors.white;
-  final Color btnClr = Colors.white;
-  final Color btnIcon = Colors.black;
+  final Color btnClr = Colors.grey[800]!.withOpacity(0.5);
+  final Color btnIcon = Colors.white;
   final Color pill = Colors.grey[800]!;
 }

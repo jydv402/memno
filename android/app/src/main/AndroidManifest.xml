@@ -4,7 +4,8 @@
         android:enableOnBackInvokedCallback="true"
         android:label="memno"
         android:name="${applicationName}"
-        android:icon="@mipmap/ic_launcher">
+        android:roundIcon="@mipmap/memno"
+        android:icon="@mipmap/memno">
         <activity
             android:name=".MainActivity"
             android:exported="true"

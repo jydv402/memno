@@ -48,6 +48,7 @@ class _InnerPageState extends State<InnerPage> {
                   children: [
                     Expanded(
                       child: ListView.builder(
+                        padding: const EdgeInsets.only(bottom: 130),
                         itemCount: links.length,
                         itemBuilder: (context, index) {
                           final previewData = previewMap.cache[links[index]];
