@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:memno/functionality/inner_page_fun.dart';
+import 'package:memno/theme/app_colors.dart';
 import 'package:provider/provider.dart';
 import 'package:memno/functionality/code_gen.dart';
 import 'package:flutter_link_previewer/flutter_link_previewer.dart';
@@ -25,11 +26,13 @@ class _InnerPageState extends State<InnerPage> {
 
   @override
   Widget build(BuildContext context) {
+    final colors = Provider.of<AppColors>(context);
+
     return Hero(
       tag: 'fab_to_page',
       transitionOnUserGestures: true,
       child: Material(
-        color: Theme.of(context).colorScheme.secondary,
+        color: colors.accnt,
         child: Scaffold(
           appBar: AppBar(),
           body: Consumer2<CodeGen, PreviewMap>(
@@ -54,8 +57,7 @@ class _InnerPageState extends State<InnerPage> {
                                   borderRadius: const BorderRadius.all(
                                     Radius.circular(50),
                                   ),
-                                  color:
-                                      Theme.of(context).colorScheme.onSurface,
+                                  color: colors.box,
                                 ),
                                 child: ClipRRect(
                                     borderRadius: const BorderRadius.all(
@@ -76,14 +78,10 @@ class _InnerPageState extends State<InnerPage> {
                                               openOnPreviewImageTap: true,
                                               openOnPreviewTitleTap: true,
                                               metadataTextStyle: TextStyle(
-                                                color: Theme.of(context)
-                                                    .colorScheme
-                                                    .primary,
+                                                color: colors.textClr,
                                               ),
                                               metadataTitleStyle: TextStyle(
-                                                color: Theme.of(context)
-                                                    .colorScheme
-                                                    .primary,
+                                                color: colors.textClr,
                                                 fontWeight: FontWeight.bold,
                                               ),
                                               onLinkPressed: (url) {
@@ -106,9 +104,7 @@ class _InnerPageState extends State<InnerPage> {
                                               child: Text(
                                                 links[index],
                                                 style: TextStyle(
-                                                  color: Theme.of(context)
-                                                      .colorScheme
-                                                      .primary,
+                                                  color: colors.textClr,
                                                   fontWeight: FontWeight.bold,
                                                 ),
                                               ),
@@ -191,14 +187,16 @@ class _InnerPageState extends State<InnerPage> {
 
   void _editLink(BuildContext context, CodeGen codeProvider, int index,
       String currentLink) {
+    final colors = Provider.of<AppColors>(context);
     _editController.text = currentLink;
     showDialog(
       context: context,
       builder: (context) {
         return AlertDialog(
+          backgroundColor: colors.box,
           title: Text(
             "Edit Link",
-            style: TextStyle(color: Theme.of(context).colorScheme.onPrimary),
+            style: TextStyle(color: colors.textClr),
           ),
           content: TextField(
             controller: _editController,

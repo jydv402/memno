@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:memno/components/sub_tile.dart';
 import 'package:memno/functionality/code_gen.dart';
+import 'package:memno/theme/app_colors.dart';
 import 'package:provider/provider.dart';
 
 class MainTile extends StatelessWidget {
@@ -8,6 +9,7 @@ class MainTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = Provider.of<AppColors>(context);
     return Consumer<CodeGen>(
       builder: (context, codeProvider, child) {
         if (!codeProvider.isReady) {
@@ -32,7 +34,7 @@ class MainTile extends StatelessWidget {
                             decoration: BoxDecoration(
                               borderRadius:
                                   const BorderRadius.all(Radius.circular(50.0)),
-                              color: Theme.of(context).colorScheme.secondary,
+                              color: colors.accnt,
                             ),
                           ),
                           Positioned(
@@ -42,14 +44,14 @@ class MainTile extends StatelessWidget {
                               width: 120,
                               padding: const EdgeInsets.all(20),
                               decoration: BoxDecoration(
-                                color: Theme.of(context).colorScheme.tertiary,
+                                color: colors.pill,
                                 borderRadius: BorderRadius.circular(50),
                               ),
-                              child: Text(
+                              child: const Text(
                                 "Test",
                                 textAlign: TextAlign.center,
                                 style: TextStyle(
-                                  color: Theme.of(context).colorScheme.primary,
+                                  color: Colors.black,
                                 ),
                               ),
                             ),

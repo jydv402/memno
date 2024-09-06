@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:memno/components/inner_page.dart';
 import 'package:memno/functionality/code_gen.dart';
+import 'package:memno/theme/app_colors.dart';
 import 'package:provider/provider.dart';
 
 Widget subTile(BuildContext context, int code, String date, bool isLiked) {
@@ -9,22 +10,12 @@ Widget subTile(BuildContext context, int code, String date, bool isLiked) {
 
   return Padding(
     padding: const EdgeInsets.fromLTRB(2, 4, 2, 4),
-    child: GestureDetector(
-      key: ValueKey(code),
-      onTap: () {
-        Navigator.of(context).push(MaterialPageRoute(
-          builder: (context) => InnerPage(
-            code: code,
-          ),
-        ));
-      },
-      child: SubTileStack(
-          code: code,
-          date: date,
-          isLiked: isLiked,
-          length: length,
-          radius: radius),
-    ),
+    child: SubTileStack(
+        code: code,
+        date: date,
+        isLiked: isLiked,
+        length: length,
+        radius: radius),
   );
 }
 
@@ -60,7 +51,8 @@ class _SubTileStackState extends State<SubTileStack> {
           //Code Text
           CodeText(code: widget.code),
           //Length indicator
-          LengthIndicator(radius: widget.radius, length: widget.length),
+          LengthIndicator(
+              radius: widget.radius, length: widget.length, code: widget.code),
           //Date Time Indicator
           DateTimeIndicator(date: widget.date),
           //Like Button
@@ -112,6 +104,7 @@ class ShowDltPrompt extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = Provider.of<AppColors>(context);
     return SizedBox(
       width: MediaQuery.of(context).size.width,
       height: 220,
@@ -119,8 +112,7 @@ class ShowDltPrompt extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Text("You sure you want to delete?\nCurrently contains $length items",
-              style: TextStyle(
-                  color: Theme.of(context).colorScheme.primary, fontSize: 16),
+              style: TextStyle(color: colors.textClr, fontSize: 16),
               textAlign: TextAlign.center),
           const SizedBox(height: 20),
           Row(
@@ -151,13 +143,14 @@ class ContainerButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = Provider.of<AppColors>(context);
     return GestureDetector(
       onTap: onTap,
       child: Container(
           width: 120,
           padding: const EdgeInsets.all(20),
           decoration: BoxDecoration(
-            color: Theme.of(context).colorScheme.tertiary,
+            color: colors.pill,
             borderRadius: BorderRadius.circular(radius),
           ),
           child: Text(
@@ -179,19 +172,20 @@ class BgContainer extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = Provider.of<AppColors>(context);
     return Container(
       height: 220,
       width: MediaQuery.of(context).size.width,
       decoration: BoxDecoration(
         gradient: LinearGradient(
           colors: [
-            Theme.of(context).colorScheme.tertiary,
-            Theme.of(context).colorScheme.onSurface,
+            colors.grdnt1,
+            colors.grdnt2,
           ],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
-        color: Theme.of(context).colorScheme.onSurface,
+        color: colors.box,
         borderRadius: BorderRadius.circular(radius),
       ),
     );
@@ -207,15 +201,14 @@ class CodeText extends StatelessWidget {
   final int code;
   @override
   Widget build(BuildContext context) {
+    final colors = Provider.of<AppColors>(context);
     return Positioned(
       bottom: 16,
       left: 26,
       child: SelectableText(
         "#$code",
         style: TextStyle(
-            color: Theme.of(context).colorScheme.primary,
-            fontSize: 32,
-            fontWeight: FontWeight.bold),
+            color: colors.textClr, fontSize: 32, fontWeight: FontWeight.bold),
         textAlign: TextAlign.center,
       ),
     );
@@ -227,28 +220,49 @@ class LengthIndicator extends StatelessWidget {
     super.key,
     required this.radius,
     required this.length,
+    required this.code,
   });
 
   final double radius;
   final int length;
+  final int code;
 
   @override
   Widget build(BuildContext context) {
+    final colors = Provider.of<AppColors>(context);
     return Positioned(
       bottom: 16,
       right: 16,
-      child: Container(
-        width: 120,
-        padding: const EdgeInsets.all(20),
-        decoration: BoxDecoration(
-          color: Theme.of(context).colorScheme.tertiary,
-          borderRadius: BorderRadius.circular(radius),
-        ),
-        child: Text(
-          length == 1 ? "$length entry" : "$length entries",
-          textAlign: TextAlign.center,
-          style: TextStyle(
-            color: Theme.of(context).colorScheme.primary,
+      child: GestureDetector(
+        key: ValueKey(code),
+        onTap: () {
+          Navigator.of(context).push(MaterialPageRoute(
+            builder: (context) => InnerPage(
+              code: code,
+            ),
+          ));
+        },
+        child: Container(
+          width: 130,
+          padding: const EdgeInsets.all(20),
+          decoration: BoxDecoration(
+            color: colors.pill,
+            borderRadius: BorderRadius.circular(radius),
+          ),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              const Icon(Icons.arrow_outward_rounded),
+              const Spacer(),
+              Text(
+                length == 1 ? "$length entry" : "$length entries",
+                textAlign: TextAlign.center,
+                style: const TextStyle(
+                  color: Colors.black,
+                ),
+              ),
+              const Spacer(),
+            ],
           ),
         ),
       ),
@@ -266,17 +280,18 @@ class DateTimeIndicator extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = Provider.of<AppColors>(context);
     return Positioned(
         top: 26,
         left: 26,
         child: Row(
           children: [
-            const Icon(Icons.calendar_month_outlined),
+            Icon(Icons.calendar_month_outlined, color: colors.iconClr),
             const SizedBox(width: 8),
             Text(
               getFormattedDate(DateTime.parse(date)),
               textAlign: TextAlign.center,
-              style: TextStyle(color: Theme.of(context).colorScheme.primary),
+              style: TextStyle(color: colors.textClr),
             ),
           ],
         ));
@@ -295,13 +310,14 @@ class LikeButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = Provider.of<AppColors>(context);
     return Positioned(
       right: 76,
       top: 14,
       child: ElevatedButton(
         key: ValueKey(code),
         style: ElevatedButton.styleFrom(
-          backgroundColor: Theme.of(context).colorScheme.primary,
+          backgroundColor: colors.btnClr,
           shape: const CircleBorder(),
           padding: const EdgeInsets.all(16),
         ),
@@ -311,7 +327,7 @@ class LikeButton extends StatelessWidget {
         child: isLiked == true
             ? const Icon(Icons.favorite_rounded,
                 color: Color.fromRGBO(239, 154, 154, 1))
-            : const Icon(Icons.favorite_border_rounded, color: Colors.white),
+            : Icon(Icons.favorite_border_rounded, color: colors.btnIcon),
       ),
     );
   }
@@ -328,18 +344,18 @@ class DltButton extends StatelessWidget {
   final VoidCallback onPressed;
   @override
   Widget build(BuildContext context) {
+    final colors = Provider.of<AppColors>(context);
     return Positioned(
       right: 10,
       top: 14,
       child: ElevatedButton(
           style: ElevatedButton.styleFrom(
-            backgroundColor: Theme.of(context).colorScheme.primary,
+            backgroundColor: colors.btnClr,
             shape: const CircleBorder(),
             padding: const EdgeInsets.all(16),
           ),
           onPressed: onPressed,
-          child: Icon(Icons.close_rounded,
-              color: Theme.of(context).colorScheme.onPrimary)),
+          child: Icon(Icons.close_rounded, color: colors.btnIcon)),
     );
   }
 }
@@ -351,18 +367,18 @@ class DeleteButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = Provider.of<AppColors>(context);
     return Positioned(
       right: 10,
       top: 14,
       child: ElevatedButton(
         style: ElevatedButton.styleFrom(
-          backgroundColor: Theme.of(context).colorScheme.primary,
+          backgroundColor: colors.btnClr,
           shape: const CircleBorder(),
           padding: const EdgeInsets.all(16),
         ),
         onPressed: onPressed,
-        child: Icon(Icons.close_rounded,
-            color: Theme.of(context).colorScheme.onPrimary),
+        child: Icon(Icons.close_rounded, color: colors.btnIcon),
       ),
     );
   }
@@ -377,15 +393,15 @@ class DeleteConfirmation extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = Provider.of<AppColors>(context);
     return Center(
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
           Text(
             'Are you sure you want to delete this item?',
-            style: TextStyle(
-                color: Theme.of(context).colorScheme.primary,
-                fontWeight: FontWeight.bold),
+            style:
+                TextStyle(color: colors.textClr, fontWeight: FontWeight.bold),
             textAlign: TextAlign.center,
           ),
           const SizedBox(height: 20),
@@ -394,15 +410,13 @@ class DeleteConfirmation extends StatelessWidget {
             children: [
               ElevatedButton(
                 onPressed: onCancel,
-                style: ElevatedButton.styleFrom(
-                    backgroundColor: Theme.of(context).colorScheme.secondary),
+                style: ElevatedButton.styleFrom(backgroundColor: colors.pill),
                 child: const Text('Cancel'),
               ),
               const SizedBox(width: 20),
               ElevatedButton(
                 onPressed: onConfirm,
-                style: ElevatedButton.styleFrom(
-                    backgroundColor: Theme.of(context).colorScheme.error),
+                style: ElevatedButton.styleFrom(backgroundColor: colors.pill),
                 child: const Text('Delete'),
               ),
             ],

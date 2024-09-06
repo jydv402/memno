@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:memno/components/inner_page.dart';
 import 'package:memno/components/main_tile.dart';
 import 'package:memno/functionality/code_gen.dart';
-import 'package:memno/theme/theme_provider.dart';
+import 'package:memno/theme/app_colors.dart';
 import 'package:provider/provider.dart';
 import 'package:glassmorphism/glassmorphism.dart';
 
@@ -21,13 +21,17 @@ class _HomePageState extends State<HomePage> {
 
   @override
   Widget build(BuildContext context) {
+    final colors = Provider.of<AppColors>(context);
+
     return Scaffold(
-      backgroundColor: Theme.of(context).colorScheme.surface,
+      backgroundColor: colors.bgClr,
       appBar: AppBar(
+        backgroundColor: colors.bgClr,
+        foregroundColor: colors.fgClr,
         title: const Text("Memno"),
       ),
       drawer: Drawer(
-        backgroundColor: Theme.of(context).colorScheme.onSurface,
+        backgroundColor: colors.bgClr,
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
@@ -35,8 +39,8 @@ class _HomePageState extends State<HomePage> {
                 onPressed: () => context.read<CodeGen>().display(),
                 icon: const Icon(Icons.print)),
             Switch(
-              value: context.watch<ThemeProvider>().isDarkMode,
-              onChanged: (_) => context.read<ThemeProvider>().toggleTheme(),
+              value: context.watch<AppColors>().isDarkMode,
+              onChanged: (_) => context.read<AppColors>().toggleTheme(),
             ),
           ],
         ),
