@@ -34,7 +34,11 @@ class _InnerPageState extends State<InnerPage> {
       child: Material(
         color: colors.accnt,
         child: Scaffold(
-          appBar: AppBar(),
+          backgroundColor: colors.bgClr,
+          appBar: AppBar(
+            backgroundColor: colors.bgClr,
+            foregroundColor: colors.fgClr,
+          ),
           body: Consumer2<CodeGen, PreviewMap>(
             builder: (context, codeProvider, previewMap, child) {
               final links = codeProvider.getLinksForCode(widget.code);
@@ -133,7 +137,8 @@ class _InnerPageState extends State<InnerPage> {
                                               context,
                                               codeProvider,
                                               index,
-                                              links[index]),
+                                              links[index],
+                                              colors),
                                         ),
                                         const Spacer(),
                                         InnerPageButton(
@@ -186,8 +191,7 @@ class _InnerPageState extends State<InnerPage> {
   }
 
   void _editLink(BuildContext context, CodeGen codeProvider, int index,
-      String currentLink) {
-    final colors = Provider.of<AppColors>(context);
+      String currentLink, AppColors colors) {
     _editController.text = currentLink;
     showDialog(
       context: context,

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:glassmorphism/glassmorphism.dart';
 import 'package:memno/components/sub_tile.dart';
 import 'package:memno/functionality/code_gen.dart';
 import 'package:memno/theme/app_colors.dart';
@@ -22,6 +23,7 @@ class MainTile extends StatelessWidget {
                 ),
               )
             : ListView.builder(
+                padding: const EdgeInsets.only(bottom: 130),
                 itemCount: codeProvider.codeList.length + 1,
                 itemBuilder: (context, index) {
                   if (index == 0) {
@@ -44,14 +46,14 @@ class MainTile extends StatelessWidget {
                               width: 120,
                               padding: const EdgeInsets.all(20),
                               decoration: BoxDecoration(
-                                color: colors.pill,
+                                color: colors.accntPill,
                                 borderRadius: BorderRadius.circular(50),
                               ),
-                              child: const Text(
+                              child: Text(
                                 "Test",
                                 textAlign: TextAlign.center,
                                 style: TextStyle(
-                                  color: Colors.black,
+                                  color: colors.accntText,
                                 ),
                               ),
                             ),

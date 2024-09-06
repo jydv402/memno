@@ -177,14 +177,6 @@ class BgContainer extends StatelessWidget {
       height: 220,
       width: MediaQuery.of(context).size.width,
       decoration: BoxDecoration(
-        gradient: LinearGradient(
-          colors: [
-            colors.grdnt1,
-            colors.grdnt2,
-          ],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-        ),
         color: colors.box,
         borderRadius: BorderRadius.circular(radius),
       ),
@@ -233,37 +225,27 @@ class LengthIndicator extends StatelessWidget {
     return Positioned(
       bottom: 16,
       right: 16,
-      child: GestureDetector(
-        key: ValueKey(code),
-        onTap: () {
-          Navigator.of(context).push(MaterialPageRoute(
-            builder: (context) => InnerPage(
-              code: code,
-            ),
-          ));
-        },
-        child: Container(
-          width: 130,
-          padding: const EdgeInsets.all(20),
-          decoration: BoxDecoration(
-            color: colors.pill,
-            borderRadius: BorderRadius.circular(radius),
-          ),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              const Icon(Icons.arrow_outward_rounded),
-              const Spacer(),
-              Text(
-                length == 1 ? "$length entry" : "$length entries",
-                textAlign: TextAlign.center,
-                style: const TextStyle(
-                  color: Colors.black,
-                ),
+      child: Container(
+        width: 130,
+        padding: const EdgeInsets.all(20),
+        decoration: BoxDecoration(
+          color: colors.pill,
+          borderRadius: BorderRadius.circular(radius),
+        ),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(Icons.arrow_outward_rounded, color: colors.iconClr, size: 14),
+            const Spacer(),
+            Text(
+              length == 1 ? "$length entry" : "$length entries",
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                color: colors.textClr,
               ),
-              const Spacer(),
-            ],
-          ),
+            ),
+            const Spacer(),
+          ],
         ),
       ),
     );
@@ -282,7 +264,7 @@ class DateTimeIndicator extends StatelessWidget {
   Widget build(BuildContext context) {
     final colors = Provider.of<AppColors>(context);
     return Positioned(
-        top: 26,
+        top: 28,
         left: 26,
         child: Row(
           children: [
@@ -312,8 +294,8 @@ class LikeButton extends StatelessWidget {
   Widget build(BuildContext context) {
     final colors = Provider.of<AppColors>(context);
     return Positioned(
-      right: 76,
-      top: 14,
+      right: 84,
+      top: 16,
       child: ElevatedButton(
         key: ValueKey(code),
         style: ElevatedButton.styleFrom(
@@ -325,8 +307,7 @@ class LikeButton extends StatelessWidget {
           context.read<CodeGen>().toggleLike(code);
         },
         child: isLiked == true
-            ? const Icon(Icons.favorite_rounded,
-                color: Color.fromRGBO(239, 154, 154, 1))
+            ? const Icon(Icons.favorite_rounded, color: Colors.red)
             : Icon(Icons.favorite_border_rounded, color: colors.btnIcon),
       ),
     );
@@ -346,8 +327,8 @@ class DltButton extends StatelessWidget {
   Widget build(BuildContext context) {
     final colors = Provider.of<AppColors>(context);
     return Positioned(
-      right: 10,
-      top: 14,
+      right: 14,
+      top: 16,
       child: ElevatedButton(
           style: ElevatedButton.styleFrom(
             backgroundColor: colors.btnClr,

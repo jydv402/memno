@@ -22,10 +22,21 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const MaterialApp(
+    final colors = Provider.of<AppColors>(context);
+    return MaterialApp(
       title: 'MemNo',
       debugShowCheckedModeBanner: false,
-      home: HomePage(),
+      home: const HomePage(),
+      theme: ThemeData(
+          textSelectionTheme: TextSelectionThemeData(
+            cursorColor: colors.fgClr,
+            selectionColor: colors.fgClr,
+            selectionHandleColor: colors.fgClr,
+          ),
+          switchTheme: SwitchThemeData(
+              trackColor:
+                  WidgetStateProperty.all(colors.accnt.withOpacity(0.3)),
+              overlayColor: WidgetStateProperty.all(colors.accnt))),
     );
   }
 }
