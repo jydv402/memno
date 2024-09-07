@@ -15,11 +15,17 @@ class SettingsPage extends StatelessWidget {
           appBar: AppBar(
             backgroundColor: colors.bgClr,
             foregroundColor: colors.fgClr,
-            title:
-                const Text("Settings", style: TextStyle(fontFamily: 'Product')),
           ),
           body: ListView(
             children: [
+              Padding(
+                padding: const EdgeInsets.fromLTRB(32, 16, 0, 16),
+                child: Text("Settings",
+                    style: TextStyle(
+                        fontFamily: 'Product',
+                        fontSize: 28,
+                        color: colors.textClr)),
+              ),
               Container(
                 height: 100,
                 padding: const EdgeInsets.all(16),

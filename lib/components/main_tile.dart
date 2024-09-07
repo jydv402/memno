@@ -118,14 +118,14 @@ class _MainTileState extends State<MainTile> {
       isSelected: Filters.values.map((e) => e == _filter).toList(),
       children: const [
         Padding(
-            padding: EdgeInsets.symmetric(horizontal: 19, vertical: 19),
-            child: Text('   All   ')),
+            padding: EdgeInsets.symmetric(horizontal: 22, vertical: 19),
+            child: Text('   All   ', style: TextStyle(fontFamily: 'Product'))),
         Padding(
-            padding: EdgeInsets.symmetric(horizontal: 19, vertical: 19),
-            child: Text('Liked')),
+            padding: EdgeInsets.symmetric(horizontal: 22, vertical: 19),
+            child: Text('Liked', style: TextStyle(fontFamily: 'Product'))),
         Padding(
-            padding: EdgeInsets.symmetric(horizontal: 19, vertical: 19),
-            child: Text('Empty')),
+            padding: EdgeInsets.symmetric(horizontal: 22, vertical: 19),
+            child: Text('Empty', style: TextStyle(fontFamily: 'Product'))),
       ],
     );
   }
@@ -167,13 +167,21 @@ class TopAccentBox extends StatelessWidget {
           ),
           //Intro text
           const Positioned(
-              top: 52,
+              top: 48,
               left: 26,
               child: Text("Hi,\nI'm Memno",
                   style: TextStyle(
                       fontFamily: 'Product',
                       fontWeight: FontWeight.w700,
-                      fontSize: 52))),
+                      fontSize: 48))),
+          //Memno image
+          Positioned(
+            top: 64,
+            right: 24,
+            height: 110,
+            width: 110,
+            child: Image.asset('assets/memno_clear_blk.png'),
+          ),
           //Code count
           Positioned(
             bottom: 16,
