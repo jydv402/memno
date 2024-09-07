@@ -39,21 +39,6 @@ class _HomePageState extends State<HomePage> {
           icon: const Icon(Icons.menu_rounded),
         ),
       ),
-      drawer: Drawer(
-        backgroundColor: colors.bgClr,
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            IconButton(
-                onPressed: () => context.read<CodeGen>().display(),
-                icon: const Icon(Icons.print)),
-            Switch(
-              value: context.watch<AppColors>().isDarkMode,
-              onChanged: (_) => context.read<AppColors>().toggleTheme(),
-            ),
-          ],
-        ),
-      ),
       body: const MainTile(),
       floatingActionButton: const CustomFAB(),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,

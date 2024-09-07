@@ -1,15 +1,33 @@
 import 'package:flutter/material.dart';
+import 'package:hive/hive.dart';
+import 'package:memno/database/toggles_data.dart';
 
 class AppColors extends ChangeNotifier {
+  late Box<TogglesData> _togglesBox;
   bool _isDarkMode = false;
+
+  AppColors() {
+    init();
+  }
+
+  Future<void> init() async {
+    Hive.registerAdapter(TogglesDataAdapter());
+    _togglesBox = await Hive.openBox<TogglesData>('togglesData');
+
+    TogglesData? togglesData = _togglesBox.get(0);
+    _isDarkMode = togglesData?.darkMode ?? false;
+    notifyListeners();
+  }
 
   bool get isDarkMode => _isDarkMode;
 
   final _light = LightColors();
   final _dark = DarkColors();
 
-  void toggleTheme() {
+  Future<void> toggleTheme() async {
     _isDarkMode = !_isDarkMode;
+    TogglesData togglesData = TogglesData(darkMode: _isDarkMode);
+    await _togglesBox.put(0, togglesData);
     notifyListeners();
   }
 

@@ -34,7 +34,9 @@ class SettingsPage extends StatelessWidget {
                           fontSize: 18,
                           color: colors.textClr)),
                   value: context.watch<AppColors>().isDarkMode,
-                  onChanged: (_) => context.read<AppColors>().toggleTheme(),
+                  onChanged: (_) async {
+                    await colors.toggleTheme();
+                  },
                 ),
               ),
             ],
