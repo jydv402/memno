@@ -28,6 +28,10 @@ class MyApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       home: const HomePage(),
       theme: ThemeData(
+          elevatedButtonTheme: ElevatedButtonThemeData(
+              style: ButtonStyle(
+                  overlayColor: WidgetStateProperty.all(
+                      colors.accnt.withOpacity(0.025)))),
           textSelectionTheme: TextSelectionThemeData(
             cursorColor: colors.fgClr,
             selectionColor: colors.fgClr,
