@@ -29,6 +29,7 @@ class _HomePageState extends State<HomePage> {
       appBar: AppBar(
         backgroundColor: colors.bgClr,
         foregroundColor: colors.fgClr,
+        surfaceTintColor: colors.bgClr,
         leading: IconButton(
           onPressed: () => Navigator.push(
             context,
@@ -65,7 +66,7 @@ class CustomFAB extends StatelessWidget {
         alignment: Alignment.center,
         blur: 20,
         borderRadius: radius + 10,
-        border: 1,
+        border: 2,
         linearGradient: LinearGradient(
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,

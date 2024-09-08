@@ -195,7 +195,7 @@ class TopAccentBox extends StatelessWidget {
                 borderRadius: BorderRadius.circular(50),
               ),
               child: Text(
-                "$length  Codes",
+                length == 1 ? '$length Code' : '$length Codes',
                 textAlign: TextAlign.center,
                 style: TextStyle(
                   fontFamily: 'Product',
