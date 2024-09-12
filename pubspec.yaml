@@ -43,6 +43,7 @@ dependencies:
   flutter_chat_types: ^3.6.2
   glassmorphism: ^3.0.0
   any_link_preview: ^3.0.2
+  flutter_native_splash: ^2.4.1
 
 
   
@@ -77,6 +78,8 @@ flutter:
     - assets/memno_1024.png
     - assets/memno_clear_blk.png
     - assets/memno_clear_white.png
+    - assets/memno_light.png
+    - assets/memno_dark.png
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware
@@ -107,3 +110,18 @@ flutter:
   #
   # For details regarding fonts from package dependencies,
   # see https://flutter.dev/custom-fonts/#from-packages
+
+flutter_native_splash:
+  android: true
+  ios: true
+  web: false
+
+  color: "#dafc08"
+  image: "assets/memno_clear_blk.png"
+
+  android_12:
+    color: "#ffffff"
+    image: "assets/memno_light.png"
+
+    color_dark: "#000000"
+    image_dark: "assets/memno_dark.png"

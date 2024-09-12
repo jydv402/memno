@@ -61,7 +61,18 @@ class _SubTileStackState extends State<SubTileStack> {
           CodeText(code: widget.code),
           //Length indicator
           LengthIndicator(
-              radius: widget.radius, length: widget.length, code: widget.code),
+            radius: widget.radius,
+            length: widget.length,
+            code: widget.code,
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => InnerPage(code: widget.code),
+                ),
+              );
+            },
+          ),
           //Date Time Indicator
           DateTimeIndicator(date: widget.date),
           //Like Button
@@ -231,11 +242,13 @@ class LengthIndicator extends StatelessWidget {
     required this.radius,
     required this.length,
     required this.code,
+    required this.onTap,
   });
 
   final double radius;
   final int length;
   final int code;
+  final VoidCallback onTap;
 
   @override
   Widget build(BuildContext context) {
@@ -243,28 +256,32 @@ class LengthIndicator extends StatelessWidget {
     return Positioned(
       bottom: 16,
       right: 16,
-      child: Container(
-        width: 130,
-        padding: const EdgeInsets.all(20),
-        decoration: BoxDecoration(
-          color: colors.pill,
-          borderRadius: BorderRadius.circular(radius),
-        ),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(Icons.arrow_outward_rounded, color: colors.iconClr, size: 14),
-            const Spacer(),
-            Text(
-              length == 1 ? "$length  Entry" : "$length Entries",
-              textAlign: TextAlign.center,
-              style: TextStyle(
-                fontFamily: 'Product',
-                color: colors.textClr,
+      child: GestureDetector(
+        onTap: onTap,
+        child: Container(
+          width: 130,
+          padding: const EdgeInsets.all(20),
+          decoration: BoxDecoration(
+            color: colors.pill,
+            borderRadius: BorderRadius.circular(radius),
+          ),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(Icons.arrow_outward_rounded,
+                  color: colors.iconClr, size: 14),
+              const Spacer(),
+              Text(
+                length == 1 ? "$length  Entry" : "$length Entries",
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  fontFamily: 'Product',
+                  color: colors.textClr,
+                ),
               ),
-            ),
-            const Spacer(),
-          ],
+              const Spacer(),
+            ],
+          ),
         ),
       ),
     );

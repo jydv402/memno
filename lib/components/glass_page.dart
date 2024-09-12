@@ -2,8 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:glassmorphism/glassmorphism.dart';
 
 class GlassPageOverlay extends StatelessWidget {
-  const GlassPageOverlay({super.key, required this.onClose});
+  const GlassPageOverlay(
+      {super.key, required this.onClose, required this.child});
   final VoidCallback onClose;
+  final Widget child;
 
   @override
   Widget build(BuildContext context) {
@@ -36,24 +38,7 @@ class GlassPageOverlay extends StatelessWidget {
                   const Color(0xFFFFFFFF).withOpacity(0.5),
                 ],
               ),
-              child: Padding(
-                padding: const EdgeInsets.all(16.0),
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    const Text('Glass Page Overlay',
-                        style: TextStyle(fontSize: 22, color: Colors.white)),
-                    const SizedBox(height: 16),
-                    ElevatedButton(
-                      onPressed: () {
-                        Navigator.of(context)
-                            .pop(); // You can add more logic here to close or perform actions
-                      },
-                      child: const Text('Close'),
-                    ),
-                  ],
-                ),
-              ),
+              child: Padding(padding: const EdgeInsets.all(16.0), child: child),
             ),
           ),
         ),

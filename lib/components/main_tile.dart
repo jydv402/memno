@@ -103,6 +103,7 @@ class _MainTileState extends State<MainTile> {
 
   Widget _customToggleButtons(BuildContext context) {
     final colors = Provider.of<AppColors>(context);
+    final widthOfToggle = MediaQuery.of(context).size.width * 0.05;
     return ToggleButtons(
       borderColor: Colors.black,
       selectedBorderColor: Colors.black,
@@ -116,16 +117,22 @@ class _MainTileState extends State<MainTile> {
       },
       borderRadius: BorderRadius.circular(50),
       isSelected: Filters.values.map((e) => e == _filter).toList(),
-      children: const [
+      children: [
         Padding(
-            padding: EdgeInsets.symmetric(horizontal: 22, vertical: 19),
-            child: Text('   All   ', style: TextStyle(fontFamily: 'Product'))),
+            padding:
+                EdgeInsets.symmetric(horizontal: widthOfToggle, vertical: 19),
+            child: const Text('   All   ',
+                style: TextStyle(fontFamily: 'Product'))),
         Padding(
-            padding: EdgeInsets.symmetric(horizontal: 22, vertical: 19),
-            child: Text('Liked', style: TextStyle(fontFamily: 'Product'))),
+            padding:
+                EdgeInsets.symmetric(horizontal: widthOfToggle, vertical: 19),
+            child:
+                const Text('Liked', style: TextStyle(fontFamily: 'Product'))),
         Padding(
-            padding: EdgeInsets.symmetric(horizontal: 22, vertical: 19),
-            child: Text('Empty', style: TextStyle(fontFamily: 'Product'))),
+            padding:
+                EdgeInsets.symmetric(horizontal: widthOfToggle, vertical: 19),
+            child:
+                const Text('Empty', style: TextStyle(fontFamily: 'Product'))),
       ],
     );
   }
@@ -153,7 +160,7 @@ class TopAccentBox extends StatelessWidget {
         children: [
           //Main accent container
           Container(
-            height: 300,
+            height: 280,
             decoration: BoxDecoration(
               borderRadius: const BorderRadius.all(Radius.circular(50.0)),
               color: colors.accnt,
@@ -167,7 +174,7 @@ class TopAccentBox extends StatelessWidget {
           ),
           //Intro text
           const Positioned(
-              top: 48,
+              top: 38,
               left: 26,
               child: Text("Hi,\nI'm Memno",
                   style: TextStyle(
@@ -176,7 +183,7 @@ class TopAccentBox extends StatelessWidget {
                       fontSize: 48))),
           //Memno image
           Positioned(
-            top: 64,
+            top: 54,
             right: 24,
             height: 110,
             width: 110,
