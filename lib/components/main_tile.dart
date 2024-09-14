@@ -60,7 +60,8 @@ class _MainTileState extends State<MainTile> {
                       customToggle: _customToggleButtons(context),
                     );
                   } else {
-                    final code = filteredList[index - 1];
+                    final reversedIndex = filteredList.length - index;
+                    final code = filteredList[reversedIndex];
                     final date = codeProvider.getDateForCode(code);
                     final isLiked = codeProvider.getLikeForCode(code);
                     return subTile(context, code, date, isLiked);

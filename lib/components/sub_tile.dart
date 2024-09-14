@@ -453,8 +453,14 @@ const List months = [
 
 String getFormattedDate(DateTime date) {
   if (date.hour > 12) {
+    if (date.hour == 24) {
+      return "${date.day} ${months[date.month - 1]} ${date.year}, 12:${date.minute} pm";
+    }
     return "${date.day} ${months[date.month - 1]} ${date.year}, ${date.hour - 12}:${date.minute} pm";
   } else {
+    if (date.hour == 0) {
+      return "${date.day} ${months[date.month - 1]} ${date.year}, 12:${date.minute} am";
+    }
     return "${date.day} ${months[date.month - 1]} ${date.year}, ${date.hour}:${date.minute} am";
   }
 }

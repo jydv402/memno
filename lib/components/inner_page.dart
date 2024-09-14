@@ -56,111 +56,135 @@ class _InnerPageState extends State<InnerPage>
                     )
                   : ListView.builder(
                       padding: const EdgeInsets.only(bottom: 130),
-                      itemCount: links.length,
+                      itemCount: links.length + 1,
                       itemBuilder: (context, index) {
-                        final previewData = previewMap.cache[links[index]];
-                        return Stack(
-                          children: [
-                            Container(
-                              key: ValueKey(links[index]),
+                        if (index == 0) {
+                          return Padding(
+                            padding: const EdgeInsets.all(8.0),
+                            child: Container(
                               width: MediaQuery.of(context).size.width,
-                              margin: const EdgeInsets.fromLTRB(2, 4, 2, 4),
+                              height: 100, // Adjust height as needed
                               decoration: BoxDecoration(
-                                borderRadius: const BorderRadius.all(
-                                  Radius.circular(50),
-                                ),
-                                color: colors.box,
+                                color: Colors.blue, // Adjust color
+                                borderRadius: BorderRadius.circular(20),
                               ),
-                              child: ClipRRect(
+                              child: const Center(
+                                child: Text(
+                                  "This is the first container",
+                                  style: TextStyle(
+                                      color: Colors.white, fontSize: 20),
+                                ),
+                              ),
+                            ),
+                          );
+                        } else {
+                          final previewData =
+                              previewMap.cache[links[index - 1]];
+                          return Stack(
+                            children: [
+                              Container(
+                                key: ValueKey(links[index - 1]),
+                                width: MediaQuery.of(context).size.width,
+                                margin: const EdgeInsets.fromLTRB(2, 4, 2, 4),
+                                decoration: BoxDecoration(
                                   borderRadius: const BorderRadius.all(
                                     Radius.circular(50),
                                   ),
-                                  child: Padding(
-                                    padding: const EdgeInsets.only(top: 70),
-                                    child:
-                                        AnyLinkPreview.isValidLink(links[index])
-                                            ? LinkPreview(
-                                                requestTimeout:
-                                                    const Duration(seconds: 10),
-                                                width: MediaQuery.of(context)
-                                                        .size
-                                                        .width +
-                                                    50,
-                                                enableAnimation: true,
-                                                openOnPreviewImageTap: true,
-                                                openOnPreviewTitleTap: true,
-                                                metadataTextStyle: TextStyle(
-                                                  color: colors.textClr,
-                                                ),
-                                                metadataTitleStyle: TextStyle(
+                                  color: colors.box,
+                                ),
+                                child: ClipRRect(
+                                    borderRadius: const BorderRadius.all(
+                                      Radius.circular(50),
+                                    ),
+                                    child: Padding(
+                                      padding: const EdgeInsets.only(top: 70),
+                                      child: AnyLinkPreview.isValidLink(
+                                              links[index - 1])
+                                          ? LinkPreview(
+                                              requestTimeout:
+                                                  const Duration(seconds: 10),
+                                              width: MediaQuery.of(context)
+                                                      .size
+                                                      .width +
+                                                  50,
+                                              enableAnimation: true,
+                                              openOnPreviewImageTap: true,
+                                              openOnPreviewTitleTap: true,
+                                              metadataTextStyle: TextStyle(
+                                                color: colors.textClr,
+                                              ),
+                                              metadataTitleStyle: TextStyle(
+                                                color: colors.textClr,
+                                                fontWeight: FontWeight.bold,
+                                              ),
+                                              onLinkPressed: (url) {
+                                                launchUrl(Uri.parse(
+                                                    links[index - 1]));
+                                              },
+                                              onPreviewDataFetched: (data) {
+                                                setState(() {
+                                                  previewMap.storePreview(
+                                                      links[index - 1], data);
+                                                });
+                                              },
+                                              previewData: previewData,
+                                              text: links[index - 1],
+                                            )
+                                          : Padding(
+                                              padding:
+                                                  const EdgeInsets.fromLTRB(
+                                                      36, 26, 26, 26),
+                                              child: Text(
+                                                links[index - 1],
+                                                style: TextStyle(
                                                   color: colors.textClr,
                                                   fontWeight: FontWeight.bold,
                                                 ),
-                                                onLinkPressed: (url) {
-                                                  launchUrl(
-                                                      Uri.parse(links[index]));
-                                                },
-                                                onPreviewDataFetched: (data) {
-                                                  setState(() {
-                                                    previewMap.storePreview(
-                                                        links[index], data);
-                                                  });
-                                                },
-                                                previewData: previewData,
-                                                text: links[index],
-                                              )
-                                            : Padding(
-                                                padding:
-                                                    const EdgeInsets.fromLTRB(
-                                                        36, 26, 26, 26),
-                                                child: Text(
-                                                  links[index],
-                                                  style: TextStyle(
-                                                    color: colors.textClr,
-                                                    fontWeight: FontWeight.bold,
-                                                  ),
-                                                ),
                                               ),
-                                  )),
-                            ),
-                            Positioned(
-                              top: 5,
-                              right: 10,
-                              child: SizedBox(
-                                width: 200,
-                                height: 80,
-                                child: Row(
-                                    mainAxisAlignment: MainAxisAlignment.center,
-                                    children: [
-                                      const Spacer(),
-                                      InnerPageButton(
-                                        onPressed: () {},
-                                        icon: Icons.copy_rounded,
-                                      ),
-                                      const Spacer(),
-                                      InnerPageButton(
-                                        icon: Icons.mode_edit_outline_rounded,
-                                        onPressed: () => _editLink(
-                                            context,
-                                            codeProvider,
-                                            index,
-                                            links[index],
-                                            colors),
-                                      ),
-                                      const Spacer(),
-                                      InnerPageButton(
-                                        icon: Icons.delete_outline_rounded,
-                                        onPressed: () => codeProvider
-                                            .deleteLink(widget.code, index),
-                                      ),
-                                      const Spacer(),
-                                    ]),
+                                            ),
+                                    )),
                               ),
-                            ),
-                          ],
-                        );
-                      },
-                    );
+                              Positioned(
+                                top: 5,
+                                right: 10,
+                                child: SizedBox(
+                                  width: 200,
+                                  height: 80,
+                                  child: Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.center,
+                                      children: [
+                                        const Spacer(),
+                                        InnerPageButton(
+                                          onPressed: () {},
+                                          icon: Icons.copy_rounded,
+                                        ),
+                                        const Spacer(),
+                                        InnerPageButton(
+                                          icon: Icons.mode_edit_outline_rounded,
+                                          onPressed: () => _editLink(
+                                              context,
+                                              codeProvider,
+                                              index - 1,
+                                              links[index - 1],
+                                              colors),
+                                        ),
+                                        const Spacer(),
+                                        InnerPageButton(
+                                          icon: Icons.delete_outline_rounded,
+                                          onPressed: () =>
+                                              codeProvider.deleteLink(
+                                                  widget.code, index - 1),
+                                        ),
+                                        const Spacer(),
+                                      ]),
+                                ),
+                              ),
+                            ],
+                          );
+                        }
+                        return null;
+                      });
             },
           ),
           floatingActionButton: CustomInnerFAB(
