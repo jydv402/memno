@@ -44,6 +44,7 @@ dependencies:
   glassmorphism: ^3.0.0
   any_link_preview: ^3.0.2
   flutter_native_splash: ^2.4.1
+  lottie: ^3.1.2
 
 
   
@@ -80,6 +81,7 @@ flutter:
     - assets/memno_clear_white.png
     - assets/memno_light.png
     - assets/memno_dark.png
+    - assets/memno_empty.json
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware

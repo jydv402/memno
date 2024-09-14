@@ -1,13 +1,13 @@
+import 'package:any_link_preview/any_link_preview.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_chat_types/flutter_chat_types.dart' show PreviewData;
+import 'package:flutter_link_previewer/flutter_link_previewer.dart';
 import 'package:memno/components/inner_page_fun.dart';
+import 'package:memno/functionality/code_gen.dart';
+import 'package:memno/functionality/preview_map.dart';
 import 'package:memno/theme/app_colors.dart';
 import 'package:provider/provider.dart';
-import 'package:memno/functionality/code_gen.dart';
-import 'package:flutter_link_previewer/flutter_link_previewer.dart';
-import 'package:flutter_chat_types/flutter_chat_types.dart' show PreviewData;
 import 'package:url_launcher/url_launcher.dart';
-import 'package:memno/functionality/preview_map.dart';
-import 'package:any_link_preview/any_link_preview.dart';
 
 class InnerPage extends StatefulWidget {
   final int code;
@@ -46,8 +46,12 @@ class _InnerPageState extends State<InnerPage>
               final links = codeProvider.getLinksForCode(widget.code);
 
               return links.isEmpty
-                  ? const Center(
-                      child: Text('Empty'),
+                  ? Center(
+                      child: Text(
+                        "It's so empty here...",
+                        style: TextStyle(
+                            color: colors.textClr, fontFamily: 'Product'),
+                      ),
                     )
                   : ListView.builder(
                       padding: const EdgeInsets.only(bottom: 130),
@@ -158,7 +162,8 @@ class _InnerPageState extends State<InnerPage>
                     );
             },
           ),
-          floatingActionButton: const CustomInnerFAB(),
+          floatingActionButton: CustomInnerButton(
+              onPressed: () {}, onConfirm: () {}, onCancel: () {}),
           floatingActionButtonLocation:
               FloatingActionButtonLocation.centerFloat,
         ),
@@ -213,54 +218,70 @@ class _InnerPageState extends State<InnerPage>
   }
 }
 
-class CustomInnerFAB extends StatelessWidget {
-  const CustomInnerFAB({super.key});
+// class CustomInnerFAB extends StatelessWidget {
+//   const CustomInnerFAB(
+//       {super.key, required this.onConfirm, required this.onCancel});
+//   final VoidCallback onConfirm;
+//   final VoidCallback onCancel;
 
-  @override
-  Widget build(BuildContext context) {
-    final colors = Provider.of<AppColors>(context);
-    return Container(
-      padding: const EdgeInsets.all(8),
-      width: MediaQuery.of(context).size.width - 25,
-      height: 90,
-      decoration: BoxDecoration(
-          color: colors.bgClr,
-          borderRadius: BorderRadius.circular(50),
-          border: Border.all(color: colors.fgClr, width: 1)),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.center,
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
-          Container(
-            padding: const EdgeInsets.all(8),
-            width: MediaQuery.of(context).size.width - 100,
-            decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(50), color: colors.box),
-            child: TextField(
-              minLines: null,
-              maxLines: null,
-              expands: true,
-              style: TextStyle(
-                color: colors.fgClr,
-                fontFamily: 'Product',
-              ),
-              decoration: const InputDecoration(
-                contentPadding:
-                    EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                border: InputBorder.none,
-                focusedBorder: InputBorder.none,
-                enabledBorder: InputBorder.none,
-                errorBorder: InputBorder.none,
-                disabledBorder: InputBorder.none,
-              ),
-            ),
-          ),
-          const Spacer(),
-          IconButton(
-              onPressed: () {}, icon: Icon(Icons.add, color: colors.fgClr)),
-          const Spacer(),
-        ],
-      ),
-    );
-  }
-}
+//   @override
+//   Widget build(BuildContext context) {
+//     final colors = Provider.of<AppColors>(context);
+//     final TextEditingController controller = TextEditingController();
+//     return Container(
+//       padding: const EdgeInsets.all(8),
+//       width: MediaQuery.of(context).size.width - 25,
+//       height: 130,
+//       decoration: BoxDecoration(
+//           color: colors.bgClr,
+//           borderRadius: BorderRadius.circular(50),
+//           border: Border.all(color: colors.fgClr, width: 1)),
+//       child: Row(
+//         mainAxisAlignment: MainAxisAlignment.center,
+//         crossAxisAlignment: CrossAxisAlignment.center,
+//         children: [
+//           Container(
+//             padding: const EdgeInsets.all(8),
+//             width: MediaQuery.of(context).size.width - 100,
+//             decoration: BoxDecoration(
+//                 borderRadius: BorderRadius.circular(46), color: colors.box),
+//             child: TextField(
+//               controller: controller,
+//               minLines: null,
+//               maxLines: null,
+//               expands: true,
+//               style: TextStyle(
+//                 color: colors.fgClr,
+//                 fontFamily: 'Product',
+//               ),
+//               decoration: const InputDecoration(
+//                 contentPadding:
+//                     EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+//                 border: InputBorder.none,
+//                 focusedBorder: InputBorder.none,
+//                 enabledBorder: InputBorder.none,
+//                 errorBorder: InputBorder.none,
+//                 disabledBorder: InputBorder.none,
+//               ),
+//             ),
+//           ),
+//           const Spacer(),
+//           Column(
+//             children: [
+//               const Spacer(),
+//               IconButton(
+//                   onPressed: onConfirm,
+//                   icon: const Icon(Icons.check_rounded, color: Colors.green)),
+//               const Spacer(),
+//               IconButton(
+//                   onPressed: onCancel,
+//                   icon: const Icon(Icons.close_rounded, color: Colors.red)),
+//               const Spacer(),
+//             ],
+//           ),
+//           const Spacer(),
+//         ],
+//       ),
+//     );
+//   }
+// }
