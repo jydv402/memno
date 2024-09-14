@@ -81,7 +81,6 @@ flutter:
     - assets/memno_clear_white.png
     - assets/memno_light.png
     - assets/memno_dark.png
-    - assets/memno_empty.json
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware

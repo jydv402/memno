@@ -28,6 +28,7 @@ class _InnerPageState extends State<InnerPage>
   @override
   Widget build(BuildContext context) {
     final colors = Provider.of<AppColors>(context);
+    final codeProvider = Provider.of<CodeGen>(context);
 
     return Hero(
       tag: 'fab_to_page',
@@ -162,8 +163,18 @@ class _InnerPageState extends State<InnerPage>
                     );
             },
           ),
-          floatingActionButton: CustomInnerButton(
-              onPressed: () {}, onConfirm: () {}, onCancel: () {}),
+          floatingActionButton: CustomInnerFAB(
+            onConfirm: () {
+              if (_linkController.text.isNotEmpty) {
+                codeProvider.addLink(widget.code, _linkController.text);
+              }
+              _linkController.clear();
+            },
+            onCancel: () {
+              _linkController.clear();
+            },
+            controller: _linkController,
+          ),
           floatingActionButtonLocation:
               FloatingActionButtonLocation.centerFloat,
         ),
@@ -218,70 +229,77 @@ class _InnerPageState extends State<InnerPage>
   }
 }
 
-// class CustomInnerFAB extends StatelessWidget {
-//   const CustomInnerFAB(
-//       {super.key, required this.onConfirm, required this.onCancel});
-//   final VoidCallback onConfirm;
-//   final VoidCallback onCancel;
+class CustomInnerFAB extends StatelessWidget {
+  const CustomInnerFAB(
+      {super.key,
+      required this.onConfirm,
+      required this.onCancel,
+      required this.controller});
+  final VoidCallback onConfirm;
+  final VoidCallback onCancel;
+  final TextEditingController controller;
 
-//   @override
-//   Widget build(BuildContext context) {
-//     final colors = Provider.of<AppColors>(context);
-//     final TextEditingController controller = TextEditingController();
-//     return Container(
-//       padding: const EdgeInsets.all(8),
-//       width: MediaQuery.of(context).size.width - 25,
-//       height: 130,
-//       decoration: BoxDecoration(
-//           color: colors.bgClr,
-//           borderRadius: BorderRadius.circular(50),
-//           border: Border.all(color: colors.fgClr, width: 1)),
-//       child: Row(
-//         mainAxisAlignment: MainAxisAlignment.center,
-//         crossAxisAlignment: CrossAxisAlignment.center,
-//         children: [
-//           Container(
-//             padding: const EdgeInsets.all(8),
-//             width: MediaQuery.of(context).size.width - 100,
-//             decoration: BoxDecoration(
-//                 borderRadius: BorderRadius.circular(46), color: colors.box),
-//             child: TextField(
-//               controller: controller,
-//               minLines: null,
-//               maxLines: null,
-//               expands: true,
-//               style: TextStyle(
-//                 color: colors.fgClr,
-//                 fontFamily: 'Product',
-//               ),
-//               decoration: const InputDecoration(
-//                 contentPadding:
-//                     EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-//                 border: InputBorder.none,
-//                 focusedBorder: InputBorder.none,
-//                 enabledBorder: InputBorder.none,
-//                 errorBorder: InputBorder.none,
-//                 disabledBorder: InputBorder.none,
-//               ),
-//             ),
-//           ),
-//           const Spacer(),
-//           Column(
-//             children: [
-//               const Spacer(),
-//               IconButton(
-//                   onPressed: onConfirm,
-//                   icon: const Icon(Icons.check_rounded, color: Colors.green)),
-//               const Spacer(),
-//               IconButton(
-//                   onPressed: onCancel,
-//                   icon: const Icon(Icons.close_rounded, color: Colors.red)),
-//               const Spacer(),
-//             ],
-//           ),
-//           const Spacer(),
-//         ],
-//       ),
-//     );
-//   }
-// }
+  @override
+  Widget build(BuildContext context) {
+    final colors = Provider.of<AppColors>(context);
+
+    return Container(
+      padding: const EdgeInsets.all(8),
+      width: MediaQuery.of(context).size.width - 25,
+      height: 130,
+      decoration: BoxDecoration(
+          color: colors.bgClr,
+          borderRadius: BorderRadius.circular(50),
+          border: Border.all(color: colors.fgClr, width: 1)),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          Expanded(
+            flex: 5,
+            child: Container(
+              padding: const EdgeInsets.all(8),
+              decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(42), color: colors.box),
+              child: TextField(
+                controller: controller,
+                minLines: null,
+                maxLines: null,
+                expands: true,
+                style: TextStyle(
+                  color: colors.fgClr,
+                  fontFamily: 'Product',
+                ),
+                decoration: const InputDecoration(
+                  contentPadding:
+                      EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                  border: InputBorder.none,
+                  focusedBorder: InputBorder.none,
+                  enabledBorder: InputBorder.none,
+                  errorBorder: InputBorder.none,
+                  disabledBorder: InputBorder.none,
+                ),
+              ),
+            ),
+          ),
+          Expanded(
+            flex: 1,
+            child: Column(
+              children: [
+                const Spacer(),
+                IconButton(
+                    onPressed: onConfirm,
+                    icon: const Icon(Icons.check_rounded, color: Colors.green)),
+                const Spacer(),
+                IconButton(
+                    onPressed: onCancel,
+                    icon: const Icon(Icons.close_rounded, color: Colors.red)),
+                const Spacer(),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
