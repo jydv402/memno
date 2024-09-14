@@ -34,7 +34,7 @@ class MyApp extends StatelessWidget {
                       colors.accnt.withOpacity(0.025)))),
           textSelectionTheme: TextSelectionThemeData(
             cursorColor: colors.fgClr,
-            selectionColor: colors.fgClr,
+            selectionColor: colors.accnt.withOpacity(0.25),
             selectionHandleColor: colors.fgClr,
           ),
           switchTheme: SwitchThemeData(

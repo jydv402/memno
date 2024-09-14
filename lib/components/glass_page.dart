@@ -12,34 +12,36 @@ class GlassPageOverlay extends StatelessWidget {
     return Stack(
       children: [
         GestureDetector(
-          onTap: onClose,
-          child: Center(
-            child: GlassmorphicContainer(
-              width: MediaQuery.of(context).size.width - 25,
-              height: MediaQuery.of(context).size.height - 150,
-              borderRadius: 50,
-              blur: 20,
-              alignment: Alignment.center,
-              border: 2,
-              linearGradient: LinearGradient(
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-                colors: [
-                  const Color(0xFFffffff).withOpacity(0.1),
-                  const Color(0xFFFFFFFF).withOpacity(0.05),
-                ],
-                stops: const [0.1, 1],
-              ),
-              borderGradient: LinearGradient(
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-                colors: [
-                  const Color(0xFFffffff).withOpacity(0.5),
-                  const Color(0xFFFFFFFF).withOpacity(0.5),
-                ],
-              ),
-              child: Padding(padding: const EdgeInsets.all(16.0), child: child),
+            onTap: onClose,
+            child: Container(
+              color: Colors.black.withOpacity(0.1),
+            )),
+        Center(
+          child: GlassmorphicContainer(
+            width: MediaQuery.of(context).size.width - 25,
+            height: 300,
+            borderRadius: 50,
+            blur: 20,
+            alignment: Alignment.center,
+            border: 2,
+            linearGradient: LinearGradient(
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+              colors: [
+                const Color(0xFFffffff).withOpacity(0.1),
+                const Color(0xFFFFFFFF).withOpacity(0.05),
+              ],
+              stops: const [0.1, 1],
             ),
+            borderGradient: LinearGradient(
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+              colors: [
+                const Color(0xFFffffff).withOpacity(0.5),
+                const Color(0xFFFFFFFF).withOpacity(0.5),
+              ],
+            ),
+            child: Padding(padding: const EdgeInsets.all(16.0), child: child),
           ),
         ),
       ],

@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:memno/components/glass_page.dart';
 import 'package:memno/components/inner_page_fun.dart';
 import 'package:memno/theme/app_colors.dart';
 import 'package:provider/provider.dart';
@@ -24,38 +23,7 @@ class _InnerPageState extends State<InnerPage>
   final TextEditingController _editController = TextEditingController();
   final TextEditingController _headController = TextEditingController();
 
-  bool _isGlassVisible = false;
-  late AnimationController _controller;
-  late Animation<double> _scaleAnimation;
-
   Map<String, PreviewData> fetched = {};
-
-  @override
-  void initState() {
-    super.initState();
-    _controller = AnimationController(
-        vsync: this, duration: const Duration(milliseconds: 600));
-    _scaleAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
-      CurvedAnimation(
-        parent: _controller,
-        curve: Curves.fastLinearToSlowEaseIn,
-      ),
-    );
-  }
-
-  void _showGlassPage() {
-    setState(() {
-      _isGlassVisible = true;
-    });
-    _controller.forward();
-  }
-
-  void _hideGlassPage() {
-    setState(() {
-      _isGlassVisible = false;
-    });
-    _controller.reverse();
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -73,41 +41,39 @@ class _InnerPageState extends State<InnerPage>
             foregroundColor: colors.fgClr,
             surfaceTintColor: colors.bgClr,
           ),
-          body: Stack(
-            children: [
-              Consumer2<CodeGen, PreviewMap>(
-                builder: (context, codeProvider, previewMap, child) {
-                  final links = codeProvider.getLinksForCode(widget.code);
+          body: Consumer2<CodeGen, PreviewMap>(
+            builder: (context, codeProvider, previewMap, child) {
+              final links = codeProvider.getLinksForCode(widget.code);
 
-                  return links.isEmpty
-                      ? const Center(
-                          child: Text('Empty'),
-                        )
-                      : ListView.builder(
-                          padding: const EdgeInsets.only(bottom: 130),
-                          itemCount: links.length,
-                          itemBuilder: (context, index) {
-                            final previewData = previewMap.cache[links[index]];
-                            return Stack(
-                              children: [
-                                Container(
-                                  key: ValueKey(links[index]),
-                                  width: MediaQuery.of(context).size.width,
-                                  margin: const EdgeInsets.fromLTRB(2, 4, 2, 4),
-                                  decoration: BoxDecoration(
-                                    borderRadius: const BorderRadius.all(
-                                      Radius.circular(50),
-                                    ),
-                                    color: colors.box,
+              return links.isEmpty
+                  ? const Center(
+                      child: Text('Empty'),
+                    )
+                  : ListView.builder(
+                      padding: const EdgeInsets.only(bottom: 130),
+                      itemCount: links.length,
+                      itemBuilder: (context, index) {
+                        final previewData = previewMap.cache[links[index]];
+                        return Stack(
+                          children: [
+                            Container(
+                              key: ValueKey(links[index]),
+                              width: MediaQuery.of(context).size.width,
+                              margin: const EdgeInsets.fromLTRB(2, 4, 2, 4),
+                              decoration: BoxDecoration(
+                                borderRadius: const BorderRadius.all(
+                                  Radius.circular(50),
+                                ),
+                                color: colors.box,
+                              ),
+                              child: ClipRRect(
+                                  borderRadius: const BorderRadius.all(
+                                    Radius.circular(50),
                                   ),
-                                  child: ClipRRect(
-                                      borderRadius: const BorderRadius.all(
-                                        Radius.circular(50),
-                                      ),
-                                      child: Padding(
-                                        padding: const EdgeInsets.only(top: 70),
-                                        child: AnyLinkPreview.isValidLink(
-                                                links[index])
+                                  child: Padding(
+                                    padding: const EdgeInsets.only(top: 70),
+                                    child:
+                                        AnyLinkPreview.isValidLink(links[index])
                                             ? LinkPreview(
                                                 requestTimeout:
                                                     const Duration(seconds: 10),
@@ -150,75 +116,49 @@ class _InnerPageState extends State<InnerPage>
                                                   ),
                                                 ),
                                               ),
-                                      )),
-                                ),
-                                Positioned(
-                                  top: 5,
-                                  right: 10,
-                                  child: SizedBox(
-                                    width: 200,
-                                    height: 80,
-                                    child: Row(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.center,
-                                        children: [
-                                          const Spacer(),
-                                          InnerPageButton(
-                                            onPressed: () {},
-                                            icon: Icons.copy_rounded,
-                                          ),
-                                          const Spacer(),
-                                          InnerPageButton(
-                                            icon:
-                                                Icons.mode_edit_outline_rounded,
-                                            onPressed: () => _editLink(
-                                                context,
-                                                codeProvider,
-                                                index,
-                                                links[index],
-                                                colors),
-                                          ),
-                                          const Spacer(),
-                                          InnerPageButton(
-                                            icon: Icons.delete_outline_rounded,
-                                            onPressed: () => codeProvider
-                                                .deleteLink(widget.code, index),
-                                          ),
-                                          const Spacer(),
-                                        ]),
-                                  ),
-                                ),
-                              ],
-                            );
-                          },
-                        );
-                },
-              ),
-              if (_isGlassVisible)
-                ScaleTransition(
-                    scale: _scaleAnimation,
-                    child: GlassPageOverlay(
-                      onClose: _hideGlassPage,
-                      child: Stack(
-                        children: [
-                          Container(
-                            width: MediaQuery.of(context).size.width - 50,
-                            height: 400,
-                            decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(50),
-                              color: colors.box,
+                                  )),
                             ),
-                          )
-                        ],
-                      ),
-                    ))
-            ],
+                            Positioned(
+                              top: 5,
+                              right: 10,
+                              child: SizedBox(
+                                width: 200,
+                                height: 80,
+                                child: Row(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      const Spacer(),
+                                      InnerPageButton(
+                                        onPressed: () {},
+                                        icon: Icons.copy_rounded,
+                                      ),
+                                      const Spacer(),
+                                      InnerPageButton(
+                                        icon: Icons.mode_edit_outline_rounded,
+                                        onPressed: () => _editLink(
+                                            context,
+                                            codeProvider,
+                                            index,
+                                            links[index],
+                                            colors),
+                                      ),
+                                      const Spacer(),
+                                      InnerPageButton(
+                                        icon: Icons.delete_outline_rounded,
+                                        onPressed: () => codeProvider
+                                            .deleteLink(widget.code, index),
+                                      ),
+                                      const Spacer(),
+                                    ]),
+                              ),
+                            ),
+                          ],
+                        );
+                      },
+                    );
+            },
           ),
-          floatingActionButton: _isGlassVisible
-              ? null
-              : CustomInnerFAB(
-                  onPressed: _showGlassPage,
-                ),
+          floatingActionButton: const CustomInnerFAB(),
           floatingActionButtonLocation:
               FloatingActionButtonLocation.centerFloat,
         ),
@@ -267,9 +207,60 @@ class _InnerPageState extends State<InnerPage>
 
   @override
   void dispose() {
-    _controller.dispose();
     _linkController.dispose();
     _editController.dispose();
     super.dispose();
+  }
+}
+
+class CustomInnerFAB extends StatelessWidget {
+  const CustomInnerFAB({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = Provider.of<AppColors>(context);
+    return Container(
+      padding: const EdgeInsets.all(8),
+      width: MediaQuery.of(context).size.width - 25,
+      height: 90,
+      decoration: BoxDecoration(
+          color: colors.bgClr,
+          borderRadius: BorderRadius.circular(50),
+          border: Border.all(color: colors.fgClr, width: 1)),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          Container(
+            padding: const EdgeInsets.all(8),
+            width: MediaQuery.of(context).size.width - 100,
+            decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(50), color: colors.box),
+            child: TextField(
+              minLines: null,
+              maxLines: null,
+              expands: true,
+              style: TextStyle(
+                color: colors.fgClr,
+                fontFamily: 'Product',
+              ),
+              decoration: const InputDecoration(
+                contentPadding:
+                    EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                border: InputBorder.none,
+                focusedBorder: InputBorder.none,
+                enabledBorder: InputBorder.none,
+                errorBorder: InputBorder.none,
+                disabledBorder: InputBorder.none,
+              ),
+            ),
+          ),
+          const Spacer(),
+          IconButton(
+              onPressed: () {}, icon: Icon(Icons.add, color: colors.fgClr)),
+          const Spacer(),
+        ],
+      ),
+    );
   }
 }
