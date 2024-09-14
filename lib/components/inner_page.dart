@@ -20,10 +20,12 @@ class InnerPage extends StatefulWidget {
 class _InnerPageState extends State<InnerPage>
     with SingleTickerProviderStateMixin {
   final TextEditingController _linkController = TextEditingController();
-  final TextEditingController _editController = TextEditingController();
   final TextEditingController _headController = TextEditingController();
 
   Map<String, PreviewData> fetched = {};
+
+  bool _isEditMode = false;
+  int _editIndex = -1;
 
   @override
   Widget build(BuildContext context) {
@@ -68,12 +70,16 @@ class _InnerPageState extends State<InnerPage>
                                 color: Colors.blue, // Adjust color
                                 borderRadius: BorderRadius.circular(20),
                               ),
-                              child: const Center(
-                                child: Text(
-                                  "This is the first container",
-                                  style: TextStyle(
-                                      color: Colors.white, fontSize: 20),
-                                ),
+                              child: ListView(
+                                children: const [
+                                  Center(
+                                    child: Text(
+                                      "This is the first container",
+                                      style: TextStyle(
+                                          color: Colors.white, fontSize: 20),
+                                    ),
+                                  ),
+                                ],
                               ),
                             ),
                           );
@@ -162,12 +168,14 @@ class _InnerPageState extends State<InnerPage>
                                         const Spacer(),
                                         InnerPageButton(
                                           icon: Icons.mode_edit_outline_rounded,
-                                          onPressed: () => _editLink(
-                                              context,
-                                              codeProvider,
-                                              index - 1,
-                                              links[index - 1],
-                                              colors),
+                                          onPressed: () {
+                                            setState(() {
+                                              _isEditMode = true;
+                                              _editIndex = index - 1;
+                                              _linkController.text =
+                                                  links[index - 1];
+                                            });
+                                          },
                                         ),
                                         const Spacer(),
                                         InnerPageButton(
@@ -183,21 +191,34 @@ class _InnerPageState extends State<InnerPage>
                             ],
                           );
                         }
-                        return null;
                       });
             },
           ),
           floatingActionButton: CustomInnerFAB(
             onConfirm: () {
               if (_linkController.text.isNotEmpty) {
-                codeProvider.addLink(widget.code, _linkController.text);
+                if (_isEditMode) {
+                  codeProvider.editLink(
+                      widget.code, _editIndex, _linkController.text);
+                } else {
+                  codeProvider.addLink(widget.code, _linkController.text);
+                }
               }
+              setState(() {
+                _isEditMode = false;
+                _editIndex = -1;
+              });
               _linkController.clear();
             },
             onCancel: () {
+              setState(() {
+                _isEditMode = false;
+                _editIndex = -1;
+              });
               _linkController.clear();
             },
             controller: _linkController,
+            isEditMode: _isEditMode,
           ),
           floatingActionButtonLocation:
               FloatingActionButtonLocation.centerFloat,
@@ -206,49 +227,10 @@ class _InnerPageState extends State<InnerPage>
     );
   }
 
-  void _editLink(BuildContext context, CodeGen codeProvider, int index,
-      String currentLink, AppColors colors) {
-    _editController.text = currentLink;
-    showDialog(
-      context: context,
-      builder: (context) {
-        return AlertDialog(
-          backgroundColor: colors.box,
-          title: Text(
-            "Edit Link",
-            style: TextStyle(color: colors.textClr),
-          ),
-          content: TextField(
-            controller: _editController,
-            decoration: const InputDecoration(hintText: "Enter new link"),
-          ),
-          actions: [
-            TextButton(
-              child: const Text("Cancel"),
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-            ),
-            TextButton(
-              child: const Text("Save"),
-              onPressed: () {
-                if (_editController.text.isNotEmpty) {
-                  codeProvider.editLink(
-                      widget.code, index, _editController.text);
-                  Navigator.of(context).pop();
-                }
-              },
-            ),
-          ],
-        );
-      },
-    );
-  }
-
   @override
   void dispose() {
     _linkController.dispose();
-    _editController.dispose();
+    _headController.dispose();
     super.dispose();
   }
 }
@@ -258,10 +240,12 @@ class CustomInnerFAB extends StatelessWidget {
       {super.key,
       required this.onConfirm,
       required this.onCancel,
-      required this.controller});
+      required this.controller,
+      required this.isEditMode});
   final VoidCallback onConfirm;
   final VoidCallback onCancel;
   final TextEditingController controller;
+  final bool isEditMode;
 
   @override
   Widget build(BuildContext context) {
@@ -313,7 +297,9 @@ class CustomInnerFAB extends StatelessWidget {
                 const Spacer(),
                 IconButton(
                     onPressed: onConfirm,
-                    icon: const Icon(Icons.check_rounded, color: Colors.green)),
+                    icon: Icon(
+                        isEditMode ? Icons.check_rounded : Icons.add_rounded,
+                        color: Colors.green)),
                 const Spacer(),
                 IconButton(
                     onPressed: onCancel,

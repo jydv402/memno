@@ -15,6 +15,7 @@ class MainTile extends StatefulWidget {
 
 class _MainTileState extends State<MainTile> {
   Filters _filter = Filters.all;
+  final TextEditingController _searchController = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
@@ -50,7 +51,7 @@ class _MainTileState extends State<MainTile> {
               )
             : ListView.builder(
                 padding: const EdgeInsets.only(bottom: 130),
-                itemCount: filteredList.length + 1,
+                itemCount: filteredList.length + 2,
                 itemBuilder: (context, index) {
                   if (index == 0) {
                     return TopAccentBox(
@@ -59,8 +60,10 @@ class _MainTileState extends State<MainTile> {
                       filter: _filter,
                       customToggle: _customToggleButtons(context),
                     );
+                  } else if (index == 1) {
+                    return subTileSearch(context);
                   } else {
-                    final reversedIndex = filteredList.length - index;
+                    final reversedIndex = filteredList.length - index + 1;
                     final code = filteredList[reversedIndex];
                     final date = codeProvider.getDateForCode(code);
                     final isLiked = codeProvider.getLikeForCode(code);
@@ -135,6 +138,42 @@ class _MainTileState extends State<MainTile> {
             child:
                 const Text('Empty', style: TextStyle(fontFamily: 'Product'))),
       ],
+    );
+  }
+
+  Widget subTileSearch(BuildContext context) {
+    final colors = Provider.of<AppColors>(context);
+    return Container(
+      margin: const EdgeInsets.fromLTRB(2, 4, 2, 4),
+      padding: const EdgeInsets.fromLTRB(26, 0, 4, 0),
+      height: 75,
+      alignment: Alignment.center,
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(50),
+        color: colors.bgClr,
+        border: Border.all(color: colors.search),
+      ),
+      child: TextField(
+        controller: _searchController,
+        maxLines: 1,
+        style: TextStyle(
+          color: colors.fgClr,
+          fontFamily: 'Product',
+        ),
+        decoration: InputDecoration(
+          icon: const Icon(
+            Icons.search_rounded,
+          ),
+          iconColor: colors.search,
+          contentPadding:
+              const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+          border: InputBorder.none,
+          focusedBorder: InputBorder.none,
+          enabledBorder: InputBorder.none,
+          errorBorder: InputBorder.none,
+          disabledBorder: InputBorder.none,
+        ),
+      ),
     );
   }
 }
