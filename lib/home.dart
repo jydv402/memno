@@ -21,10 +21,17 @@ class _HomePageState extends State<HomePage> {
   Filters _filter = Filters.all;
   final TextEditingController _searchController = TextEditingController();
   String _searchedCode = '';
+  bool isSearchBarVisible = false;
 
   @override
   void initState() {
     super.initState();
+  }
+
+  void switchSearchMode() {
+    setState(() {
+      isSearchBarVisible = !isSearchBarVisible;
+    });
   }
 
   List<int> listFilter(CodeGen codeProvider) {
@@ -76,8 +83,6 @@ class _HomePageState extends State<HomePage> {
   Widget build(BuildContext context) {
     final colors = Provider.of<AppColors>(context);
 
-    bool isKeybrdVisible = MediaQuery.of(context).viewInsets.bottom > 0;
-
     return Scaffold(
       backgroundColor: colors.bgClr,
       appBar: AppBar(
@@ -111,7 +116,6 @@ class _HomePageState extends State<HomePage> {
                       filter: _filter,
                       customToggle: _customToggleButtons(context),
                     ),
-                    subTileSearch(context),
                     const SizedBox(height: 50),
                     Center(
                       child: Text(
@@ -126,7 +130,7 @@ class _HomePageState extends State<HomePage> {
                 )
               : ListView.builder(
                   padding: const EdgeInsets.only(bottom: 130),
-                  itemCount: filteredList.length + 2,
+                  itemCount: filteredList.length + 1,
                   itemBuilder: (context, index) {
                     if (index == 0) {
                       return TopAccentBox(
@@ -135,10 +139,8 @@ class _HomePageState extends State<HomePage> {
                         filter: _filter,
                         customToggle: _customToggleButtons(context),
                       );
-                    } else if (index == 1) {
-                      return subTileSearch(context);
                     } else {
-                      final reversedIndex = filteredList.length - index + 1;
+                      final reversedIndex = filteredList.length - index;
                       final code = filteredList[reversedIndex];
                       final date = codeProvider.getDateForCode(code);
                       final isLiked = codeProvider.getLikeForCode(code);
@@ -147,7 +149,11 @@ class _HomePageState extends State<HomePage> {
                   });
         },
       ),
-      floatingActionButton: isKeybrdVisible ? null : const CustomFAB(),
+      floatingActionButton: isSearchBarVisible
+          ? subTileSearch(context)
+          : CustomFAB(
+              onSearch: switchSearchMode,
+            ),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
     );
   }
@@ -203,7 +209,14 @@ class _HomePageState extends State<HomePage> {
         keyboardType: TextInputType.number,
         inputFormatters: [FilteringTextInputFormatter.digitsOnly],
         controller: _searchController,
-        //autofocus: true,
+        autofocus: true,
+        onTapOutside: (event) {
+          setState(() {
+            _searchedCode = '';
+            _searchController.clear();
+          });
+          switchSearchMode();
+        },
         onTap: () {
           setState(() {
             _searchedCode = '';
@@ -241,11 +254,13 @@ class _HomePageState extends State<HomePage> {
 class CustomFAB extends StatelessWidget {
   const CustomFAB({
     super.key,
+    required this.onSearch,
   });
 
   final double radius = 50.0;
   final double height = 100.0;
   final double width = 200.0;
+  final VoidCallback onSearch;
 
   @override
   Widget build(BuildContext context) {
@@ -323,7 +338,7 @@ class CustomFAB extends StatelessWidget {
                   shape: const CircleBorder(),
                   fixedSize: Size(height - 20, height - 20),
                 ),
-                onPressed: () {},
+                onPressed: onSearch,
                 child: const Icon(Icons.search_rounded, size: 30)),
             const Spacer(),
           ],

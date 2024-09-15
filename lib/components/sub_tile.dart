@@ -47,15 +47,8 @@ class _SubTileStackState extends State<SubTileStack> {
       children: [
         //Background Container
         BgContainer(
-            radius: widget.radius,
-            onTap: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => InnerPage(code: widget.code),
-                ),
-              );
-            }),
+          radius: widget.radius,
+        ),
         if (!showDltConfirm) ...[
           //Code Text
           CodeText(code: widget.code),
@@ -187,24 +180,19 @@ class BgContainer extends StatelessWidget {
   const BgContainer({
     super.key,
     required this.radius,
-    required this.onTap,
   });
 
   final double radius;
-  final VoidCallback onTap;
 
   @override
   Widget build(BuildContext context) {
     final colors = Provider.of<AppColors>(context);
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        height: 220,
-        width: MediaQuery.of(context).size.width,
-        decoration: BoxDecoration(
-          color: colors.box,
-          borderRadius: BorderRadius.circular(radius),
-        ),
+    return Container(
+      height: 220,
+      width: MediaQuery.of(context).size.width,
+      decoration: BoxDecoration(
+        color: colors.box,
+        borderRadius: BorderRadius.circular(radius),
       ),
     );
   }
