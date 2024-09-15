@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:memno/components/sub_tile.dart';
 import 'package:memno/functionality/code_gen.dart';
 import 'package:memno/theme/app_colors.dart';
@@ -16,6 +17,12 @@ class MainTile extends StatefulWidget {
 class _MainTileState extends State<MainTile> {
   Filters _filter = Filters.all;
   final TextEditingController _searchController = TextEditingController();
+  String _searchedCode = '';
+
+  @override
+  void initState() {
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -37,7 +44,8 @@ class _MainTileState extends State<MainTile> {
                     filter: _filter,
                     customToggle: _customToggleButtons(context),
                   ),
-                  const SizedBox(height: 100),
+                  subTileSearch(context),
+                  const SizedBox(height: 50),
                   Center(
                     child: Text(
                       _emptyMsg(),
@@ -75,24 +83,38 @@ class _MainTileState extends State<MainTile> {
   }
 
   List<int> listFilter(CodeGen codeProvider) {
+    List<int> filteredList;
     switch (_filter) {
       case Filters.all:
-        return codeProvider.codeList;
+        filteredList = codeProvider.codeList;
       case Filters.liked:
-        return codeProvider.codeList
+        filteredList = codeProvider.codeList
             .where((element) => codeProvider.getLikeForCode(element))
             .toList();
       case Filters.empty:
-        //where
-        return codeProvider.codeList
+        filteredList = codeProvider.codeList
             .where((element) => codeProvider.getLinkListLength(element) == 0)
             .toList();
       default:
-        return codeProvider.codeList;
+        filteredList = codeProvider.codeList;
     }
+
+    if (_searchedCode.isNotEmpty) {
+      filteredList = filteredList.where(
+        (code) {
+          final codeString = code.toString();
+          return codeString.contains(_searchedCode);
+        },
+      ).toList();
+    }
+
+    return filteredList;
   }
 
   String _emptyMsg() {
+    if (_searchedCode.isNotEmpty) {
+      return "No results found for \"$_searchedCode\"";
+    }
     switch (_filter) {
       case Filters.all:
         return "Generate Code to view";
@@ -150,11 +172,24 @@ class _MainTileState extends State<MainTile> {
       alignment: Alignment.center,
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(50),
-        color: colors.bgClr,
-        border: Border.all(color: colors.search),
+        color: colors.box,
       ),
       child: TextField(
+        keyboardType: TextInputType.number,
+        inputFormatters: [FilteringTextInputFormatter.digitsOnly],
         controller: _searchController,
+        //autofocus: true,
+        onTap: () {
+          setState(() {
+            _searchedCode = '';
+            _searchController.clear();
+          });
+        },
+        onChanged: (value) {
+          setState(() {
+            _searchedCode = value;
+          });
+        },
         maxLines: 1,
         style: TextStyle(
           color: colors.fgClr,
@@ -164,7 +199,7 @@ class _MainTileState extends State<MainTile> {
           icon: const Icon(
             Icons.search_rounded,
           ),
-          iconColor: colors.search,
+          iconColor: colors.textClr,
           contentPadding:
               const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
           border: InputBorder.none,
@@ -175,6 +210,12 @@ class _MainTileState extends State<MainTile> {
         ),
       ),
     );
+  }
+
+  @override
+  void dispose() {
+    _searchController.dispose();
+    super.dispose();
   }
 }
 

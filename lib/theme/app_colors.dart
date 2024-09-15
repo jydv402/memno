@@ -34,7 +34,6 @@ class AppColors extends ChangeNotifier {
   Color get bgClr => _isDarkMode ? _dark.bgClr : _light.bgClr;
   Color get fgClr => _isDarkMode ? _dark.fgClr : _light.fgClr;
   Color get box => _isDarkMode ? _dark.box : _light.box;
-  Color get search => _isDarkMode ? _dark.search : _light.search;
   Color get accnt => _isDarkMode ? _dark.accnt : _light.accnt;
   Color get accntPill => _isDarkMode ? _dark.accntPill : _light.accntPill;
   Color get accntText => _isDarkMode ? _dark.accntText : _light.accntText;
@@ -49,7 +48,6 @@ class LightColors {
   final Color bgClr = Colors.white;
   final Color fgClr = Colors.black;
   final Color box = Colors.grey[100]!;
-  final Color search = Colors.black;
   final Color accnt = const Color(0xFFdafc08);
   final Color accntPill = const Color(0xFFf6fec2);
   final Color accntText = Colors.black;
@@ -64,7 +62,6 @@ class DarkColors {
   final Color bgClr = Colors.black;
   final Color fgClr = Colors.white;
   final Color box = Colors.grey[900]!;
-  final Color search = const Color(0xFFdafc08);
   final Color accnt = const Color(0xFFdafc08);
   final Color accntPill = Colors.black;
   final Color accntText = Colors.white;

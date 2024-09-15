@@ -24,6 +24,8 @@ class _HomePageState extends State<HomePage> {
   Widget build(BuildContext context) {
     final colors = Provider.of<AppColors>(context);
 
+    bool isKeybrdVisible = MediaQuery.of(context).viewInsets.bottom > 0;
+
     return Scaffold(
       backgroundColor: colors.bgClr,
       appBar: AppBar(
@@ -41,7 +43,7 @@ class _HomePageState extends State<HomePage> {
         ),
       ),
       body: const MainTile(),
-      floatingActionButton: const CustomFAB(),
+      floatingActionButton: isKeybrdVisible ? null : const CustomFAB(),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
     );
   }
