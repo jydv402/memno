@@ -45,6 +45,7 @@ dependencies:
   any_link_preview: ^3.0.2
   flutter_native_splash: ^2.4.1
   lottie: ^3.1.2
+  delightful_toast: ^1.1.0
 
 
   

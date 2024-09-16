@@ -1,3 +1,5 @@
+import 'package:delightful_toast/toast/components/toast_card.dart';
+import 'package:delightful_toast/toast/utils/enums.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:memno/components/inner_page.dart';
@@ -7,6 +9,7 @@ import 'package:memno/functionality/code_gen.dart';
 import 'package:memno/theme/app_colors.dart';
 import 'package:provider/provider.dart';
 import 'package:glassmorphism/glassmorphism.dart';
+import 'package:delightful_toast/delight_toast.dart';
 
 enum Filters { all, liked, empty }
 
@@ -26,11 +29,19 @@ class _HomePageState extends State<HomePage> {
   @override
   void initState() {
     super.initState();
+    clearState();
   }
 
   void switchSearchMode() {
     setState(() {
       isSearchBarVisible = !isSearchBarVisible;
+    });
+  }
+
+  void clearState() {
+    setState(() {
+      _searchController.clear();
+      _searchedCode = '';
     });
   }
 
@@ -58,6 +69,8 @@ class _HomePageState extends State<HomePage> {
           return codeString.contains(_searchedCode);
         },
       ).toList();
+      showToastMsg(
+          "${filteredList.length} results found for \"$_searchedCode\"");
     }
 
     return filteredList;
@@ -77,6 +90,21 @@ class _HomePageState extends State<HomePage> {
       default:
         return "Generate Code to view";
     }
+  }
+
+  void showToastMsg(String msg) {
+    final colors = Provider.of<AppColors>(context);
+    DelightToastBar(
+      autoDismiss: true,
+      snackbarDuration: const Duration(seconds: 1),
+      position: DelightSnackbarPosition.top,
+      builder: (context) => ToastCard(
+          color: colors.box,
+          title: Text(
+            msg,
+            style: TextStyle(fontFamily: 'Product', color: colors.textClr),
+          )),
+    ).show(context);
   }
 
   @override
@@ -126,6 +154,7 @@ class _HomePageState extends State<HomePage> {
                         ),
                       ),
                     ),
+                    SizedBox(height: MediaQuery.of(context).size.height * 0.35),
                   ],
                 )
               : ListView.builder(
@@ -152,7 +181,10 @@ class _HomePageState extends State<HomePage> {
       floatingActionButton: isSearchBarVisible
           ? subTileSearch(context)
           : CustomFAB(
-              onSearch: switchSearchMode,
+              onSearch: () {
+                switchSearchMode();
+                clearState();
+              },
             ),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
     );
@@ -196,56 +228,73 @@ class _HomePageState extends State<HomePage> {
 
   Widget subTileSearch(BuildContext context) {
     final colors = Provider.of<AppColors>(context);
-    return Container(
-      margin: const EdgeInsets.fromLTRB(2, 4, 2, 4),
-      padding: const EdgeInsets.fromLTRB(26, 0, 4, 0),
-      height: 75,
-      alignment: Alignment.center,
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(50),
-        color: colors.box,
-      ),
-      child: TextField(
-        keyboardType: TextInputType.number,
-        inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-        controller: _searchController,
-        autofocus: true,
-        onTapOutside: (event) {
-          setState(() {
-            _searchedCode = '';
-            _searchController.clear();
-          });
-          switchSearchMode();
-        },
-        onTap: () {
-          setState(() {
-            _searchedCode = '';
-            _searchController.clear();
-          });
-        },
-        onChanged: (value) {
-          setState(() {
-            _searchedCode = value;
-          });
-        },
-        maxLines: 1,
-        style: TextStyle(
-          color: colors.fgClr,
-          fontFamily: 'Product',
-        ),
-        decoration: InputDecoration(
-          icon: const Icon(
-            Icons.search_rounded,
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(4, 0, 4, 0),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Expanded(
+            child: Container(
+              margin: const EdgeInsets.fromLTRB(2, 4, 2, 4),
+              padding: const EdgeInsets.fromLTRB(26, 0, 4, 0),
+              height: 75,
+              alignment: Alignment.center,
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(50),
+                color: colors.box,
+                border: Border.all(color: colors.search),
+              ),
+              child: TextField(
+                maxLength: 6,
+                keyboardType: TextInputType.number,
+                inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                controller: _searchController,
+                autofocus: true,
+                onTap: () {
+                  setState(() {
+                    _searchedCode = '';
+                    _searchController.clear();
+                  });
+                },
+                onChanged: (value) {
+                  setState(() {
+                    _searchedCode = value;
+                  });
+                },
+                maxLines: 1,
+                style: TextStyle(
+                  color: colors.fgClr,
+                  fontFamily: 'Product',
+                ),
+                decoration: InputDecoration(
+                  icon: const Icon(
+                    Icons.search_rounded,
+                  ),
+                  iconColor: colors.search,
+                  contentPadding:
+                      const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                  border: InputBorder.none,
+                  focusedBorder: InputBorder.none,
+                  enabledBorder: InputBorder.none,
+                  errorBorder: InputBorder.none,
+                  disabledBorder: InputBorder.none,
+                ),
+              ),
+            ),
           ),
-          iconColor: colors.textClr,
-          contentPadding:
-              const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-          border: InputBorder.none,
-          focusedBorder: InputBorder.none,
-          enabledBorder: InputBorder.none,
-          errorBorder: InputBorder.none,
-          disabledBorder: InputBorder.none,
-        ),
+          const SizedBox(width: 4),
+          ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                backgroundColor: colors.search,
+                shape: const CircleBorder(),
+                padding: const EdgeInsets.all(25),
+              ),
+              onPressed: () {
+                switchSearchMode();
+                clearState();
+              },
+              child: Icon(Icons.close_rounded, color: colors.box))
+        ],
       ),
     );
   }
