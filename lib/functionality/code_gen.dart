@@ -7,7 +7,7 @@ class CodeGen extends ChangeNotifier {
   late Box<CodeData> _codeBox;
   bool _isReady = false;
   final bool liked = false;
-  final String head = "Add heading";
+  final String head = "Untitled";
 
   CodeGen() {
     init();

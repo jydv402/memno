@@ -90,7 +90,7 @@ class _InnerPageState extends State<InnerPage>
                                   bottom: 10,
                                   right: 10,
                                   child: IconButton(
-                                      tooltip: "Edit Head",
+                                      tooltip: "Edit title",
                                       onPressed: () {
                                         setState(() {
                                           _isEditMode = 2;

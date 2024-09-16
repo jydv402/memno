@@ -52,6 +52,8 @@ class _SubTileStackState extends State<SubTileStack> {
         if (!showDltConfirm) ...[
           //Code Text
           CodeText(code: widget.code),
+          //Head Text
+          HeadText(code: widget.code),
           //Length indicator
           LengthIndicator(
             radius: widget.radius,
@@ -188,7 +190,7 @@ class BgContainer extends StatelessWidget {
   Widget build(BuildContext context) {
     final colors = Provider.of<AppColors>(context);
     return Container(
-      height: 220,
+      height: 240,
       width: MediaQuery.of(context).size.width,
       decoration: BoxDecoration(
         color: colors.box,
@@ -215,12 +217,39 @@ class CodeText extends StatelessWidget {
         "#$code",
         style: TextStyle(
             color: colors.textClr,
-            fontSize: 28,
+            fontSize: 24,
             fontWeight: FontWeight.w400,
             fontFamily: 'Product'),
         textAlign: TextAlign.center,
       ),
     );
+  }
+}
+
+class HeadText extends StatelessWidget {
+  const HeadText({
+    super.key,
+    required this.code,
+  });
+
+  final int code;
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = Provider.of<AppColors>(context);
+    String head = Provider.of<CodeGen>(context).getHeadForCode(code);
+    return Positioned(
+        bottom: 96,
+        left: 26,
+        child: Text(
+          head.length > 18 ? "${head.substring(0, 18)}..." : head,
+          style: TextStyle(
+              color: colors.textClr,
+              fontSize: 36,
+              fontWeight: FontWeight.w500,
+              fontFamily: 'Product'),
+          textAlign: TextAlign.center,
+        ));
   }
 }
 
