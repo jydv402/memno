@@ -6,6 +6,8 @@ class PreviewMap extends ChangeNotifier {
 
   Map<String, PreviewData> get cache => _cache;
 
+  //Stores preview as cache
+  //Cleared once the app is completely removed from the recents list
   void storePreview(String url, PreviewData previewData) {
     if (!_cache.containsKey(url)) {
       _cache = {..._cache, url: previewData};

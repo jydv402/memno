@@ -12,6 +12,8 @@ class CodeGen extends ChangeNotifier {
   CodeGen() {
     init();
   }
+
+  //initializes hive
   Future<void> init() async {
     Hive.registerAdapter(CodeDataAdapter());
     _codeBox = await Hive.openBox<CodeData>('codeData');
@@ -25,6 +27,7 @@ class CodeGen extends ChangeNotifier {
     return _codeBox.values.map((codeData) => codeData.code).toList();
   }
 
+  //generates 6 digit code
   Future<void> generateCode() async {
     var rnd = Random();
     int code;
@@ -37,6 +40,7 @@ class CodeGen extends ChangeNotifier {
     notifyListeners();
   }
 
+  //deletes a specific code
   Future<void> clearList(int code) async {
     var key =
         _codeBox.keys.firstWhere((key) => _codeBox.get(key)!.code == code);
@@ -52,6 +56,7 @@ class CodeGen extends ChangeNotifier {
     return codeData.links.length;
   }
 
+  //returns date
   String getDateForCode(int code) {
     final codeData =
         _codeBox.values.firstWhere((codeData) => codeData.code == code);
@@ -60,6 +65,7 @@ class CodeGen extends ChangeNotifier {
     return codeData.date;
   }
 
+  //returns liked status
   bool getLikeForCode(int code) {
     final codeData =
         _codeBox.values.firstWhere((codeData) => codeData.code == code);
@@ -77,6 +83,7 @@ class CodeGen extends ChangeNotifier {
     notifyListeners();
   }
 
+  //returns list of links
   List<String> getLinksForCode(int code) {
     final codeData =
         _codeBox.values.firstWhere((codeData) => codeData.code == code);
@@ -95,6 +102,7 @@ class CodeGen extends ChangeNotifier {
     notifyListeners();
   }
 
+  //returns heading text
   String getHeadForCode(int code) {
     final codeData =
         _codeBox.values.firstWhere((codeData) => codeData.code == code);
@@ -102,6 +110,7 @@ class CodeGen extends ChangeNotifier {
     return codeData.head;
   }
 
+  //Add link to a specific code
   Future<void> addLink(int code, String link) async {
     final codeData =
         _codeBox.values.firstWhere((codeData) => codeData.code == code);
@@ -111,6 +120,7 @@ class CodeGen extends ChangeNotifier {
     notifyListeners();
   }
 
+  //Edit links within a specific code
   Future<void> editLink(int code, int index, String newLink) async {
     final codeData =
         _codeBox.values.firstWhere((codeData) => codeData.code == code);
@@ -122,6 +132,7 @@ class CodeGen extends ChangeNotifier {
     }
   }
 
+  //Delete link within a specific code
   Future<void> deleteLink(int code, int index) async {
     final codeData =
         _codeBox.values.firstWhere((codeData) => codeData.code == code);
