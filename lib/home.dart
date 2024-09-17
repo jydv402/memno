@@ -2,6 +2,7 @@ import 'package:delightful_toast/toast/components/toast_card.dart';
 import 'package:delightful_toast/toast/utils/enums.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:memno/components/custom_overlay.dart';
 import 'package:memno/components/inner_page.dart';
 import 'package:memno/components/settings_page.dart';
 import 'package:memno/components/sub_tile.dart';
@@ -245,8 +246,6 @@ class _HomePageState extends State<HomePage> {
                 border: Border.all(color: colors.search),
               ),
               child: TextField(
-                maxLength: 6,
-                keyboardType: TextInputType.number,
                 inputFormatters: [FilteringTextInputFormatter.digitsOnly],
                 controller: _searchController,
                 autofocus: true,
@@ -355,10 +354,12 @@ class CustomFAB extends StatelessWidget {
               onPressed: () {
                 context.read<CodeGen>().generateCode();
                 Navigator.of(context).push(PageRouteBuilder(
-                  transitionDuration: const Duration(milliseconds: 600),
+                  transitionDuration: const Duration(milliseconds: 500),
                   pageBuilder: (context, animation, secondaryAnimation) {
-                    return InnerPage(
-                        code: context.read<CodeGen>().codeList.last);
+                    return CustomOverlay(
+                      child: InnerPage(
+                          code: context.read<CodeGen>().codeList.last),
+                    );
                   },
                   transitionsBuilder:
                       (context, animation, secondaryAnimation, child) {
