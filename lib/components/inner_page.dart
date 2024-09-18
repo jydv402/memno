@@ -192,7 +192,7 @@ class _InnerPageState extends State<InnerPage>
                                         //Copy Button in Button Bar
                                         InnerPageButton(
                                           onPressed: () {
-                                            showToastInnerPage("Link copied!");
+                                            showToastInnerPage("Item copied!");
                                             Clipboard.setData(
                                               ClipboardData(
                                                   text: links[index - 1]),
@@ -267,16 +267,16 @@ class _InnerPageState extends State<InnerPage>
                 if (_isEditMode == 1) {
                   codeProvider.editLink(
                       widget.code, _editIndex, _linkController.text);
-                  showToastInnerPage("Link edited!");
+                  showToastInnerPage("Entry edited!");
                 } else if (_isEditMode == 2) {
                   codeProvider.addHead(widget.code, _linkController.text);
                   showToastInnerPage("New title added!");
                 } else if (_isEditMode == 3) {
                   codeProvider.deleteLink(widget.code, _editIndex);
-                  showToastInnerPage("Link deleted!");
+                  showToastInnerPage("Entry deleted!");
                 } else {
                   codeProvider.addLink(widget.code, _linkController.text);
-                  showToastInnerPage("New link added!");
+                  showToastInnerPage("New entry added!");
                 }
               }
               setState(() {
@@ -284,6 +284,7 @@ class _InnerPageState extends State<InnerPage>
                 _editIndex = -1;
               });
               _linkController.clear();
+              FocusScope.of(context).unfocus();
             },
             onCancel: () {
               if (_linkController.text.isNotEmpty) {
@@ -294,6 +295,7 @@ class _InnerPageState extends State<InnerPage>
                 _editIndex = -1;
               });
               _linkController.clear();
+              FocusScope.of(context).unfocus();
             },
             controller: _linkController,
             isEditMode: _isEditMode,
