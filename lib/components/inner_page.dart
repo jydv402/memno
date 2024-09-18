@@ -12,6 +12,7 @@ import 'package:memno/functionality/preview_map.dart';
 import 'package:memno/theme/app_colors.dart';
 import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:linkfy_text/linkfy_text.dart';
 
 class InnerPage extends StatefulWidget {
   final int code;
@@ -24,6 +25,7 @@ class InnerPage extends StatefulWidget {
 class _InnerPageState extends State<InnerPage>
     with SingleTickerProviderStateMixin {
   final TextEditingController _linkController = TextEditingController();
+  final FocusNode _fabFocus = FocusNode();
 
   Map<String, PreviewData> fetched = {};
 
@@ -68,61 +70,28 @@ class _InnerPageState extends State<InnerPage>
           body: Consumer2<CodeGen, PreviewMap>(
             builder: (context, codeProvider, previewMap, child) {
               final links = codeProvider.getLinksForCode(widget.code);
+              String head = codeProvider.getHeadForCode(widget.code);
 
               return links.isEmpty
-                  ? Center(
-                      child: Text(
-                        "It's so empty here...",
-                        style: TextStyle(
-                            color: colors.textClr, fontFamily: 'Product'),
-                      ),
+                  ? ListView(
+                      children: [
+                        innerPageTopBar(context, head),
+                        const SizedBox(height: 50),
+                        Center(
+                          child: Text(
+                            "It's so empty here...",
+                            style: TextStyle(
+                                color: colors.textClr, fontFamily: 'Product'),
+                          ),
+                        ),
+                      ],
                     )
                   : ListView.builder(
                       padding: const EdgeInsets.only(bottom: 160),
                       itemCount: links.length + 1,
                       itemBuilder: (context, index) {
                         if (index == 0) {
-                          String head =
-                              codeProvider.getHeadForCode(widget.code);
-                          return Container(
-                            alignment: Alignment.centerLeft,
-                            width: MediaQuery.of(context).size.width,
-                            margin: const EdgeInsets.fromLTRB(2, 0, 2, 4),
-                            height: 160,
-                            decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(50),
-                              color: colors.accnt,
-                            ),
-                            child: Stack(
-                              children: [
-                                Positioned(
-                                  top: 38,
-                                  left: 24,
-                                  child: Text(
-                                      head.length > 12
-                                          ? "${head.substring(0, 12)}..."
-                                          : head,
-                                      style: const TextStyle(
-                                          fontFamily: 'Product',
-                                          fontWeight: FontWeight.w700,
-                                          fontSize: 48)),
-                                ),
-                                Positioned(
-                                    bottom: 10,
-                                    right: 10,
-                                    child: IconButton(
-                                        tooltip: "Edit title",
-                                        onPressed: () {
-                                          setState(() {
-                                            _isEditMode = 2;
-                                            _linkController.text = head;
-                                          });
-                                        },
-                                        icon: const Icon(
-                                            Icons.mode_edit_outline_outlined)))
-                              ],
-                            ),
-                          );
+                          return innerPageTopBar(context, head);
                         } else {
                           final previewData =
                               previewMap.cache[links[index - 1]];
@@ -156,13 +125,31 @@ class _InnerPageState extends State<InnerPage>
                                               enableAnimation: true,
                                               openOnPreviewImageTap: true,
                                               openOnPreviewTitleTap: true,
-                                              metadataTextStyle: TextStyle(
-                                                color: colors.textClr,
+                                              textWidget: LinkifyText(
+                                                links[index - 1],
+                                                linkStyle: const TextStyle(
+                                                  color: Colors.blue,
+                                                  fontFamily: 'Product',
+                                                ),
+                                                overflow: TextOverflow.ellipsis,
+                                                onTap: (p0) {
+                                                  launchUrl(Uri.parse(
+                                                      links[index - 1]));
+                                                },
+                                                maxLines: 2,
                                               ),
+                                              textStyle: const TextStyle(
+                                                  fontFamily: 'Product',
+                                                  fontSize: 12),
                                               metadataTitleStyle: TextStyle(
-                                                color: colors.textClr,
-                                                fontWeight: FontWeight.bold,
-                                              ),
+                                                  color: colors.textClr,
+                                                  fontWeight: FontWeight.bold,
+                                                  fontSize: 28,
+                                                  fontFamily: 'Product'),
+                                              metadataTextStyle: TextStyle(
+                                                  color: colors.textClr,
+                                                  fontSize: 14,
+                                                  fontFamily: 'Product'),
                                               onLinkPressed: (url) {
                                                 launchUrl(Uri.parse(
                                                     links[index - 1]));
@@ -185,14 +172,16 @@ class _InnerPageState extends State<InnerPage>
                                                 style: TextStyle(
                                                   color: colors.textClr,
                                                   fontWeight: FontWeight.bold,
+                                                  fontFamily: 'Product',
+                                                  fontSize: 28,
                                                 ),
                                               ),
                                             ),
                                     )),
                               ),
                               Positioned(
-                                top: 5,
-                                right: 10,
+                                top: 10,
+                                right: 20,
                                 child: SizedBox(
                                   width: 200,
                                   height: 80,
@@ -200,7 +189,7 @@ class _InnerPageState extends State<InnerPage>
                                       mainAxisAlignment:
                                           MainAxisAlignment.center,
                                       children: [
-                                        const Spacer(),
+                                        //Copy Button in Button Bar
                                         InnerPageButton(
                                           onPressed: () {
                                             showToastInnerPage("Link copied!");
@@ -212,9 +201,9 @@ class _InnerPageState extends State<InnerPage>
                                           icon: Icons.copy_rounded,
                                         ),
                                         const Spacer(),
+                                        //Edit Button in Button Bar
                                         InnerPageButton(
-                                          icon:
-                                              Icons.mode_edit_outline_outlined,
+                                          icon: Icons.mode_edit_outline_rounded,
                                           onPressed: () {
                                             setState(() {
                                               _isEditMode = 1;
@@ -222,19 +211,50 @@ class _InnerPageState extends State<InnerPage>
                                               _linkController.text =
                                                   links[index - 1];
                                             });
+                                            FocusScope.of(context)
+                                                .requestFocus(_fabFocus);
                                           },
                                         ),
                                         const Spacer(),
+                                        //Delete Button in Button Bar
                                         InnerPageButton(
-                                          icon: Icons.delete_outline_rounded,
-                                          onPressed: () =>
-                                              codeProvider.deleteLink(
-                                                  widget.code, index - 1),
+                                          icon: Icons.delete_rounded,
+                                          onPressed: () {
+                                            setState(() {
+                                              _isEditMode = 3;
+                                              _editIndex = index - 1;
+                                              _linkController.text =
+                                                  "Do you want to delete entry no.$index ? This is irreversible.";
+                                            });
+                                            FocusScope.of(context)
+                                                .requestFocus(_fabFocus);
+                                          },
                                         ),
-                                        const Spacer(),
                                       ]),
                                 ),
                               ),
+                              Positioned(
+                                  top: 22,
+                                  left: 22,
+                                  child: Container(
+                                    height: 58,
+                                    width: 78,
+                                    decoration: const BoxDecoration(
+                                      borderRadius: BorderRadius.all(
+                                        Radius.circular(50),
+                                      ),
+                                      color: Colors.black,
+                                    ),
+                                    child: Center(
+                                      child: Text(
+                                        index.toString(),
+                                        style: const TextStyle(
+                                            fontSize: 18,
+                                            color: Colors.white,
+                                            fontFamily: 'Product'),
+                                      ),
+                                    ),
+                                  ))
                             ],
                           );
                         }
@@ -247,10 +267,16 @@ class _InnerPageState extends State<InnerPage>
                 if (_isEditMode == 1) {
                   codeProvider.editLink(
                       widget.code, _editIndex, _linkController.text);
+                  showToastInnerPage("Link edited!");
                 } else if (_isEditMode == 2) {
                   codeProvider.addHead(widget.code, _linkController.text);
+                  showToastInnerPage("New title added!");
+                } else if (_isEditMode == 3) {
+                  codeProvider.deleteLink(widget.code, _editIndex);
+                  showToastInnerPage("Link deleted!");
                 } else {
                   codeProvider.addLink(widget.code, _linkController.text);
+                  showToastInnerPage("New link added!");
                 }
               }
               setState(() {
@@ -260,6 +286,9 @@ class _InnerPageState extends State<InnerPage>
               _linkController.clear();
             },
             onCancel: () {
+              if (_linkController.text.isNotEmpty) {
+                showToastInnerPage("Action cancelled!");
+              }
               setState(() {
                 _isEditMode = 0;
                 _editIndex = -1;
@@ -268,10 +297,51 @@ class _InnerPageState extends State<InnerPage>
             },
             controller: _linkController,
             isEditMode: _isEditMode,
+            fabFocus: _fabFocus,
           ),
           floatingActionButtonLocation:
               FloatingActionButtonLocation.centerFloat,
         ),
+      ),
+    );
+  }
+
+  Widget innerPageTopBar(BuildContext context, String head) {
+    final colors = Provider.of<AppColors>(context);
+    return Container(
+      alignment: Alignment.centerLeft,
+      width: MediaQuery.of(context).size.width,
+      margin: const EdgeInsets.fromLTRB(2, 0, 2, 4),
+      height: 160,
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(50),
+        color: colors.accnt,
+      ),
+      child: Stack(
+        children: [
+          Positioned(
+            top: 42,
+            left: 26,
+            child: Text(head.length > 12 ? "${head.substring(0, 12)}..." : head,
+                style: const TextStyle(
+                    fontFamily: 'Product',
+                    fontWeight: FontWeight.w700,
+                    fontSize: 48)),
+          ),
+          Positioned(
+              bottom: 10,
+              right: 10,
+              child: IconButton(
+                  tooltip: "Edit title",
+                  onPressed: () {
+                    setState(() {
+                      _isEditMode = 2;
+                      _linkController.text = head;
+                    });
+                    FocusScope.of(context).requestFocus(_fabFocus);
+                  },
+                  icon: const Icon(Icons.mode_edit_outline_outlined)))
+        ],
       ),
     );
   }
@@ -285,16 +355,19 @@ class _InnerPageState extends State<InnerPage>
 }
 
 class CustomInnerFAB extends StatelessWidget {
-  const CustomInnerFAB(
-      {super.key,
-      required this.onConfirm,
-      required this.onCancel,
-      required this.controller,
-      required this.isEditMode});
+  const CustomInnerFAB({
+    super.key,
+    required this.onConfirm,
+    required this.onCancel,
+    required this.controller,
+    required this.isEditMode,
+    required this.fabFocus,
+  });
   final VoidCallback onConfirm;
   final VoidCallback onCancel;
   final TextEditingController controller;
   final int isEditMode;
+  final FocusNode fabFocus;
 
   @override
   Widget build(BuildContext context) {
@@ -319,6 +392,7 @@ class CustomInnerFAB extends StatelessWidget {
               decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(42), color: colors.box),
               child: TextField(
+                focusNode: fabFocus,
                 controller: controller,
                 minLines: null,
                 maxLines: null,

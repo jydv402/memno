@@ -217,7 +217,7 @@ class CodeText extends StatelessWidget {
         "#$code",
         style: TextStyle(
             color: colors.textClr,
-            fontSize: 24,
+            fontSize: 26,
             fontWeight: FontWeight.w400,
             fontFamily: 'Product'),
         textAlign: TextAlign.center,
