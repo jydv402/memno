@@ -1,16 +1,14 @@
-import 'package:delightful_toast/toast/components/toast_card.dart';
-import 'package:delightful_toast/toast/utils/enums.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:memno/components/custom_overlay.dart';
 import 'package:memno/components/inner_page.dart';
 import 'package:memno/components/settings_page.dart';
+import 'package:memno/components/show_toast.dart';
 import 'package:memno/components/sub_tile.dart';
 import 'package:memno/functionality/code_gen.dart';
 import 'package:memno/theme/app_colors.dart';
 import 'package:provider/provider.dart';
 import 'package:glassmorphism/glassmorphism.dart';
-import 'package:delightful_toast/delight_toast.dart';
 
 enum Filters { all, liked, empty }
 
@@ -67,10 +65,13 @@ class _HomePageState extends State<HomePage> {
       filteredList = filteredList.where(
         (code) {
           final codeString = code.toString();
-          return codeString.contains(_searchedCode);
+          final headString = codeProvider.getHeadForCode(code).toLowerCase();
+          final searchCodeLwr = _searchedCode.toLowerCase();
+          return codeString.contains(searchCodeLwr) ||
+              headString.contains(searchCodeLwr);
         },
       ).toList();
-      showToastMsg(
+      showToastMsg(context,
           "${filteredList.length} results found for \"$_searchedCode\"");
     }
 
@@ -91,21 +92,6 @@ class _HomePageState extends State<HomePage> {
       default:
         return "Generate Code to view";
     }
-  }
-
-  void showToastMsg(String msg) {
-    final colors = Provider.of<AppColors>(context);
-    DelightToastBar(
-      autoDismiss: true,
-      snackbarDuration: const Duration(seconds: 1),
-      position: DelightSnackbarPosition.top,
-      builder: (context) => ToastCard(
-          color: colors.box,
-          title: Text(
-            msg,
-            style: TextStyle(fontFamily: 'Product', color: colors.textClr),
-          )),
-    ).show(context);
   }
 
   @override
@@ -246,7 +232,6 @@ class _HomePageState extends State<HomePage> {
                 border: Border.all(color: colors.search),
               ),
               child: TextField(
-                inputFormatters: [FilteringTextInputFormatter.digitsOnly],
                 controller: _searchController,
                 autofocus: true,
                 onTap: () {

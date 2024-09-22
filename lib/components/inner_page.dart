@@ -1,12 +1,10 @@
 import 'package:any_link_preview/any_link_preview.dart';
-import 'package:delightful_toast/delight_toast.dart';
-import 'package:delightful_toast/toast/components/toast_card.dart';
-import 'package:delightful_toast/toast/utils/enums.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_chat_types/flutter_chat_types.dart' show PreviewData;
 import 'package:flutter_link_previewer/flutter_link_previewer.dart';
 import 'package:memno/components/inner_page_fun.dart';
+import 'package:memno/components/show_toast.dart';
 import 'package:memno/functionality/code_gen.dart';
 import 'package:memno/functionality/preview_map.dart';
 import 'package:memno/theme/app_colors.dart';
@@ -36,24 +34,6 @@ class _InnerPageState extends State<InnerPage>
   Widget build(BuildContext context) {
     final colors = Provider.of<AppColors>(context);
     final codeProvider = Provider.of<CodeGen>(context);
-
-    void showToastInnerPage(String msg) {
-      DelightToastBar(
-        autoDismiss: true,
-        snackbarDuration: const Duration(seconds: 2),
-        position: DelightSnackbarPosition.top,
-        builder: (context) => ToastCard(
-          color: Provider.of<AppColors>(context).box,
-          title: Text(
-            msg,
-            style: TextStyle(
-              fontFamily: 'Product',
-              color: Provider.of<AppColors>(context).textClr,
-            ),
-          ),
-        ),
-      ).show(context);
-    }
 
     return Hero(
       tag: 'fab_to_page',
@@ -113,8 +93,9 @@ class _InnerPageState extends State<InnerPage>
                                     ),
                                     child: Padding(
                                       padding: const EdgeInsets.only(top: 70),
+                                      //Strip the link at space
                                       child: AnyLinkPreview.isValidLink(
-                                              links[index - 1])
+                                              links[index - 1].split(' ').first)
                                           ? LinkPreview(
                                               requestTimeout:
                                                   const Duration(seconds: 10),
@@ -125,8 +106,25 @@ class _InnerPageState extends State<InnerPage>
                                               enableAnimation: true,
                                               openOnPreviewImageTap: true,
                                               openOnPreviewTitleTap: true,
+                                              header: links[index - 1]
+                                                          .split(' ')
+                                                          .length >
+                                                      1
+                                                  ? links[index - 1]
+                                                      .split(' ')
+                                                      .skip(1)
+                                                      .join(' ')
+                                                      .trim()
+                                                  : null,
+                                              headerStyle: TextStyle(
+                                                  color: colors.textClr,
+                                                  fontWeight: FontWeight.bold,
+                                                  fontSize: 32,
+                                                  fontFamily: 'Product'),
                                               textWidget: LinkifyText(
-                                                links[index - 1],
+                                                links[index - 1]
+                                                    .split(' ')
+                                                    .first,
                                                 linkStyle: const TextStyle(
                                                   color: Colors.blue,
                                                   fontFamily: 'Product',
@@ -144,7 +142,7 @@ class _InnerPageState extends State<InnerPage>
                                               metadataTitleStyle: TextStyle(
                                                   color: colors.textClr,
                                                   fontWeight: FontWeight.bold,
-                                                  fontSize: 28,
+                                                  fontSize: 24,
                                                   fontFamily: 'Product'),
                                               metadataTextStyle: TextStyle(
                                                   color: colors.textClr,
@@ -173,7 +171,7 @@ class _InnerPageState extends State<InnerPage>
                                                   color: colors.textClr,
                                                   fontWeight: FontWeight.bold,
                                                   fontFamily: 'Product',
-                                                  fontSize: 28,
+                                                  fontSize: 24,
                                                 ),
                                               ),
                                             ),
@@ -192,7 +190,8 @@ class _InnerPageState extends State<InnerPage>
                                         //Copy Button in Button Bar
                                         InnerPageButton(
                                           onPressed: () {
-                                            showToastInnerPage("Item copied!");
+                                            showToastMsg(
+                                                context, "Item copied!");
                                             Clipboard.setData(
                                               ClipboardData(
                                                   text: links[index - 1]),
@@ -267,16 +266,16 @@ class _InnerPageState extends State<InnerPage>
                 if (_isEditMode == 1) {
                   codeProvider.editLink(
                       widget.code, _editIndex, _linkController.text);
-                  showToastInnerPage("Entry edited!");
+                  showToastMsg(context, "Entry edited!");
                 } else if (_isEditMode == 2) {
                   codeProvider.addHead(widget.code, _linkController.text);
-                  showToastInnerPage("New title added!");
+                  showToastMsg(context, "New title added!");
                 } else if (_isEditMode == 3) {
                   codeProvider.deleteLink(widget.code, _editIndex);
-                  showToastInnerPage("Entry deleted!");
+                  showToastMsg(context, "Entry deleted!");
                 } else {
                   codeProvider.addLink(widget.code, _linkController.text);
-                  showToastInnerPage("New entry added!");
+                  showToastMsg(context, "New entry added!");
                 }
               }
               setState(() {
@@ -288,7 +287,7 @@ class _InnerPageState extends State<InnerPage>
             },
             onCancel: () {
               if (_linkController.text.isNotEmpty) {
-                showToastInnerPage("Action cancelled!");
+                showToastMsg(context, "Action cancelled!");
               }
               setState(() {
                 _isEditMode = 0;

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:memno/components/inner_page.dart';
+import 'package:memno/components/show_toast.dart';
 import 'package:memno/functionality/code_gen.dart';
 import 'package:memno/theme/app_colors.dart';
 import 'package:provider/provider.dart';
@@ -90,11 +91,13 @@ class _SubTileStackState extends State<SubTileStack> {
               setState(() {
                 showDltConfirm = false;
               });
+              showToastMsg(context, "Code #${widget.code} deleted");
             },
             onCancel: () {
               setState(() {
                 showDltConfirm = false;
               });
+              showToastMsg(context, "Action cancelled");
             },
           )
         ]
@@ -364,6 +367,11 @@ class LikeButton extends StatelessWidget {
         ),
         onPressed: () {
           context.read<CodeGen>().toggleLike(code);
+          if (isLiked) {
+            showToastMsg(context, "#$code removed from favorites");
+          } else {
+            showToastMsg(context, "#$code added to favorites");
+          }
         },
         child: isLiked == true
             ? const Icon(Icons.favorite_rounded, color: Colors.red)

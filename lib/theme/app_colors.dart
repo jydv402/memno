@@ -43,6 +43,8 @@ class AppColors extends ChangeNotifier {
   Color get btnClr => _isDarkMode ? _dark.btnClr : _light.btnClr;
   Color get btnIcon => _isDarkMode ? _dark.btnIcon : _light.btnIcon;
   Color get pill => _isDarkMode ? _dark.pill : _light.pill;
+  Color get toastBg => _isDarkMode ? _dark.toastBg : _light.toastBg;
+  Color get toastText => _isDarkMode ? _dark.toastText : _light.toastText;
 }
 
 class LightColors {
@@ -58,6 +60,8 @@ class LightColors {
   final Color btnClr = Colors.black;
   final Color btnIcon = Colors.white;
   final Color pill = Colors.grey[300]!;
+  final Color toastBg = Colors.grey[900]!;
+  final Color toastText = Colors.white;
 }
 
 class DarkColors {
@@ -73,4 +77,6 @@ class DarkColors {
   final Color btnClr = Colors.grey[800]!.withOpacity(0.5);
   final Color btnIcon = Colors.white;
   final Color pill = Colors.grey[800]!;
+  final Color toastBg = Colors.grey[100]!;
+  final Color toastText = Colors.black;
 }
