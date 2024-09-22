@@ -24,7 +24,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     final colors = Provider.of<AppColors>(context);
     return MaterialApp(
-      title: 'MemNo',
+      title: 'Memno',
       debugShowCheckedModeBanner: false,
       home: const HomePage(),
       theme: ThemeData(

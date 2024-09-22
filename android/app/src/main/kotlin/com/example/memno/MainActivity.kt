@@ -1,4 +1,4 @@
-package com.example.memno
+package com.jdmakes.memno
 
 import io.flutter.embedding.android.FlutterActivity
 
