@@ -1,0 +1,31 @@
+Categories:
+  - Bookmark
+  - Internet
+  - Utilities
+  - Memory
+  - Note
+License: MIT
+WebSite: https://github.com/jydv402/memno
+SourceCode: https://github.com/jydv402/memno
+IssueTracker: https://github.com/jydv402/memno/issues
+
+AutoName: Memno
+
+RepoType: git
+Repo: https://github.com/jydv402/memno
+
+Builds:
+  - versionName: 1.3.1
+    versionCode: 10
+    commit: v1.3.1
+    srclib:
+      - flutter@stable
+    prebuild:
+      - $$flutter$$ pub get
+    build:
+      - $$flutter$$ build apk --release --flavor withoutOTA --dart-define=UPDATE_LOGIC=withoutOTA
+
+AutoUpdateMode: Version v%v
+UpdateCheckMode: Tags
+CurrentVersion: 1.3.1
+CurrentVersionCode: 10

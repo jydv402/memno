@@ -1,0 +1,19 @@
+**Memno** is a Flutter-based mobile application designed to act as your personal link and note vault. It goes beyond simple bookmarking by automatically fetching rich metadata for every link you save, ensuring you have context at a glance.
+
+### 🚀 Core Features
+*   **Rich Previews:** Automatically save links with their title, description, and image previews.
+*   **Personal Notes:** Write specific notes for every item to record your thoughts or reminders.
+*   **Instant Metadata:** Lightning-fast fetching of site information from any URL.
+*   **Quick Access:** Generates unique **6-digit short codes** for every entry, allowing for easy retrieval.
+*   **Offline-First:** Designed to keep your knowledge base accessible even when you are off the grid.
+*   **Modern Interface:** Includes full dark mode support and a clean, minimalist design built with Flutter.
+
+### 🧠 Versatile Use Cases
+Whether you are conducting research or just browsing, Memno helps you stay organized:
+*   **Knowledge Base:** Archive study materials or academic resources grouped with your study notes.
+*   **Smart "Read Later" List:** Save articles and tutorials with personal annotations for context.
+*   **Product & Recipe Vault:** Store wish lists or recipe links with ingredient replacements and custom notes.
+*   **Web Archiving:** Curate interesting finds from blogs, Reddit, or Twitter with your own commentary.
+
+### 🛠 Technical Foundation
+Memno is built with a focus on speed and local reliability using **Flutter**, **Dart**, and the **Hive** local database for high-performance storage.
