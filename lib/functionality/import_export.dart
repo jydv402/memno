@@ -11,8 +11,6 @@ import 'package:package_info_plus/package_info_plus.dart';
 import 'package:provider/provider.dart';
 
 class ImportExport {
-  // TODO: Add import and export functionality using JSON file
-
   late Box<CodeData>? _codeBox;
 
   ImportExport() {
@@ -59,11 +57,11 @@ class ImportExport {
       final bytes = Uint8List.fromList(utf8.encode(json));
 
       // Clear the temporary files
-      await FilePicker.platform.clearTemporaryFiles();
+      await FilePicker.clearTemporaryFiles();
 
       // Get the save destination
       // Write the file
-      final result = await FilePicker.platform.saveFile(
+      final result = await FilePicker.saveFile(
         dialogTitle: 'Export Memno Notes',
         fileName: 'memno_notes.json',
         type: FileType.custom,
@@ -98,10 +96,11 @@ class ImportExport {
       if (_codeBox == null) return;
 
       // Get the file
-      final result = await FilePicker.platform.pickFiles(
+      final result = await FilePicker.pickFiles(
         type: FileType.custom,
         allowedExtensions: ['json'],
         withData: true,
+        allowMultiple: false,
       );
       // Show cancelled message if the import is cancelled halfway
       if (result == null) {

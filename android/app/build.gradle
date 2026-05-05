@@ -17,6 +17,29 @@ android {
     compileSdk = flutter.compileSdkVersion
     ndkVersion = "29.0.13599879"
 
+    // Defined flavour for app versions with OTA update and without OTA
+    flavorDimensions "update-logic"
+    productFlavors {
+        
+        // App version with OTA update (Released via GitHub Releases)
+        withOTA {
+            dimension "update-logic"
+
+            // This adds .ota to the application ID
+            // Example: com.jdmakes.memno.ota
+            // applicationIdSuffix ".ota"
+
+            // This adds -ota to the version name
+            // Example: v1.0.0+1-ota
+            //versionNameSuffix "-ota"
+        }
+
+        // App version without OTA update (Released via F-Droid for now)
+        withoutOTA {
+            dimension "update-logic"
+        }
+    }
+
     signingConfigs {
         release {
             def storeFilePath = keystoreProperties['storeFile']

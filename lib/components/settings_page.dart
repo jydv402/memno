@@ -4,6 +4,7 @@ import 'package:memno/functionality/check_update.dart';
 import 'package:memno/components/update_bottom_sheet.dart';
 import 'package:memno/functionality/import_export.dart';
 import 'package:memno/functionality/preview_map.dart';
+import 'package:memno/main.dart';
 import 'package:memno/theme/app_colors.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:provider/provider.dart';
@@ -155,71 +156,73 @@ class SettingsPage extends StatelessWidget {
             ),
             colors,
           ),
-          // Settings for updates
-          settingsTitle("Updates", colors),
-          settingsContainer(
-            ListTile(
-              onTap: () async {
-                final info = await PackageInfo.fromPlatform();
-                final currVer = info.version; // Get current app version
-                final buildNumber = info.buildNumber; // Get build number
-                if (!context.mounted) return;
-                if (currVer.isEmpty || buildNumber.isEmpty) {
-                  _showDialog(
-                    context,
-                    "Version Check Failed",
-                    "Could not retrieve current version.",
-                    colors,
-                    () {
-                      Navigator.pop(context);
-                    },
-                  );
-                  return;
-                }
-                // Use the new update check service
-                final updateInfo = await checkUpdateAvailable();
-                if (!context.mounted) return;
-
-                if (updateInfo != null) {
-                  showModalBottomSheet(
-                    context: context,
-                    isScrollControlled: true,
-                    backgroundColor: Colors.transparent,
-                    builder: (context) => UpdateBottomSheet(
-                      latestVersion: updateInfo['version'],
-                      downloadUrl: updateInfo['url'],
-                      releaseNotes: updateInfo['notes'],
-                    ),
-                  );
-                } else {
+          if (updateLogic == 'withOTA') ...[
+            // Settings for updates
+            settingsTitle("Updates", colors),
+            settingsContainer(
+              ListTile(
+                onTap: () async {
                   final info = await PackageInfo.fromPlatform();
+                  final currVer = info.version; // Get current app version
+                  final buildNumber = info.buildNumber; // Get build number
                   if (!context.mounted) return;
-                  _showDialog(
-                    context,
-                    "No Updates",
-                    "You are using the latest version (${info.version}).",
-                    colors,
-                    () {
-                      Navigator.pop(context);
-                    },
-                  );
-                }
-              },
-              trailing: Icon(
-                Icons.file_download_outlined,
-                color: colors.textClr,
-              ),
-              title: Text(
-                "Check for updates",
-                style: TextStyle(
-                  fontFamily: 'Product',
-                  fontSize: 18,
+                  if (currVer.isEmpty || buildNumber.isEmpty) {
+                    _showDialog(
+                      context,
+                      "Version Check Failed",
+                      "Could not retrieve current version.",
+                      colors,
+                      () {
+                        Navigator.pop(context);
+                      },
+                    );
+                    return;
+                  }
+                  // Use the new update check service
+                  final updateInfo = await checkUpdateAvailable();
+                  if (!context.mounted) return;
+
+                  if (updateInfo != null) {
+                    showModalBottomSheet(
+                      context: context,
+                      isScrollControlled: true,
+                      backgroundColor: Colors.transparent,
+                      builder: (context) => UpdateBottomSheet(
+                        latestVersion: updateInfo['version'],
+                        downloadUrl: updateInfo['url'],
+                        releaseNotes: updateInfo['notes'],
+                      ),
+                    );
+                  } else {
+                    final info = await PackageInfo.fromPlatform();
+                    if (!context.mounted) return;
+                    _showDialog(
+                      context,
+                      "No Updates",
+                      "You are using the latest version (${info.version}).",
+                      colors,
+                      () {
+                        Navigator.pop(context);
+                      },
+                    );
+                  }
+                },
+                trailing: Icon(
+                  Icons.file_download_outlined,
                   color: colors.textClr,
                 ),
+                title: Text(
+                  "Check for updates",
+                  style: TextStyle(
+                    fontFamily: 'Product',
+                    fontSize: 18,
+                    color: colors.textClr,
+                  ),
+                ),
               ),
+              colors,
             ),
-            colors,
-          ),
+          ],
           // Storage settings
           settingsTitle("Storage", colors),
           // Settings for saving previews locally
@@ -302,7 +305,7 @@ class SettingsPage extends StatelessWidget {
                 color: colors.textClr,
               ),
               title: Text(
-                "Find us on GitHub",
+                "Find Memno on GitHub",
                 style: TextStyle(
                   fontFamily: 'Product',
                   fontSize: 18,
