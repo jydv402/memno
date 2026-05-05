@@ -106,7 +106,10 @@ class _ShareTargetPageState extends State<ShareTargetPage> {
         surfaceTintColor: colors.bgClr,
         title: const Text(
           "Save to…",
-          style: TextStyle(fontFamily: 'Product', fontWeight: FontWeight.w600),
+          style: TextStyle(
+            fontFamily: 'GoogleSans',
+            fontWeight: FontWeight.w600,
+          ),
         ),
       ),
       body: Consumer<CodeGen>(
@@ -120,7 +123,10 @@ class _ShareTargetPageState extends State<ShareTargetPage> {
           return Column(
             children: [
               // Shared content preview card
-              _SharedContentCard(controller: _sharedTextController, colors: colors),
+              _SharedContentCard(
+                controller: _sharedTextController,
+                colors: colors,
+              ),
 
               const SizedBox(height: 8),
 
@@ -143,7 +149,7 @@ class _ShareTargetPageState extends State<ShareTargetPage> {
                               : "No code pages yet",
                           style: TextStyle(
                             color: colors.textClr,
-                            fontFamily: 'Product',
+                            fontFamily: 'GoogleSans',
                           ),
                         ),
                       )
@@ -195,7 +201,7 @@ class _ShareTargetPageState extends State<ShareTargetPage> {
               icon: const Icon(Icons.add_rounded),
               label: const Text(
                 "Create New",
-                style: TextStyle(fontFamily: 'Product', fontSize: 16),
+                style: TextStyle(fontFamily: 'GoogleSans', fontSize: 16),
               ),
             ),
             const Spacer(),
@@ -230,7 +236,7 @@ class _SharedContentCard extends StatelessWidget {
           Text(
             "Shared content",
             style: TextStyle(
-              fontFamily: 'Product',
+              fontFamily: 'GoogleSans',
               fontWeight: FontWeight.w600,
               fontSize: 14,
               color: Colors.black.withValues(alpha: 0.6),
@@ -242,7 +248,7 @@ class _SharedContentCard extends StatelessWidget {
             maxLines: 4,
             minLines: 1,
             style: const TextStyle(
-              fontFamily: 'Product',
+              fontFamily: 'GoogleSans',
               fontWeight: FontWeight.w500,
               fontSize: 16,
               color: Colors.black,
@@ -284,13 +290,13 @@ class _SearchBar extends StatelessWidget {
       child: TextField(
         controller: controller,
         onChanged: onChanged,
-        style: TextStyle(color: colors.fgClr, fontFamily: 'Product'),
+        style: TextStyle(color: colors.fgClr, fontFamily: 'GoogleSans'),
         decoration: InputDecoration(
           icon: Icon(Icons.search_rounded, color: colors.search),
           hintText: "Search code pages…",
           hintStyle: TextStyle(
             color: colors.textClr.withValues(alpha: 0.5),
-            fontFamily: 'Product',
+            fontFamily: 'GoogleSans',
           ),
           border: InputBorder.none,
         ),
@@ -344,7 +350,7 @@ class _CodePageTile extends StatelessWidget {
                   "#",
                   style: TextStyle(
                     color: Colors.white,
-                    fontFamily: 'Product',
+                    fontFamily: 'GoogleSans',
                     fontWeight: FontWeight.w600,
                     fontSize: 18,
                   ),
@@ -364,7 +370,7 @@ class _CodePageTile extends StatelessWidget {
                     overflow: TextOverflow.ellipsis,
                     style: TextStyle(
                       color: colors.textClr,
-                      fontFamily: 'Product',
+                      fontFamily: 'GoogleSans',
                       fontWeight: FontWeight.w600,
                       fontSize: 18,
                     ),
@@ -374,7 +380,7 @@ class _CodePageTile extends StatelessWidget {
                     "#$code · $entryCount ${entryCount == 1 ? 'entry' : 'entries'}",
                     style: TextStyle(
                       color: colors.textClr.withValues(alpha: 0.6),
-                      fontFamily: 'Product',
+                      fontFamily: 'GoogleSans',
                       fontSize: 14,
                     ),
                   ),

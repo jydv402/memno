@@ -41,7 +41,7 @@ class InnerPageButton extends StatelessWidget {
             Text(
               label!,
               style: const TextStyle(
-                fontFamily: 'Product',
+                fontFamily: 'GoogleSans',
                 fontSize: 14,
                 fontWeight: FontWeight.normal,
               ),

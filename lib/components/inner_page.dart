@@ -61,7 +61,7 @@ class _InnerPageState extends State<InnerPage>
                         "It's so empty here...",
                         style: TextStyle(
                           color: colors.textClr,
-                          fontFamily: 'Product',
+                          fontFamily: 'GoogleSans',
                         ),
                       ),
                     ),
@@ -178,14 +178,14 @@ class _InnerPageState extends State<InnerPage>
                                               title: Text(
                                                 "Delete Entry",
                                                 style: TextStyle(
-                                                  fontFamily: 'Product',
+                                                  fontFamily: 'GoogleSans',
                                                   color: colors.textClr,
                                                 ),
                                               ),
                                               content: Text(
                                                 "Do you want to delete entry no.$index? This is irreversible.",
                                                 style: TextStyle(
-                                                  fontFamily: 'Product',
+                                                  fontFamily: 'GoogleSans',
                                                   color: colors.textClr,
                                                 ),
                                               ),
@@ -198,7 +198,7 @@ class _InnerPageState extends State<InnerPage>
                                                   child: Text(
                                                     "Cancel",
                                                     style: TextStyle(
-                                                      fontFamily: 'Product',
+                                                      fontFamily: 'GoogleSans',
                                                       color: colors.textClr,
                                                     ),
                                                   ),
@@ -227,7 +227,7 @@ class _InnerPageState extends State<InnerPage>
                                                   child: Text(
                                                     "Delete",
                                                     style: TextStyle(
-                                                      fontFamily: 'Product',
+                                                      fontFamily: 'GoogleSans',
                                                       color: Colors.red,
                                                     ),
                                                   ),
@@ -270,7 +270,7 @@ class _InnerPageState extends State<InnerPage>
                                             },
                                             linkStyle: TextStyle(
                                               color: Colors.blue[300],
-                                              fontFamily: 'Product',
+                                              fontFamily: 'GoogleSans',
                                               fontSize: 16,
                                             ),
                                             maxLines: 2,
@@ -356,13 +356,13 @@ class _InnerPageState extends State<InnerPage>
                                             color: colors.textClr,
                                             fontWeight: FontWeight.bold,
                                             fontSize: 32,
-                                            fontFamily: 'Product',
+                                            fontFamily: 'GoogleSans',
                                           ),
 
                                           // Style of the description text
                                           descriptionTextStyle: TextStyle(
                                             color: colors.textClr,
-                                            fontFamily: 'Product',
+                                            fontFamily: 'GoogleSans',
                                             fontSize: 14,
                                           ),
 
@@ -404,7 +404,7 @@ class _InnerPageState extends State<InnerPage>
                                         style: TextStyle(
                                           color: colors.textClr,
                                           fontWeight: FontWeight.bold,
-                                          fontFamily: 'Product',
+                                          fontFamily: 'GoogleSans',
                                           fontSize: 24,
                                         ),
                                       ),
@@ -513,7 +513,7 @@ class _InnerPageState extends State<InnerPage>
               child: Text(
                 "\t\t$head",
                 style: const TextStyle(
-                  fontFamily: 'Product',
+                  fontFamily: 'GoogleSans',
                   fontWeight: FontWeight.w700,
                   fontSize: 48,
                 ),
@@ -633,7 +633,7 @@ class CustomInnerFAB extends StatelessWidget {
                       expands: true,
                       style: TextStyle(
                         color: colors.fgClr,
-                        fontFamily: 'Product',
+                        fontFamily: 'GoogleSans',
                       ),
                       decoration: const InputDecoration(
                         contentPadding: EdgeInsets.symmetric(

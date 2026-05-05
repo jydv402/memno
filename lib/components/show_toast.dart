@@ -15,7 +15,7 @@ void showToastMsg(BuildContext context, String msg) {
       color: colors.toastBg,
       title: Text(
         msg,
-        style: TextStyle(fontFamily: 'Product', color: colors.toastText),
+        style: TextStyle(fontFamily: 'GoogleSans', color: colors.toastText),
       ),
     ),
   ).show(context);

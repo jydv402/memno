@@ -146,7 +146,7 @@ class _UpdateBottomSheetState extends State<UpdateBottomSheet> {
                       color: colors.textClr,
                       fontSize: 24,
                       fontWeight: FontWeight.bold,
-                      fontFamily: 'Product',
+                      fontFamily: 'GoogleSans',
                     ),
                   ),
                   Text(
@@ -154,7 +154,7 @@ class _UpdateBottomSheetState extends State<UpdateBottomSheet> {
                     style: TextStyle(
                       color: colors.textClr.withValues(alpha: 0.6),
                       fontSize: 16,
-                      fontFamily: 'Product',
+                      fontFamily: 'GoogleSans',
                     ),
                   ),
                 ],
@@ -179,7 +179,7 @@ class _UpdateBottomSheetState extends State<UpdateBottomSheet> {
               color: colors.textClr,
               fontSize: 18,
               fontWeight: FontWeight.w600,
-              fontFamily: 'Product',
+              fontFamily: 'GoogleSans',
             ),
           ),
           const SizedBox(height: 8),
@@ -197,7 +197,7 @@ class _UpdateBottomSheetState extends State<UpdateBottomSheet> {
                 style: TextStyle(
                   color: colors.textClr,
                   fontSize: 14,
-                  fontFamily: 'Product',
+                  fontFamily: 'GoogleSans',
                 ),
               ),
             ),
@@ -222,7 +222,7 @@ class _UpdateBottomSheetState extends State<UpdateBottomSheet> {
                       style: TextStyle(
                         color: colors.textClr,
                         fontSize: 14,
-                        fontFamily: 'Product',
+                        fontFamily: 'GoogleSans',
                       ),
                     ),
                     TextButton(
@@ -231,7 +231,7 @@ class _UpdateBottomSheetState extends State<UpdateBottomSheet> {
                         "Cancel",
                         style: TextStyle(
                           color: Colors.red,
-                          fontFamily: 'Product',
+                          fontFamily: 'GoogleSans',
                         ),
                       ),
                     ),
@@ -259,7 +259,7 @@ class _UpdateBottomSheetState extends State<UpdateBottomSheet> {
                       "Not Now",
                       style: TextStyle(
                         color: colors.textClr,
-                        fontFamily: 'Product',
+                        fontFamily: 'GoogleSans',
                       ),
                     ),
                   ),
@@ -281,7 +281,7 @@ class _UpdateBottomSheetState extends State<UpdateBottomSheet> {
                       style: TextStyle(
                         color: Colors.black,
                         fontWeight: FontWeight.bold,
-                        fontFamily: 'Product',
+                        fontFamily: 'GoogleSans',
                       ),
                     ),
                   ),

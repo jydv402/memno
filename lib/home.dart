@@ -244,7 +244,7 @@ class _HomePageState extends State<HomePage> {
                         _emptyMsg(),
                         style: TextStyle(
                           color: colors.textClr,
-                          fontFamily: 'Product',
+                          fontFamily: 'GoogleSans',
                         ),
                       ),
                     ),
@@ -320,7 +320,7 @@ class _HomePageState extends State<HomePage> {
           ),
           child: const Text(
             '   All   ',
-            style: TextStyle(fontFamily: 'Product'),
+            style: TextStyle(fontFamily: 'GoogleSans'),
           ),
         ),
         Padding(
@@ -328,14 +328,20 @@ class _HomePageState extends State<HomePage> {
             horizontal: widthOfToggle,
             vertical: 19,
           ),
-          child: const Text('Liked', style: TextStyle(fontFamily: 'Product')),
+          child: const Text(
+            'Liked',
+            style: TextStyle(fontFamily: 'GoogleSans'),
+          ),
         ),
         Padding(
           padding: EdgeInsets.symmetric(
             horizontal: widthOfToggle,
             vertical: 19,
           ),
-          child: const Text('Empty', style: TextStyle(fontFamily: 'Product')),
+          child: const Text(
+            'Empty',
+            style: TextStyle(fontFamily: 'GoogleSans'),
+          ),
         ),
       ],
     );
@@ -365,7 +371,7 @@ class _HomePageState extends State<HomePage> {
                 autofocus: true,
                 onChanged: _onSearch,
                 maxLines: 1,
-                style: TextStyle(color: colors.fgClr, fontFamily: 'Product'),
+                style: TextStyle(color: colors.fgClr, fontFamily: 'GoogleSans'),
                 decoration: InputDecoration(
                   icon: const Icon(Icons.search_rounded),
                   iconColor: colors.search,
@@ -522,7 +528,7 @@ class TopAccentBox extends StatelessWidget {
                     child: Text(
                       "Hi,\nI'm Memno",
                       style: TextStyle(
-                        fontFamily: 'Product',
+                        fontFamily: 'GoogleSans',
                         fontWeight: FontWeight.w700,
                         fontSize: width * 0.11,
                       ),
@@ -560,7 +566,7 @@ class TopAccentBox extends StatelessWidget {
                   length == 1 ? '$length Code' : '$length Codes',
                   textAlign: TextAlign.center,
                   style: TextStyle(
-                    fontFamily: 'Product',
+                    fontFamily: 'GoogleSans',
                     color: colors.accntText,
                   ),
                 ),

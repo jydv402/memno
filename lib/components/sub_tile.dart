@@ -200,7 +200,7 @@ class ShowDltPrompt extends StatelessWidget {
             style: TextStyle(
               color: colors.textClr,
               fontSize: 16,
-              fontFamily: 'Product',
+              fontFamily: 'GoogleSans',
             ),
             textAlign: TextAlign.center,
           ),
@@ -246,7 +246,7 @@ class ContainerButton extends StatelessWidget {
         child: Text(
           text,
           textAlign: TextAlign.center,
-          style: TextStyle(color: colors.textClr, fontFamily: 'Product'),
+          style: TextStyle(color: colors.textClr, fontFamily: 'GoogleSans'),
         ),
       ),
     );
@@ -266,7 +266,7 @@ class CodeText extends StatelessWidget {
         color: colors.textClr,
         fontSize: 26,
         fontWeight: FontWeight.w400,
-        fontFamily: 'Product',
+        fontFamily: 'GoogleSans',
       ),
       textAlign: TextAlign.start,
     );
@@ -293,7 +293,7 @@ class HeadText extends StatelessWidget {
           color: colors.textClr,
           fontSize: 36,
           fontWeight: FontWeight.w500,
-          fontFamily: 'Product',
+          fontFamily: 'GoogleSans',
         ),
       ),
     );
@@ -334,7 +334,7 @@ class LengthIndicator extends StatelessWidget {
             Text(
               length == 1 ? "$length  Entry" : "$length Entries",
               textAlign: TextAlign.center,
-              style: TextStyle(fontFamily: 'Product', color: colors.textClr),
+              style: TextStyle(fontFamily: 'GoogleSans', color: colors.textClr),
             ),
             const Spacer(),
           ],

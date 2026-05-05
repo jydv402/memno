@@ -27,7 +27,7 @@ class SettingsPage extends StatelessWidget {
         title: Text(
           title,
           style: TextStyle(
-            fontFamily: 'Product',
+            fontFamily: 'GoogleSans',
             fontSize: 20,
             color: colors.textClr,
           ),
@@ -35,7 +35,7 @@ class SettingsPage extends StatelessWidget {
         content: Text(
           content,
           style: TextStyle(
-            fontFamily: 'Product',
+            fontFamily: 'GoogleSans',
             fontSize: 18,
             color: colors.textClr,
           ),
@@ -46,7 +46,7 @@ class SettingsPage extends StatelessWidget {
             child: Text(
               "OK",
               style: TextStyle(
-                fontFamily: 'Product',
+                fontFamily: 'GoogleSans',
                 fontSize: 16,
                 color: colors.textClr,
               ),
@@ -76,7 +76,7 @@ class SettingsPage extends StatelessWidget {
               title: Text(
                 "Appearance",
                 style: TextStyle(
-                  fontFamily: 'Product',
+                  fontFamily: 'GoogleSans',
                   fontSize: 18,
                   color: colors.textClr,
                 ),
@@ -105,7 +105,7 @@ class SettingsPage extends StatelessWidget {
               title: Text(
                 "Compact Header",
                 style: TextStyle(
-                  fontFamily: 'Product',
+                  fontFamily: 'GoogleSans',
                   fontSize: 18,
                   color: colors.textClr,
                 ),
@@ -127,7 +127,7 @@ class SettingsPage extends StatelessWidget {
               title: Text(
                 "Export to JSON",
                 style: TextStyle(
-                  fontFamily: 'Product',
+                  fontFamily: 'GoogleSans',
                   fontSize: 18,
                   color: colors.textClr,
                 ),
@@ -144,7 +144,7 @@ class SettingsPage extends StatelessWidget {
               title: Text(
                 "Import from JSON",
                 style: TextStyle(
-                  fontFamily: 'Product',
+                  fontFamily: 'GoogleSans',
                   fontSize: 18,
                   color: colors.textClr,
                 ),
@@ -214,7 +214,7 @@ class SettingsPage extends StatelessWidget {
                 title: Text(
                   "Check for updates",
                   style: TextStyle(
-                    fontFamily: 'Product',
+                    fontFamily: 'GoogleSans',
                     fontSize: 18,
                     color: colors.textClr,
                   ),
@@ -239,7 +239,7 @@ class SettingsPage extends StatelessWidget {
               title: Text(
                 "Save Previews Locally",
                 style: TextStyle(
-                  fontFamily: 'Product',
+                  fontFamily: 'GoogleSans',
                   fontSize: 18,
                   color: colors.textClr,
                 ),
@@ -269,7 +269,7 @@ class SettingsPage extends StatelessWidget {
                       title: Text(
                         "Clear Preview Cache",
                         style: TextStyle(
-                          fontFamily: 'Product',
+                          fontFamily: 'GoogleSans',
                           fontSize: 18,
                           color: colors.textClr,
                         ),
@@ -277,7 +277,7 @@ class SettingsPage extends StatelessWidget {
                       subtitle: Text(
                         "Used: ${size.toStringAsFixed(2)} MB",
                         style: TextStyle(
-                          fontFamily: 'Product',
+                          fontFamily: 'GoogleSans',
                           fontSize: 14,
                           color: colors.textClr.withValues(alpha: 0.7),
                         ),
@@ -307,7 +307,7 @@ class SettingsPage extends StatelessWidget {
               title: Text(
                 "Find Memno on GitHub",
                 style: TextStyle(
-                  fontFamily: 'Product',
+                  fontFamily: 'GoogleSans',
                   fontSize: 18,
                   color: colors.textClr,
                 ),
@@ -328,7 +328,7 @@ class SettingsPage extends StatelessWidget {
       child: Text(
         title,
         style: TextStyle(
-          fontFamily: 'Product',
+          fontFamily: 'GoogleSans',
           fontSize: 28,
           color: colors.textClr,
         ),

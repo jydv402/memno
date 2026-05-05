@@ -16,7 +16,7 @@ publish_to: "none" # Remove this line if you wish to publish to pub.dev
 # https://developer.apple.com/library/archive/documentation/General/Reference/InfoPlistKeyReference/Articles/CoreFoundationKeys.html
 # In Windows, build-name is used as the major, minor, and patch parts
 # of the product and file versions while build-number is used as the build suffix.
-version: 1.3.1+10
+version: 1.3.2+11
 
 environment:
   sdk: ">=3.10.0 <4.0.0"
@@ -98,19 +98,21 @@ flutter:
   # list giving the asset and other descriptors for the font. For
   # example:
   fonts:
-    - family: Product
+    - family: GoogleSans
       fonts:
-        - asset: fonts/ProductSans-Thin.ttf
+        - asset: fonts/GoogleSansFlex_24pt-Thin.ttf
           weight: 100
-        - asset: fonts/ProductSans-Light.ttf
+        - asset: fonts/GoogleSansFlex_24pt-Light.ttf
           weight: 300
-        - asset: fonts/ProductSans-Regular.ttf
+        - asset: fonts/GoogleSansFlex_24pt-Regular.ttf
+          weight: 400
+        - asset: fonts/GoogleSansFlex_24pt-Medium.ttf
           weight: 500
-        - asset: fonts/ProductSans-Medium.ttf
+        - asset: fonts/GoogleSansFlex_24pt-SemiBold.ttf
           weight: 600
-        - asset: fonts/ProductSans-Bold.ttf
+        - asset: fonts/GoogleSansFlex_24pt-Bold.ttf
           weight: 700
-        - asset: fonts/ProductSans-Black.ttf
+        - asset: fonts/GoogleSansFlex_24pt-ExtraBold.ttf
           weight: 800
   #
   # For details regarding fonts from package dependencies,
