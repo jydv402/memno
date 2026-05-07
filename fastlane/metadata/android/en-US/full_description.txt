@@ -1,31 +1,27 @@
-Memno is a Flutter-based mobile application designed to act as a personal link and note vault. It goes beyond simple bookmarking by automatically fetching rich metadata for every saved link, ensuring useful context is always available at a glance.
+Memno is a Flutter-based mobile application designed to act as a personal link and note vault. It goes beyond simple bookmarking by automatically fetching rich metadata for every saved link, ensuring useful context is always available at a glance.<br><br>
 
-Core Features
+<b>Core Features</b>
 
-• Rich Previews: Automatically saves links with their title, description, and image previews.
+<ul>
+<li><b>Rich Previews:</b> Automatically saves links with their title, description, and image previews.</li>
+<li><b>Personal Notes:</b> Add notes to every saved item for reminders, thoughts, or annotations.</li>
+<li><b>Instant Metadata:</b> Quickly fetches site information from almost any URL.</li>
+<li><b>Quick Access:</b> Generates unique 6-digit short codes for easy retrieval of saved entries.</li>
+<li><b>Offline-First:</b> Keeps the knowledge base accessible even without an internet connection.</li>
+<li><b>Modern Interface:</b> Includes dark mode support and a clean minimalist interface built with Flutter.</li>
+</ul>
 
-• Personal Notes: Add notes to every saved item for reminders, thoughts, or annotations.
-
-• Instant Metadata: Quickly fetches site information from almost any URL.
-
-• Quick Access: Generates unique 6-digit short codes for easy retrieval of saved entries.
-
-• Offline-First: Keeps the knowledge base accessible even without an internet connection.
-
-• Modern Interface: Includes dark mode support and a clean minimalist interface built with Flutter.
-
-Versatile Use Cases
+<b>Versatile Use Cases</b><br>
 
 Memno can be used for organizing research, archiving useful content, or maintaining a personal knowledge collection.
 
-• Knowledge Base: Store study materials, research links, and academic references alongside notes.
+<ul>
+<li><b>Knowledge Base:</b> Store study materials, research links, and academic references alongside notes.</li>
+<li><b>Read Later Collection:</b> Save tutorials and articles with personal annotations for future reading.</li>
+<li><b>Product and Recipe Vault:</b> Organize shopping links, recipes, and custom notes in one place.</li>
+<li><b>Web Archiving:</b> Curate interesting discoveries from blogs, Reddit, and social platforms with personal commentary.</li>
+</ul>
 
-• Read Later Collection: Save tutorials and articles with personal annotations for future reading.
-
-• Product and Recipe Vault: Organize shopping links, recipes, and custom notes in one place.
-
-• Web Archiving: Curate interesting discoveries from blogs, Reddit, and social platforms with personal commentary.
-
-Technical Foundation
+<b>Technical Foundation</b><br>
 
 Memno is built using Flutter and Dart, with Hive used as the local database for fast and reliable offline storage.
