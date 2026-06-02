@@ -63,8 +63,6 @@ class _DesktopShellState extends State<DesktopShell> {
     });
   }
 
-
-
   void _openSearch() {
     showDialog(
       context: context,

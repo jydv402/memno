@@ -64,7 +64,8 @@ class ImportExport {
       // Get the save destination
       // Write the file
       String? result;
-      if (!kIsWeb && (Platform.isWindows || Platform.isMacOS || Platform.isLinux)) {
+      if (!kIsWeb &&
+          (Platform.isWindows || Platform.isMacOS || Platform.isLinux)) {
         result = await FilePicker.saveFile(
           dialogTitle: 'Export Memno Notes',
           fileName: 'memno_notes.json',
@@ -168,7 +169,8 @@ class ImportExport {
   }
 
   void _showNotification(BuildContext context, String message) {
-    if (!kIsWeb && (Platform.isWindows || Platform.isMacOS || Platform.isLinux)) {
+    if (!kIsWeb &&
+        (Platform.isWindows || Platform.isMacOS || Platform.isLinux)) {
       showDesktopNotification(context, message);
     } else {
       showToastMsg(context, message);

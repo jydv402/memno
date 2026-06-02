@@ -288,9 +288,9 @@ class _InnerPageState extends State<InnerPage>
                                           minWidth: widget.isEmbedded
                                               ? 400
                                               : MediaQuery.of(
-                                                context,
-                                              ).size.width +
-                                              50,
+                                                      context,
+                                                    ).size.width +
+                                                    50,
                                           gap: 20,
                                           backgroundColor: Colors.transparent,
                                           sideBorderColor: Colors.transparent,
@@ -580,9 +580,7 @@ class CustomInnerFAB extends StatelessWidget {
     final colors = Provider.of<AppColors>(context);
 
     return SizedBox(
-      width: isEmbedded
-          ? 500.0
-          : (MediaQuery.of(context).size.width - 25),
+      width: isEmbedded ? 500.0 : (MediaQuery.of(context).size.width - 25),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [

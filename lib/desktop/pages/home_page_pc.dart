@@ -95,11 +95,7 @@ class _DesktopHomePageState extends State<DesktopHomePage> {
     return Consumer<CodeGen>(
       builder: (context, codeGen, _) {
         if (!codeGen.isReady) {
-          return Center(
-            child: CircularProgressIndicator(
-              color: colors.accnt,
-            ),
-          );
+          return Center(child: CircularProgressIndicator(color: colors.accnt));
         }
 
         final codes = _filteredCodes(codeGen);
@@ -145,8 +141,10 @@ class _DesktopHomePageState extends State<DesktopHomePage> {
               ),
               const SizedBox(width: 12),
               Container(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 10,
+                  vertical: 4,
+                ),
                 decoration: BoxDecoration(
                   color: colors.pill.withValues(alpha: 0.5),
                   borderRadius: BorderRadius.circular(20),
@@ -180,8 +178,7 @@ class _DesktopHomePageState extends State<DesktopHomePage> {
                 )
               : GridView.builder(
                   padding: const EdgeInsets.all(24),
-                  gridDelegate:
-                      const SliverGridDelegateWithMaxCrossAxisExtent(
+                  gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
                     maxCrossAxisExtent: 160,
                     mainAxisSpacing: 16,
                     crossAxisSpacing: 16,
@@ -232,9 +229,7 @@ class _DesktopHomePageState extends State<DesktopHomePage> {
           backgroundColor: colors.box,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(16),
-            side: BorderSide(
-              color: colors.pill.withValues(alpha: 0.3),
-            ),
+            side: BorderSide(color: colors.pill.withValues(alpha: 0.3)),
           ),
           title: Text(
             'Delete Note',
@@ -274,7 +269,10 @@ class _DesktopHomePageState extends State<DesktopHomePage> {
                 }
                 codeGen.clearList(code);
 
-                showDesktopNotification(context, 'Note page #$code has been deleted.');
+                showDesktopNotification(
+                  context,
+                  'Note page #$code has been deleted.',
+                );
               },
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.redAccent,
@@ -330,9 +328,10 @@ class _MaybeHighlightedState extends State<_MaybeHighlighted>
       vsync: this,
       duration: const Duration(milliseconds: 800),
     );
-    _opacity = Tween<double>(begin: 0.3, end: 1.0).animate(
-      CurvedAnimation(parent: _controller, curve: Curves.easeInOut),
-    );
+    _opacity = Tween<double>(
+      begin: 0.3,
+      end: 1.0,
+    ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeInOut));
 
     if (widget.isHighlighted) {
       _controller.repeat(reverse: true);

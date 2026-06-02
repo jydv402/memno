@@ -22,11 +22,7 @@ class DesktopNotePage extends StatefulWidget {
   /// Callback to return to the grid home view.
   final VoidCallback onBack;
 
-  const DesktopNotePage({
-    super.key,
-    required this.code,
-    required this.onBack,
-  });
+  const DesktopNotePage({super.key, required this.code, required this.onBack});
 
   @override
   State<DesktopNotePage> createState() => _DesktopNotePageState();
@@ -161,10 +157,7 @@ class _DesktopNotePageState extends State<DesktopNotePage> {
             onPressed: () => Navigator.pop(ctx),
             child: Text(
               'Cancel',
-              style: TextStyle(
-                fontFamily: 'GoogleSans',
-                color: colors.textClr,
-              ),
+              style: TextStyle(fontFamily: 'GoogleSans', color: colors.textClr),
             ),
           ),
           TextButton(
@@ -379,7 +372,8 @@ class _DesktopNotePageState extends State<DesktopNotePage> {
       builder: (context, constraints) {
         final availableWidth = constraints.maxWidth;
         final columns = (availableWidth / 320).floor().clamp(1, 4);
-        final cardWidth = (availableWidth - 48 - ((columns - 1) * 16)) / columns;
+        final cardWidth =
+            (availableWidth - 48 - ((columns - 1) * 16)) / columns;
 
         return SingleChildScrollView(
           padding: const EdgeInsets.fromLTRB(24, 16, 24, 100),
@@ -448,9 +442,7 @@ class _DesktopNotePageState extends State<DesktopNotePage> {
           decoration: BoxDecoration(
             color: colors.bgClr,
             borderRadius: BorderRadius.circular(28),
-            border: Border.all(
-              color: colors.pill.withValues(alpha: 0.4),
-            ),
+            border: Border.all(color: colors.pill.withValues(alpha: 0.4)),
             boxShadow: [
               BoxShadow(
                 color: Colors.black.withValues(alpha: 0.12),
@@ -507,10 +499,7 @@ class _DesktopNotePageState extends State<DesktopNotePage> {
 
               // Cancel button
               IconButton(
-                icon: Icon(
-                  Icons.close_rounded,
-                  color: Colors.red.shade400,
-                ),
+                icon: Icon(Icons.close_rounded, color: Colors.red.shade400),
                 onPressed: _cancelInput,
                 tooltip: 'Cancel (Esc)',
               ),

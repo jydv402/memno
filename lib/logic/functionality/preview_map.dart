@@ -145,8 +145,10 @@ class PreviewMap extends ChangeNotifier {
   }
 
   // Load a preview async
-  Future<LinkPreviewData?> loadPreview(String link,
-      {bool saveLocally = true}) async {
+  Future<LinkPreviewData?> loadPreview(
+    String link, {
+    bool saveLocally = true,
+  }) async {
     try {
       if (!_isInit) await _init();
       return loadPreviewSync(link, saveLocally: saveLocally);
@@ -180,7 +182,7 @@ class PreviewMap extends ChangeNotifier {
     try {
       if (!_isInit) await _init();
       final key = _hiveKey(link);
-      
+
       if (_previewBox != null && _previewBox!.isOpen) {
         final model = _previewBox!.get(key);
         if (model != null && model.localImagePath != null) {
@@ -207,7 +209,7 @@ class PreviewMap extends ChangeNotifier {
         await dir.delete(recursive: true);
         await dir.create();
       }
-      
+
       // Update Hive models to remove local paths
       if (_previewBox != null && _previewBox!.isOpen) {
         for (var key in _previewBox!.keys) {
@@ -226,7 +228,7 @@ class PreviewMap extends ChangeNotifier {
           }
         }
       }
-      
+
       localImagePaths.clear();
       notifyListeners();
     } catch (e) {

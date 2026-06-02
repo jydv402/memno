@@ -92,7 +92,7 @@ class DesktopSidebar extends StatelessWidget {
             colors: colors,
             icon: Icons.search_rounded,
             label: 'Search',
-            backgroundColor: colors.pill,
+            backgroundColor: Colors.black,
             foregroundColor: colors.textClr,
             onTap: onSearchTap,
           ),
@@ -104,7 +104,7 @@ class DesktopSidebar extends StatelessWidget {
             colors: colors,
             icon: Icons.add_rounded,
             label: 'New Page',
-            backgroundColor: Colors.black,
+            backgroundColor: colors.pill,
             foregroundColor: Colors.white,
             onTap: onNewPage,
           ),
@@ -121,23 +121,13 @@ class DesktopSidebar extends StatelessWidget {
 
   Widget _buildBranding(AppColors colors) {
     return Padding(
-      padding: const EdgeInsets.fromLTRB(
-        16.0,
-        20.0,
-        16.0,
-        8.0,
-      ),
+      padding: const EdgeInsets.fromLTRB(16.0, 20.0, 16.0, 8.0),
       child: SingleChildScrollView(
         scrollDirection: Axis.horizontal,
         physics: const NeverScrollableScrollPhysics(),
         child: Row(
           children: [
-            Image.asset(
-              'assets/memno_clear_blk.png',
-              height: 24,
-              width: 24,
-              color: colors.isDarkMode ? Colors.white : null,
-            ),
+            Image.asset('assets/memno_512.png', height: 24, width: 24),
             if (isExpanded) ...[
               const SizedBox(width: 10),
               AnimatedOpacity(
@@ -176,60 +166,66 @@ class DesktopSidebar extends StatelessWidget {
     final Color fg = isSelected ? Colors.black : colors.textClr;
     final IconData icon = isSelected ? selectedIcon : unselectedIcon;
 
-    final Widget tile = InkWell(
-      borderRadius: BorderRadius.circular(12),
-      onTap: () => onDestinationChanged(index),
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 150),
-        padding: const EdgeInsets.symmetric(
-          horizontal: 0.0,
-          vertical: 10.0,
-        ),
-        decoration: BoxDecoration(
-          color: bg,
+    final Widget tile = AnimatedContainer(
+      duration: const Duration(milliseconds: 150),
+      decoration: BoxDecoration(
+        color: bg,
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Material(
+        color: Colors.transparent,
+        borderRadius: BorderRadius.circular(12),
+        child: InkWell(
           borderRadius: BorderRadius.circular(12),
-        ),
-        child: SizedBox(
-          height: 20,
-          child: Stack(
-            clipBehavior: Clip.hardEdge,
-            children: [
-              AnimatedPositioned(
-                duration: const Duration(milliseconds: 150),
-                left: isExpanded ? 12.0 : 10.0,
-                top: 0,
-                bottom: 0,
-                child: Center(
-                  child: Icon(icon, color: fg, size: 20),
-                ),
-              ),
-              AnimatedPositioned(
-                duration: const Duration(milliseconds: 150),
-                left: isExpanded ? 44.0 : 42.0,
-                top: 0,
-                bottom: 0,
-                width: 150,
-                child: Align(
-                  alignment: Alignment.centerLeft,
-                  child: AnimatedOpacity(
-                    opacity: isExpanded ? 1.0 : 0.0,
-                    duration: const Duration(milliseconds: 200),
-                    child: Text(
-                      label,
-                      style: TextStyle(
-                        fontFamily: 'GoogleSans',
-                        fontWeight:
-                            isSelected ? FontWeight.bold : FontWeight.normal,
-                        fontSize: 14,
-                        color: fg,
+          hoverColor: Colors.white.withValues(alpha: 0.15),
+          onTap: () => onDestinationChanged(index),
+          child: Padding(
+            padding: const EdgeInsets.symmetric(
+              horizontal: 0.0,
+              vertical: 10.0,
+            ),
+            child: SizedBox(
+              height: 20,
+              child: Stack(
+                clipBehavior: Clip.hardEdge,
+                children: [
+                  AnimatedPositioned(
+                    duration: const Duration(milliseconds: 150),
+                    left: isExpanded ? 12.0 : 10.0,
+                    top: 0,
+                    bottom: 0,
+                    child: Center(child: Icon(icon, color: fg, size: 20)),
+                  ),
+                  AnimatedPositioned(
+                    duration: const Duration(milliseconds: 150),
+                    left: isExpanded ? 44.0 : 42.0,
+                    top: 0,
+                    bottom: 0,
+                    width: 150,
+                    child: Align(
+                      alignment: Alignment.centerLeft,
+                      child: AnimatedOpacity(
+                        opacity: isExpanded ? 1.0 : 0.0,
+                        duration: const Duration(milliseconds: 200),
+                        child: Text(
+                          label,
+                          style: TextStyle(
+                            fontFamily: 'GoogleSans',
+                            fontWeight: isSelected
+                                ? FontWeight.bold
+                                : FontWeight.normal,
+                            fontSize: 14,
+                            color: fg,
+                          ),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
                       ),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
                     ),
                   ),
-                ),
+                ],
               ),
-            ],
+            ),
           ),
         ),
       ),
@@ -242,11 +238,7 @@ class DesktopSidebar extends StatelessWidget {
 
     // When collapsed, show a tooltip so the user still knows what the item is.
     if (!isExpanded) {
-      return Tooltip(
-        message: label,
-        preferBelow: false,
-        child: wrappedTile,
-      );
+      return Tooltip(message: label, preferBelow: false, child: wrappedTile);
     }
 
     return wrappedTile;
@@ -273,6 +265,7 @@ class DesktopSidebar extends StatelessWidget {
           borderRadius: BorderRadius.circular(22),
           child: InkWell(
             borderRadius: BorderRadius.circular(22),
+            hoverColor: foregroundColor.withValues(alpha: 0.15),
             onTap: onTap,
             child: AnimatedContainer(
               duration: const Duration(milliseconds: 200),
@@ -322,6 +315,7 @@ class DesktopSidebar extends StatelessWidget {
           borderRadius: BorderRadius.circular(12),
           child: InkWell(
             borderRadius: BorderRadius.circular(12),
+            hoverColor: foregroundColor.withValues(alpha: 0.15),
             onTap: onTap,
             child: SizedBox(
               width: 40,
@@ -333,5 +327,4 @@ class DesktopSidebar extends StatelessWidget {
       ),
     );
   }
-
 }

@@ -72,9 +72,7 @@ class _NoteCardState extends State<NoteCard> {
           borderRadius: BorderRadius.circular(16),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withValues(
-                alpha: _isHovered ? 0.12 : 0.04,
-              ),
+              color: Colors.black.withValues(alpha: _isHovered ? 0.12 : 0.04),
               blurRadius: _isHovered ? 12 : 4,
               offset: Offset(0, _isHovered ? 4 : 1),
             ),

@@ -16,10 +16,7 @@ class DesktopSearchOverlay extends StatefulWidget {
   /// Called when a search result is selected, passing the note code.
   final ValueChanged<int> onResultSelected;
 
-  const DesktopSearchOverlay({
-    super.key,
-    required this.onResultSelected,
-  });
+  const DesktopSearchOverlay({super.key, required this.onResultSelected});
 
   @override
   State<DesktopSearchOverlay> createState() => _DesktopSearchOverlayState();
@@ -45,13 +42,10 @@ class _DesktopSearchOverlayState extends State<DesktopSearchOverlay>
       vsync: this,
       duration: const Duration(milliseconds: 300),
     );
-    _slideAnimation = Tween<Offset>(
-      begin: const Offset(0, 1),
-      end: Offset.zero,
-    ).animate(CurvedAnimation(
-      parent: _slideController,
-      curve: Curves.easeOutCubic,
-    ));
+    _slideAnimation = Tween<Offset>(begin: const Offset(0, 1), end: Offset.zero)
+        .animate(
+          CurvedAnimation(parent: _slideController, curve: Curves.easeOutCubic),
+        );
 
     _slideController.forward();
 
@@ -185,9 +179,7 @@ class _DesktopSearchOverlayState extends State<DesktopSearchOverlay>
                 onTap: _dismiss,
                 child: BackdropFilter(
                   filter: ImageFilter.blur(sigmaX: 8, sigmaY: 8),
-                  child: Container(
-                    color: Colors.black.withValues(alpha: 0.3),
-                  ),
+                  child: Container(color: Colors.black.withValues(alpha: 0.3)),
                 ),
               ),
             ),
@@ -232,9 +224,7 @@ class _DesktopSearchOverlayState extends State<DesktopSearchOverlay>
       decoration: BoxDecoration(
         color: colors.box,
         borderRadius: BorderRadius.circular(28),
-        border: Border.all(
-          color: colors.pill.withValues(alpha: 0.3),
-        ),
+        border: Border.all(color: colors.pill.withValues(alpha: 0.3)),
       ),
       padding: const EdgeInsets.symmetric(horizontal: 20),
       child: Row(
@@ -270,11 +260,7 @@ class _DesktopSearchOverlayState extends State<DesktopSearchOverlay>
           ),
           if (_searchController.text.isNotEmpty)
             IconButton(
-              icon: Icon(
-                Icons.close_rounded,
-                color: colors.iconClr,
-                size: 20,
-              ),
+              icon: Icon(Icons.close_rounded, color: colors.iconClr, size: 20),
               padding: EdgeInsets.zero,
               constraints: const BoxConstraints(),
               onPressed: () {
@@ -300,9 +286,7 @@ class _DesktopSearchOverlayState extends State<DesktopSearchOverlay>
       decoration: BoxDecoration(
         color: colors.box,
         borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
-        border: Border.all(
-          color: colors.pill.withValues(alpha: 0.3),
-        ),
+        border: Border.all(color: colors.pill.withValues(alpha: 0.3)),
       ),
       child: ClipRRect(
         borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
@@ -318,8 +302,9 @@ class _DesktopSearchOverlayState extends State<DesktopSearchOverlay>
             final isHighlighted = index == _highlightedIndex;
 
             return Material(
-              color:
-                  isHighlighted ? colors.accnt.withValues(alpha: 0.15) : Colors.transparent,
+              color: isHighlighted
+                  ? colors.accnt.withValues(alpha: 0.15)
+                  : Colors.transparent,
               child: ListTile(
                 leading: Icon(
                   Icons.folder_rounded,
