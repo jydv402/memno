@@ -71,6 +71,7 @@ class ImportExport {
           fileName: 'memno_notes.json',
           type: FileType.custom,
           allowedExtensions: ['json'],
+          bytes: bytes,
         );
         if (result != null) {
           final file = File(result);
@@ -113,14 +114,12 @@ class ImportExport {
       if (_codeBox == null) return;
 
       // Get the file
-      final result = await FilePicker.pickFiles(
+      final file = await FilePicker.pickFile(
         type: FileType.custom,
         allowedExtensions: ['json'],
-        withData: true,
-        allowMultiple: false,
       );
       // Show cancelled message if the import is cancelled halfway
-      if (result == null) {
+      if (file == null) {
         if (context.mounted) {
           _showNotification(context, 'Import Cancelled');
         }
@@ -128,17 +127,7 @@ class ImportExport {
       }
 
       // Decode JSON
-      Uint8List? bytes = result.files.first.bytes;
-      if (bytes == null && result.files.first.path != null) {
-        final file = File(result.files.first.path!);
-        bytes = await file.readAsBytes();
-      }
-      if (bytes == null) {
-        if (context.mounted) {
-          _showNotification(context, 'Could not read file data');
-        }
-        return;
-      }
+      final bytes = await file.readAsBytes();
       final jsonString = utf8.decode(bytes);
       final json = jsonDecode(jsonString) as Map<String, dynamic>;
 
