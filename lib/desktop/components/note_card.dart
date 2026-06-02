@@ -1,4 +1,8 @@
+import 'dart:io' show File;
+
 import 'package:flutter/material.dart';
+import 'package:flutter_link_previewer/flutter_link_previewer.dart';
+import 'package:memno/logic/functionality/preview_map.dart';
 import 'package:memno/logic/theme/app_colors.dart';
 import 'package:provider/provider.dart';
 
@@ -128,26 +132,89 @@ class _NoteCardState extends State<NoteCard> {
 
   Widget _buildContent(AppColors colors) {
     if (widget.isUrl) {
+      final previewMap = Provider.of<PreviewMap>(context);
       return Padding(
         padding: const EdgeInsets.only(bottom: 8),
-        child: GestureDetector(
-          onTap: widget.onTapUrl,
-          child: MouseRegion(
-            cursor: SystemMouseCursors.click,
-            child: Text(
-              widget.content,
-              maxLines: 2,
-              overflow: TextOverflow.ellipsis,
-              style: const TextStyle(
-                fontFamily: 'GoogleSans',
-                fontSize: 13,
-                color: Color(0xFF4A90D9),
-                decoration: TextDecoration.underline,
-                decorationColor: Color(0xFF4A90D9),
-                height: 1.4,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            GestureDetector(
+              onTap: widget.onTapUrl,
+              child: MouseRegion(
+                cursor: SystemMouseCursors.click,
+                child: Text(
+                  widget.content,
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                  style: const TextStyle(
+                    fontFamily: 'GoogleSans',
+                    fontSize: 13,
+                    color: Color(0xFF4A90D9),
+                    decoration: TextDecoration.underline,
+                    decorationColor: Color(0xFF4A90D9),
+                    height: 1.4,
+                  ),
+                ),
               ),
             ),
-          ),
+            const SizedBox(height: 8),
+            LinkPreview(
+              requestTimeout: const Duration(seconds: 10),
+              minWidth: 280,
+              gap: 12,
+              backgroundColor: Colors.transparent,
+              sideBorderColor: Colors.transparent,
+              imageBuilder: (image) {
+                final preview = previewMap.loadPreviewSync(
+                  widget.content,
+                  saveLocally: colors.saveImagesLocally,
+                );
+                final isSquare =
+                    preview?.image?.height == preview?.image?.width;
+                return Container(
+                  decoration: BoxDecoration(
+                    borderRadius: isSquare
+                        ? BorderRadius.circular(10)
+                        : BorderRadius.circular(16),
+                    image: DecorationImage(
+                      image: previewMap.localImagePaths[widget.content] != null
+                          ? FileImage(
+                              File(previewMap.localImagePaths[widget.content]!),
+                            )
+                          : NetworkImage(image) as ImageProvider,
+                      fit: BoxFit.cover,
+                    ),
+                  ),
+                );
+              },
+              outsidePadding: const EdgeInsets.symmetric(vertical: 4),
+              enableAnimation: true,
+              titleTextStyle: TextStyle(
+                color: colors.textClr,
+                fontWeight: FontWeight.bold,
+                fontSize: 16,
+                fontFamily: 'GoogleSans',
+              ),
+              descriptionTextStyle: TextStyle(
+                color: colors.textClr.withValues(alpha: 0.7),
+                fontFamily: 'GoogleSans',
+                fontSize: 12,
+              ),
+              onLinkPreviewDataFetched: (data) async {
+                await previewMap.savePreview(
+                  link: widget.content,
+                  data: data,
+                  saveLocally: colors.saveImagesLocally,
+                );
+              },
+              linkPreviewData: previewMap.loadPreviewSync(
+                widget.content,
+                saveLocally: colors.saveImagesLocally,
+              ),
+              text: widget.content,
+            ),
+          ],
         ),
       );
     }

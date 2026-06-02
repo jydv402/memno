@@ -63,12 +63,7 @@ class _DesktopShellState extends State<DesktopShell> {
     });
   }
 
-  void _toggleSidebar() {
-    setState(() {
-      _sidebarExpanded = !_sidebarExpanded;
-      _autoCollapsed = false;
-    });
-  }
+
 
   void _openSearch() {
     showDialog(
@@ -190,10 +185,8 @@ class _DesktopShellState extends State<DesktopShell> {
 
                   return Row(
                     children: [
-                      // ── Sidebar ──
                       DesktopSidebar(
                         isExpanded: _sidebarExpanded,
-                        onToggleExpand: _toggleSidebar,
                         selectedIndex: _selectedDestination,
                         onDestinationChanged: _changeDestination,
                         onSearchTap: _openSearch,

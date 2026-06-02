@@ -1,9 +1,11 @@
 import 'dart:convert';
+import 'dart:io' show File, Platform;
 
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:hive/hive.dart';
+import 'package:memno/desktop/components/desktop_notification.dart';
 import 'package:memno/mobile/components/show_toast.dart';
 import 'package:memno/logic/database/code_data.dart';
 import 'package:memno/logic/functionality/code_gen.dart';
@@ -61,30 +63,44 @@ class ImportExport {
 
       // Get the save destination
       // Write the file
-      final result = await FilePicker.saveFile(
-        dialogTitle: 'Export Memno Notes',
-        fileName: 'memno_notes.json',
-        type: FileType.custom,
-        allowedExtensions: ['json'],
-        bytes: bytes,
-      );
+      String? result;
+      if (!kIsWeb && (Platform.isWindows || Platform.isMacOS || Platform.isLinux)) {
+        result = await FilePicker.saveFile(
+          dialogTitle: 'Export Memno Notes',
+          fileName: 'memno_notes.json',
+          type: FileType.custom,
+          allowedExtensions: ['json'],
+        );
+        if (result != null) {
+          final file = File(result);
+          await file.writeAsBytes(bytes);
+        }
+      } else {
+        result = await FilePicker.saveFile(
+          dialogTitle: 'Export Memno Notes',
+          fileName: 'memno_notes.json',
+          type: FileType.custom,
+          allowedExtensions: ['json'],
+          bytes: bytes,
+        );
+      }
 
       // Show cancelled message if the export is cancelled halfway
       if (result == null) {
         if (context.mounted) {
-          showToastMsg(context, 'Export Cancelled');
+          _showNotification(context, 'Export Cancelled');
         }
         return;
       }
 
       // Show success message
       if (context.mounted) {
-        showToastMsg(context, 'Successfully Exported to JSON');
+        _showNotification(context, 'Successfully Exported to JSON');
       }
     } catch (e) {
       debugPrint('ExportToJSON error: $e');
       if (context.mounted) {
-        showToastMsg(context, e.toString());
+        _showNotification(context, e.toString());
       }
     }
   }
@@ -105,16 +121,20 @@ class ImportExport {
       // Show cancelled message if the import is cancelled halfway
       if (result == null) {
         if (context.mounted) {
-          showToastMsg(context, 'Import Cancelled');
+          _showNotification(context, 'Import Cancelled');
         }
         return;
       }
 
       // Decode JSON
-      final bytes = result.files.first.bytes;
+      Uint8List? bytes = result.files.first.bytes;
+      if (bytes == null && result.files.first.path != null) {
+        final file = File(result.files.first.path!);
+        bytes = await file.readAsBytes();
+      }
       if (bytes == null) {
         if (context.mounted) {
-          showToastMsg(context, 'Could not read file data');
+          _showNotification(context, 'Could not read file data');
         }
         return;
       }
@@ -137,13 +157,21 @@ class ImportExport {
 
       // Show success message
       if (context.mounted) {
-        showToastMsg(context, 'Successfully Imported from JSON');
+        _showNotification(context, 'Successfully Imported from JSON');
       }
     } catch (e) {
       debugPrint('ImportFromJSON error: $e');
       if (context.mounted) {
-        showToastMsg(context, e.toString());
+        _showNotification(context, e.toString());
       }
+    }
+  }
+
+  void _showNotification(BuildContext context, String message) {
+    if (!kIsWeb && (Platform.isWindows || Platform.isMacOS || Platform.isLinux)) {
+      showDesktopNotification(context, message);
+    } else {
+      showToastMsg(context, message);
     }
   }
 }

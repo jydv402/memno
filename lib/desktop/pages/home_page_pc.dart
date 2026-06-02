@@ -202,6 +202,16 @@ class _DesktopHomePageState extends State<DesktopHomePage> {
                         isLiked: codeGen.getLikeForCode(code),
                         onTap: () => widget.onCodeSelected?.call(code),
                         onDelete: () => _confirmDelete(context, codeGen, code),
+                        onLike: () {
+                          codeGen.toggleLike(code);
+                          final isLikedNow = codeGen.getLikeForCode(code);
+                          showDesktopNotification(
+                            context,
+                            isLikedNow
+                                ? 'Added note #$code to Liked Notes'
+                                : 'Removed note #$code from Liked Notes',
+                          );
+                        },
                       ),
                     );
                   },

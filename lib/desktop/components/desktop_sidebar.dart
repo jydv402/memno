@@ -8,9 +8,6 @@ class DesktopSidebar extends StatelessWidget {
   /// Whether the sidebar is currently in expanded state.
   final bool isExpanded;
 
-  /// Callback to toggle the expanded/collapsed state.
-  final VoidCallback onToggleExpand;
-
   /// Currently selected destination index.
   /// 0 = All, 1 = Liked, 2 = Empty, 3 = Settings.
   final int selectedIndex;
@@ -27,7 +24,6 @@ class DesktopSidebar extends StatelessWidget {
   const DesktopSidebar({
     super.key,
     required this.isExpanded,
-    required this.onToggleExpand,
     required this.selectedIndex,
     required this.onDestinationChanged,
     required this.onSearchTap,
@@ -114,11 +110,6 @@ class DesktopSidebar extends StatelessWidget {
           ),
 
           const SizedBox(height: 8),
-
-          // ── Toggle Button ──
-          _buildToggleButton(colors),
-
-          const SizedBox(height: 8),
         ],
       ),
     );
@@ -130,10 +121,10 @@ class DesktopSidebar extends StatelessWidget {
 
   Widget _buildBranding(AppColors colors) {
     return Padding(
-      padding: EdgeInsets.fromLTRB(
-        isExpanded ? 16.0 : 12.0,
+      padding: const EdgeInsets.fromLTRB(
+        16.0,
         20.0,
-        isExpanded ? 16.0 : 12.0,
+        16.0,
         8.0,
       ),
       child: SingleChildScrollView(
@@ -190,25 +181,36 @@ class DesktopSidebar extends StatelessWidget {
       onTap: () => onDestinationChanged(index),
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 150),
-        padding: EdgeInsets.symmetric(
-          horizontal: isExpanded ? 12.0 : 0.0,
+        padding: const EdgeInsets.symmetric(
+          horizontal: 0.0,
           vertical: 10.0,
         ),
         decoration: BoxDecoration(
           color: bg,
           borderRadius: BorderRadius.circular(12),
         ),
-        child: Row(
-          mainAxisAlignment:
-              isExpanded ? MainAxisAlignment.start : MainAxisAlignment.center,
-          children: [
-            Icon(icon, color: fg, size: 20),
-            if (isExpanded) ...[
-              const SizedBox(width: 12),
-              Expanded(
-                child: SingleChildScrollView(
-                  scrollDirection: Axis.horizontal,
-                  physics: const NeverScrollableScrollPhysics(),
+        child: SizedBox(
+          height: 20,
+          child: Stack(
+            clipBehavior: Clip.hardEdge,
+            children: [
+              AnimatedPositioned(
+                duration: const Duration(milliseconds: 150),
+                left: isExpanded ? 12.0 : 10.0,
+                top: 0,
+                bottom: 0,
+                child: Center(
+                  child: Icon(icon, color: fg, size: 20),
+                ),
+              ),
+              AnimatedPositioned(
+                duration: const Duration(milliseconds: 150),
+                left: isExpanded ? 44.0 : 42.0,
+                top: 0,
+                bottom: 0,
+                width: 150,
+                child: Align(
+                  alignment: Alignment.centerLeft,
                   child: AnimatedOpacity(
                     opacity: isExpanded ? 1.0 : 0.0,
                     duration: const Duration(milliseconds: 200),
@@ -221,13 +223,14 @@ class DesktopSidebar extends StatelessWidget {
                         fontSize: 14,
                         color: fg,
                       ),
+                      maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                     ),
                   ),
                 ),
               ),
             ],
-          ],
+          ),
         ),
       ),
     );
@@ -331,30 +334,4 @@ class DesktopSidebar extends StatelessWidget {
     );
   }
 
-  // ───────────────────────────────────────────────────────────
-  //  Toggle Expand / Collapse Button
-  // ───────────────────────────────────────────────────────────
-
-  Widget _buildToggleButton(AppColors colors) {
-    return Tooltip(
-      message: isExpanded ? 'Collapse sidebar' : 'Expand sidebar',
-      preferBelow: false,
-      child: InkWell(
-        borderRadius: BorderRadius.circular(12),
-        onTap: onToggleExpand,
-        child: Padding(
-          padding: const EdgeInsets.all(8.0),
-          child: AnimatedRotation(
-            turns: isExpanded ? 0.0 : 0.5,
-            duration: const Duration(milliseconds: 200),
-            child: Icon(
-              Icons.chevron_left,
-              color: colors.iconClr,
-              size: 20,
-            ),
-          ),
-        ),
-      ),
-    );
-  }
 }

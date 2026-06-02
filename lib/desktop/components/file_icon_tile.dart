@@ -17,6 +17,7 @@ class FileIconTile extends StatefulWidget {
     required this.isLiked,
     required this.onTap,
     this.onDelete,
+    this.onLike,
   });
 
   /// The 6-digit note page code.
@@ -36,6 +37,8 @@ class FileIconTile extends StatefulWidget {
 
   /// Optional callback invoked when right-click delete is selected.
   final VoidCallback? onDelete;
+
+  final VoidCallback? onLike;
 
   @override
   State<FileIconTile> createState() => _FileIconTileState();
@@ -61,52 +64,69 @@ class _FileIconTileState extends State<FileIconTile> {
         side: BorderSide(color: colors.pill.withValues(alpha: 0.3)),
       ),
       items: [
-        PopupMenuItem(
-          value: 'Like',
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              const Icon(Icons.favorite_rounded, color: Colors.white, size: 18),
-              const SizedBox(width: 8),
-              Text(
-                'Like Note',
-                style: TextStyle(
-                  fontFamily: 'GoogleSans',
-                  fontSize: 14,
-                  fontWeight: FontWeight.w600,
-                  color: Colors.white,
-                ),
+        if (widget.onLike != null)
+          PopupMenuItem(
+            value: 'like',
+            child: MouseRegion(
+              cursor: SystemMouseCursors.click,
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(
+                    widget.isLiked
+                        ? Icons.favorite_border_rounded
+                        : Icons.favorite_rounded,
+                    color: widget.isLiked ? colors.textClr : Colors.red,
+                    size: 18,
+                  ),
+                  const SizedBox(width: 8),
+                  Text(
+                    widget.isLiked ? 'Unlike Note' : 'Like Note',
+                    style: TextStyle(
+                      fontFamily: 'GoogleSans',
+                      fontSize: 14,
+                      fontWeight: FontWeight.w600,
+                      color: colors.textClr,
+                    ),
+                  ),
+                ],
               ),
-            ],
+            ),
           ),
-        ),
-        PopupMenuItem(
-          value: 'delete',
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              const Icon(
-                Icons.delete_outline_rounded,
-                color: Colors.redAccent,
-                size: 18,
+        if (widget.onDelete != null)
+          PopupMenuItem(
+            value: 'delete',
+            child: MouseRegion(
+              cursor: SystemMouseCursors.click,
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  const Icon(
+                    Icons.delete_outline_rounded,
+                    color: Colors.redAccent,
+                    size: 18,
+                  ),
+                  const SizedBox(width: 8),
+                  Text(
+                    'Delete Note',
+                    style: TextStyle(
+                      fontFamily: 'GoogleSans',
+                      fontSize: 14,
+                      fontWeight: FontWeight.w600,
+                      color: Colors.redAccent,
+                    ),
+                  ),
+                ],
               ),
-              const SizedBox(width: 8),
-              Text(
-                'Delete Note',
-                style: TextStyle(
-                  fontFamily: 'GoogleSans',
-                  fontSize: 14,
-                  fontWeight: FontWeight.w600,
-                  color: Colors.redAccent,
-                ),
-              ),
-            ],
+            ),
           ),
-        ),
       ],
     ).then((value) {
       if (value == 'delete') {
         widget.onDelete?.call();
+      }
+      if (value == 'like') {
+        widget.onLike?.call();
       }
     });
   }
@@ -121,7 +141,7 @@ class _FileIconTileState extends State<FileIconTile> {
       cursor: SystemMouseCursors.click,
       child: GestureDetector(
         onTap: widget.onTap,
-        onSecondaryTapDown: widget.onDelete != null
+        onSecondaryTapDown: (widget.onDelete != null || widget.onLike != null)
             ? (details) => _showContextMenu(context, details)
             : null,
         child: AnimatedScale(
