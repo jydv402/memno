@@ -2,7 +2,7 @@ import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:hive_flutter/hive_flutter.dart';
-import 'package:memno/database/code_data.dart';
+import 'package:memno/logic/database/code_data.dart';
 
 class CodeGen extends ChangeNotifier {
   late Box<CodeData> _codeBox;

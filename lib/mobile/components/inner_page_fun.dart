@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:memno/theme/app_colors.dart';
+import 'package:memno/logic/theme/app_colors.dart';
 import 'package:provider/provider.dart';
 
 class InnerPageButton extends StatelessWidget {

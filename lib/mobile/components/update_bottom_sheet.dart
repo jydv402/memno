@@ -1,8 +1,8 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
-import 'package:memno/components/show_toast.dart';
-import 'package:memno/functionality/check_update.dart';
-import 'package:memno/theme/app_colors.dart';
+import 'package:memno/mobile/components/show_toast.dart';
+import 'package:memno/logic/functionality/check_update.dart';
+import 'package:memno/logic/theme/app_colors.dart';
 import 'package:ota_update/ota_update.dart';
 import 'package:provider/provider.dart';
 

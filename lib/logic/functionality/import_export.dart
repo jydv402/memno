@@ -4,9 +4,9 @@ import 'package:file_picker/file_picker.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:hive/hive.dart';
-import 'package:memno/components/show_toast.dart';
-import 'package:memno/database/code_data.dart';
-import 'package:memno/functionality/code_gen.dart';
+import 'package:memno/mobile/components/show_toast.dart';
+import 'package:memno/logic/database/code_data.dart';
+import 'package:memno/logic/functionality/code_gen.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:provider/provider.dart';
 

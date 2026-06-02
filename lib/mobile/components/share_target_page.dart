@@ -1,10 +1,10 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
-import 'package:memno/components/inner_page.dart';
-import 'package:memno/components/show_toast.dart';
-import 'package:memno/functionality/code_gen.dart';
-import 'package:memno/theme/app_colors.dart';
+import 'package:memno/mobile/components/inner_page.dart';
+import 'package:memno/mobile/components/show_toast.dart';
+import 'package:memno/logic/functionality/code_gen.dart';
+import 'package:memno/logic/theme/app_colors.dart';
 import 'package:provider/provider.dart';
 
 /// Page shown when the user shares text/link from another app.

@@ -2,7 +2,7 @@ import 'dart:ui';
 
 import 'package:flutter/material.dart';
 import 'package:hive/hive.dart';
-import 'package:memno/database/toggles_data.dart';
+import 'package:memno/logic/database/toggles_data.dart';
 
 enum AppThemeMode { system, light, dark }
 

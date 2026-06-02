@@ -1,12 +1,15 @@
+import 'dart:io' show Platform;
+
 import 'package:flutter/material.dart';
 import 'package:hive_flutter/hive_flutter.dart';
-import 'package:memno/database/code_data.dart';
-import 'package:memno/database/preview_data.dart';
-import 'package:memno/database/toggles_data.dart';
-import 'package:memno/functionality/code_gen.dart';
-import 'package:memno/functionality/preview_map.dart';
-import 'package:memno/home.dart';
-import 'package:memno/theme/app_colors.dart';
+import 'package:memno/logic/database/code_data.dart';
+import 'package:memno/logic/database/preview_data.dart';
+import 'package:memno/logic/database/toggles_data.dart';
+import 'package:memno/logic/functionality/code_gen.dart';
+import 'package:memno/logic/functionality/preview_map.dart';
+import 'package:memno/desktop/desktop_shell.dart';
+import 'package:memno/mobile/home.dart';
+import 'package:memno/logic/theme/app_colors.dart';
 import 'package:provider/provider.dart';
 
 /// Global navigator key used by share intent handler to push ShareTargetPage.
@@ -16,7 +19,7 @@ final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 // Will be used to logically disable OTA update check and UI.
 const String updateLogic = String.fromEnvironment(
   'UPDATE_LOGIC',
-  defaultValue: 'withoutOTA',
+  defaultValue: 'withOTA',
 );
 
 void main() async {
@@ -54,6 +57,9 @@ void main() async {
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
+  static bool get _isDesktopPlatform =>
+      Platform.isWindows || Platform.isMacOS || Platform.isLinux;
+
   @override
   Widget build(BuildContext context) {
     final colors = Provider.of<AppColors>(context);
@@ -61,7 +67,7 @@ class MyApp extends StatelessWidget {
       navigatorKey: navigatorKey,
       title: 'Memno',
       debugShowCheckedModeBanner: false,
-      home: const HomePage(),
+      home: _isDesktopPlatform ? const DesktopShell() : const HomePage(),
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(seedColor: colors.accnt),
         scaffoldBackgroundColor: colors.bgClr,

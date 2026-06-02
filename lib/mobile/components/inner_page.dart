@@ -6,11 +6,11 @@ import 'package:flutter/services.dart';
 import 'package:flutter_link_previewer/flutter_link_previewer.dart';
 import 'package:glassmorphism/glassmorphism.dart';
 import 'package:linkfy_text/linkfy_text.dart';
-import 'package:memno/components/inner_page_fun.dart';
-import 'package:memno/components/show_toast.dart';
-import 'package:memno/functionality/code_gen.dart';
-import 'package:memno/functionality/preview_map.dart';
-import 'package:memno/theme/app_colors.dart';
+import 'package:memno/mobile/components/inner_page_fun.dart';
+import 'package:memno/mobile/components/show_toast.dart';
+import 'package:memno/logic/functionality/code_gen.dart';
+import 'package:memno/logic/functionality/preview_map.dart';
+import 'package:memno/logic/theme/app_colors.dart';
 import 'package:provider/provider.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -18,7 +18,8 @@ import 'package:url_launcher/url_launcher.dart';
 /// Main page widget for displaying and editing a list of links and a title.
 class InnerPage extends StatefulWidget {
   final int code;
-  const InnerPage({super.key, required this.code});
+  final bool isEmbedded;
+  const InnerPage({super.key, required this.code, this.isEmbedded = false});
 
   @override
   State<InnerPage> createState() => _InnerPageState();
@@ -44,6 +45,7 @@ class _InnerPageState extends State<InnerPage>
         backgroundColor: colors.bgClr,
         foregroundColor: colors.fgClr,
         surfaceTintColor: colors.bgClr,
+        automaticallyImplyLeading: !widget.isEmbedded,
       ),
       body: Consumer2<CodeGen, PreviewMap>(
         builder: (context, codeProvider, previewMap, child) {
@@ -283,8 +285,9 @@ class _InnerPageState extends State<InnerPage>
                                           requestTimeout: const Duration(
                                             seconds: 10,
                                           ),
-                                          minWidth:
-                                              MediaQuery.of(
+                                          minWidth: widget.isEmbedded
+                                              ? 400
+                                              : MediaQuery.of(
                                                 context,
                                               ).size.width +
                                               50,
@@ -426,6 +429,7 @@ class _InnerPageState extends State<InnerPage>
         child: _isFabExpanded
             ? CustomInnerFAB(
                 key: const ValueKey('expandedFAB'),
+                isEmbedded: widget.isEmbedded,
                 onCollapse: () {
                   setState(() {
                     _isFabExpanded = false;
@@ -561,6 +565,7 @@ class CustomInnerFAB extends StatelessWidget {
     required this.controller,
     required this.isEditMode,
     required this.fabFocus,
+    this.isEmbedded = false,
   });
   final VoidCallback onConfirm;
   final VoidCallback onCancel;
@@ -568,13 +573,16 @@ class CustomInnerFAB extends StatelessWidget {
   final TextEditingController controller;
   final int isEditMode;
   final FocusNode fabFocus;
+  final bool isEmbedded;
 
   @override
   Widget build(BuildContext context) {
     final colors = Provider.of<AppColors>(context);
 
     return SizedBox(
-      width: MediaQuery.of(context).size.width - 25,
+      width: isEmbedded
+          ? 500.0
+          : (MediaQuery.of(context).size.width - 25),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [

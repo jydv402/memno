@@ -2,7 +2,7 @@ import 'package:delightful_toast/delight_toast.dart';
 import 'package:delightful_toast/toast/components/toast_card.dart';
 import 'package:delightful_toast/toast/utils/enums.dart';
 import 'package:flutter/material.dart';
-import 'package:memno/theme/app_colors.dart';
+import 'package:memno/logic/theme/app_colors.dart';
 import 'package:provider/provider.dart';
 
 void showToastMsg(BuildContext context, String msg) {

@@ -1,20 +1,21 @@
 import 'dart:async';
+import 'dart:io' show Platform;
 
 import 'package:animations/animations.dart';
 import 'package:flutter/material.dart';
 import 'package:glassmorphism/glassmorphism.dart';
-import 'package:memno/components/inner_page.dart';
-import 'package:memno/components/settings_page.dart';
-import 'package:memno/components/share_target_page.dart';
-import 'package:memno/components/show_toast.dart';
-import 'package:memno/components/sub_tile.dart';
-import 'package:memno/functionality/code_gen.dart';
+import 'package:memno/mobile/components/inner_page.dart';
+import 'package:memno/mobile/components/settings_page.dart';
+import 'package:memno/mobile/components/share_target_page.dart';
+import 'package:memno/mobile/components/show_toast.dart';
+import 'package:memno/mobile/components/sub_tile.dart';
+import 'package:memno/logic/functionality/code_gen.dart';
 import 'package:memno/main.dart';
-import 'package:memno/theme/app_colors.dart';
+import 'package:memno/logic/theme/app_colors.dart';
 import 'package:provider/provider.dart';
 import 'package:receive_sharing_intent/receive_sharing_intent.dart';
-import 'package:memno/functionality/check_update.dart';
-import 'package:memno/components/update_bottom_sheet.dart';
+import 'package:memno/logic/functionality/check_update.dart';
+import 'package:memno/mobile/components/update_bottom_sheet.dart';
 
 enum Filters { all, liked, empty }
 
@@ -63,6 +64,7 @@ class _HomePageState extends State<HomePage> {
   }
 
   void _initShareIntent() {
+    if (!Platform.isAndroid && !Platform.isIOS) return;
     // Handle shares received while app is running
     _shareSubscription = ReceiveSharingIntent.instance.getMediaStream().listen((
       List<SharedMediaFile> value,
@@ -263,7 +265,6 @@ class _HomePageState extends State<HomePage> {
                         customToggle: _customToggleButtons(context),
                       );
                     } else {
-                      //final reversedIndex = filteredList.length - index;
                       final code = filteredList[index - 1];
                       final date = codeProvider.getDateForCode(code);
                       final isLiked = codeProvider.getLikeForCode(code);
