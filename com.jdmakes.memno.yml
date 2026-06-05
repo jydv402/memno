@@ -13,7 +13,7 @@ Repo: https://github.com/jydv402/memno
 Builds:
   - versionName: 1.3.4
     versionCode: 13
-    commit: 01f9b7f9efd8a7594d45fa46a573bb487ebd0154
+    commit: 275243ba77d4936522d2ed14a62489b765ba3bf1
     sudo:
       - mkdir -p /upstream/path/com.jdmakes.memno
       - chown -R vagrant /upstream/path
