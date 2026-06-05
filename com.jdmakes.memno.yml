@@ -8,24 +8,54 @@ License: MIT
 WebSite: https://github.com/jydv402/memno
 SourceCode: https://github.com/jydv402/memno
 IssueTracker: https://github.com/jydv402/memno/issues
-
 AutoName: Memno
-
 RepoType: git
 Repo: https://github.com/jydv402/memno
 
 Builds:
-  - versionName: 1.3.2
-    versionCode: 11
-    commit: v1.3.2
-    srclib:
+  - versionName: 1.3.4
+    versionCode: 13
+    commit: 01f9b7f9efd8a7594d45fa46a573bb487ebd0154
+    sudo:
+      - mkdir -p /upstream/path/com.jdmakes.memno
+      - chown -R vagrant /upstream/path
+    output: build/app/outputs/flutter-apk/app-withoutota-release.apk
+    srclibs:
       - flutter@stable
+    rm:
+      - ios
+      - linux
+      - macos
+      - web
+      - windows
     prebuild:
-      - $$flutter$$ pub get
+      - flutterVersion=$(sed -n -E "s/.*flutter-version:\ '(.*)'/\1/p" .github/workflows/main.yml)
+      - '[[ $flutterVersion ]]'
+      - git -C $$flutter$$ checkout -f $flutterVersion
+      - export repo=/upstream/path/com.jdmakes.memno/memno
+      - cd ..
+      - mv com.jdmakes.memno $repo
+      - pushd $repo
+      - export PUB_CACHE=$(pwd)/.pub-cache
+      - $$flutter$$/bin/flutter config --no-analytics
+      - $$flutter$$/bin/flutter pub get --enforce-lockfile
+      - mv $repo com.jdmakes.memno
+    scanignore:
+      - .flutter/bin/cache
+    scandelete:
+      - .flutter
+      - .pub-cache
     build:
-      - $$flutter$$ build apk --release --flavor withoutOTA --dart-define=UPDATE_LOGIC=withoutOTA
+      - export repo=/upstream/path/com.jdmakes.memno/memno
+      - cd ..
+      - mv com.jdmakes.memno $repo
+      - pushd $repo
+      - export PUB_CACHE=$(pwd)/.pub-cache
+      - $$flutter$$/bin/flutter build apk --release --flavor withoutOTA --dart-define=UPDATE_LOGIC=withoutOTA
+      - mv $repo com.jdmakes.memno
 
-AutoUpdateMode: Version v%v
+AutoUpdateMode: Version
 UpdateCheckMode: Tags
-CurrentVersion: 1.3.2
-CurrentVersionCode: 11
+UpdateCheckData: pubspec.yaml|version:\s.+\+(\d+)|.|version:\s(.+)\+
+CurrentVersion: 1.3.4
+CurrentVersionCode: 13
