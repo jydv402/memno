@@ -1,6 +1,8 @@
 Categories:
   - Bookmark
   - Internet
+  - Utilities
+  - Memory
   - Note
 License: MIT
 WebSite: https://github.com/jydv402/memno
@@ -37,6 +39,7 @@ Builds:
       - export PUB_CACHE=$(pwd)/.pub-cache
       - $$flutter$$/bin/flutter config --no-analytics
       - $$flutter$$/bin/flutter pub get --enforce-lockfile
+      - popd
       - mv $repo com.jdmakes.memno
     scanignore:
       - .flutter/bin/cache
@@ -50,6 +53,7 @@ Builds:
       - pushd $repo
       - export PUB_CACHE=$(pwd)/.pub-cache
       - $$flutter$$/bin/flutter build apk --release --flavor withoutOTA --dart-define=UPDATE_LOGIC=withoutOTA
+      - popd
       - mv $repo com.jdmakes.memno
 
 AutoUpdateMode: Version
