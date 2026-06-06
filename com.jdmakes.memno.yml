@@ -1,25 +1,29 @@
 Categories:
   - Bookmark
   - Internet
-  - Utilities
-  - Memory
   - Note
 License: MIT
 WebSite: https://github.com/jydv402/memno
 SourceCode: https://github.com/jydv402/memno
 IssueTracker: https://github.com/jydv402/memno/issues
-AutoName: Memno
+AuthorName: jydv402
+AuthorEmail: jydv402@gmail.com
+AuthorWebSite: https://github.com/jydv402
+AllowedAPKSigningKeys: 527d1e9a92790bbef0e0d40e10763d73db03ecab4d569e56679ab96a0e93d1d8
+
+AutoName: memno
+
 RepoType: git
 Repo: https://github.com/jydv402/memno
 
 Builds:
   - versionName: 1.3.4
-    versionCode: 13
-    commit: 275243ba77d4936522d2ed14a62489b765ba3bf1
+    versionCode: 131
+    commit: 6e3e1d6b4cf00f90f5a3b7ad769510f02aaa8035
     sudo:
-      - mkdir -p /upstream/path/com.jdmakes.memno
-      - chown -R vagrant /upstream/path
-    output: build/app/outputs/flutter-apk/app-withoutota-release.apk
+      - mkdir -p /home/runner/work/memno
+      - chown -R vagrant /home/runner
+    output: build/app/outputs/flutter-apk/app-armeabi-v7a-withoutota-release.apk
     srclibs:
       - flutter@stable
     rm:
@@ -32,7 +36,7 @@ Builds:
       - flutterVersion=$(sed -n -E "s/.*flutter-version:\ '(.*)'/\1/p" .github/workflows/main.yml)
       - '[[ $flutterVersion ]]'
       - git -C $$flutter$$ checkout -f $flutterVersion
-      - export repo=/upstream/path/com.jdmakes.memno/memno
+      - export repo=/home/runner/work/memno/memno
       - cd ..
       - mv com.jdmakes.memno $repo
       - pushd $repo
@@ -42,22 +46,109 @@ Builds:
       - popd
       - mv $repo com.jdmakes.memno
     scanignore:
-      - .flutter/bin/cache
+      - android/
     scandelete:
-      - .flutter
       - .pub-cache
     build:
-      - export repo=/upstream/path/com.jdmakes.memno/memno
+      - export repo=/home/runner/work/memno/memno
       - cd ..
       - mv com.jdmakes.memno $repo
       - pushd $repo
       - export PUB_CACHE=$(pwd)/.pub-cache
-      - $$flutter$$/bin/flutter build apk --release --flavor withoutOTA --dart-define=UPDATE_LOGIC=withoutOTA
+      - $$flutter$$/bin/flutter build apk --release --split-per-abi --target-platform="android-arm" --flavor withoutOTA --dart-define=UPDATE_LOGIC=withoutOTA
+      - popd
+      - mv $repo com.jdmakes.memno
+
+  - versionName: 1.3.4
+    versionCode: 132
+    commit: 6e3e1d6b4cf00f90f5a3b7ad769510f02aaa8035
+    sudo:
+      - mkdir -p /home/runner/work/memno
+      - chown -R vagrant /home/runner
+    output: build/app/outputs/flutter-apk/app-arm64-v8a-withoutota-release.apk
+    srclibs:
+      - flutter@stable
+    rm:
+      - ios
+      - linux
+      - macos
+      - web
+      - windows
+    prebuild:
+      - flutterVersion=$(sed -n -E "s/.*flutter-version:\ '(.*)'/\1/p" .github/workflows/main.yml)
+      - '[[ $flutterVersion ]]'
+      - git -C $$flutter$$ checkout -f $flutterVersion
+      - export repo=/home/runner/work/memno/memno
+      - cd ..
+      - mv com.jdmakes.memno $repo
+      - pushd $repo
+      - export PUB_CACHE=$(pwd)/.pub-cache
+      - $$flutter$$/bin/flutter config --no-analytics
+      - $$flutter$$/bin/flutter pub get --enforce-lockfile
+      - popd
+      - mv $repo com.jdmakes.memno
+    scanignore:
+      - android/
+    scandelete:
+      - .pub-cache
+    build:
+      - export repo=/home/runner/work/memno/memno
+      - cd ..
+      - mv com.jdmakes.memno $repo
+      - pushd $repo
+      - export PUB_CACHE=$(pwd)/.pub-cache
+      - $$flutter$$/bin/flutter build apk --release --split-per-abi --target-platform="android-arm64" --flavor withoutOTA --dart-define=UPDATE_LOGIC=withoutOTA
+      - popd
+      - mv $repo com.jdmakes.memno
+
+  - versionName: 1.3.4
+    versionCode: 133
+    commit: 6e3e1d6b4cf00f90f5a3b7ad769510f02aaa8035
+    sudo:
+      - mkdir -p /home/runner/work/memno
+      - chown -R vagrant /home/runner
+    output: build/app/outputs/flutter-apk/app-x86_64-withoutota-release.apk
+    srclibs:
+      - flutter@stable
+    rm:
+      - ios
+      - linux
+      - macos
+      - web
+      - windows
+    prebuild:
+      - flutterVersion=$(sed -n -E "s/.*flutter-version:\ '(.*)'/\1/p" .github/workflows/main.yml)
+      - '[[ $flutterVersion ]]'
+      - git -C $$flutter$$ checkout -f $flutterVersion
+      - export repo=/home/runner/work/memno/memno
+      - cd ..
+      - mv com.jdmakes.memno $repo
+      - pushd $repo
+      - export PUB_CACHE=$(pwd)/.pub-cache
+      - $$flutter$$/bin/flutter config --no-analytics
+      - $$flutter$$/bin/flutter pub get --enforce-lockfile
+      - popd
+      - mv $repo com.jdmakes.memno
+    scanignore:
+      - android/
+    scandelete:
+      - .pub-cache
+    build:
+      - export repo=/home/runner/work/memno/memno
+      - cd ..
+      - mv com.jdmakes.memno $repo
+      - pushd $repo
+      - export PUB_CACHE=$(pwd)/.pub-cache
+      - $$flutter$$/bin/flutter build apk --release --split-per-abi --target-platform="android-x64" --flavor withoutOTA --dart-define=UPDATE_LOGIC=withoutOTA
       - popd
       - mv $repo com.jdmakes.memno
 
 AutoUpdateMode: Version
 UpdateCheckMode: Tags
+VercodeOperation:
+  - '%c * 10 + 1'
+  - '%c * 10 + 2'
+  - '%c * 10 + 3'
 UpdateCheckData: pubspec.yaml|version:\s.+\+(\d+)|.|version:\s(.+)\+
 CurrentVersion: 1.3.4
 CurrentVersionCode: 13
