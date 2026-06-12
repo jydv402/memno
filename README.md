@@ -5,9 +5,9 @@
    
 </p>
 
-- Memno is a **Flutter-based mobile app** for saving important links along with personal notes. It auto-fetches rich metadata for each link, supports offline usage, and generates unique 6-digit codes for easy fetching.
+- Memno is a **beautiful, offline-first bookmark manager and read-later mobile app** built with **Flutter**. It allows you to save important links along with custom notes, automatically fetching rich metadata previews for each URL. Memno also generates unique, easy-to-remember 6-digit shortcodes to retrieve your saved bookmarks instantly.
 
-- Think of it as your personal link + note vault with instant previews.
+- Think of Memno as your privacy-focused link + note vault with offline local storage and instant previews.
 
 ![GitHub stars](https://img.shields.io/github/stars/jydv402/memno?style=social)
 ![GitHub forks](https://img.shields.io/github/forks/jydv402/memno?style=social)
@@ -21,10 +21,12 @@
 - 🔗 **Save links** with title, description, and image previews
 - 🧾 **Write notes** for each saved item
 - ⚡ **Instant metadata fetching** from any URL
-- 🔒 **6-digit short code** to easily acces the saved URLs
+- 🔒 **6-digit short code** to easily access the saved URLs
 - 🌗 **Dark mode support**
-- 💾 **Offline-first design**
-- 🛠 Built entirely with **Flutter**
+- 💾 **Offline-first design** with local Hive database
+- 📥 **System Share Intent** to save links directly from other apps
+- 📂 **Data Portability** via JSON import/export
+- 🛠 Built entirely with **Flutter** & **Dart**
 
 ---
 
