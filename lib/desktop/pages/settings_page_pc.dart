@@ -48,6 +48,15 @@ class DesktopSettingsPage extends StatelessWidget {
 
                 const SizedBox(height: 24),
 
+                // Dock Layout
+                _buildSection(
+                  colors: colors,
+                  sectionTitle: 'Dock Layout',
+                  child: _buildDockLayoutSection(context, colors),
+                ),
+
+                const SizedBox(height: 24),
+
                 // ── Data ──
                 _buildSection(
                   colors: colors,
@@ -188,6 +197,79 @@ class DesktopSettingsPage extends StatelessWidget {
               ),
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
             ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // ───────────────────────────────────────────────────────────
+  //  Dock Layout
+  // ───────────────────────────────────────────────────────────
+
+  Widget _buildDockLayoutSection(BuildContext context, AppColors colors) {
+    final placement = colors.dockPlacement;
+
+    Widget buildPlacementButton(String value, String label, IconData icon) {
+      final isSelected = placement == value;
+      return OutlinedButton.icon(
+        onPressed: () => colors.setDockPlacement(value),
+        icon: Icon(
+          icon,
+          size: 18,
+          color: isSelected ? Colors.black : colors.textClr,
+        ),
+        label: Text(
+          label,
+          style: TextStyle(
+            fontFamily: 'GoogleSans',
+            fontWeight: FontWeight.bold,
+            fontSize: 14,
+            color: isSelected ? Colors.black : colors.textClr,
+          ),
+        ),
+        style: OutlinedButton.styleFrom(
+          backgroundColor: isSelected ? colors.accnt : Colors.transparent,
+          side: BorderSide(color: isSelected ? colors.accnt : colors.pill),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+          ),
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+        ),
+      );
+    }
+
+    return _settingsCard(
+      colors,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            'Choose where to place the floating dock on your screen.',
+            style: TextStyle(
+              fontFamily: 'GoogleSans',
+              fontSize: 14,
+              color: colors.textClr.withValues(alpha: 0.6),
+            ),
+          ),
+          const SizedBox(height: 16),
+          Wrap(
+            spacing: 12,
+            runSpacing: 12,
+            children: [
+              buildPlacementButton(
+                'bottom',
+                'Bottom',
+                Icons.border_bottom_rounded,
+              ),
+              buildPlacementButton('top', 'Top', Icons.border_top_rounded),
+              buildPlacementButton('left', 'Left', Icons.border_left_rounded),
+              buildPlacementButton(
+                'right',
+                'Right',
+                Icons.border_right_rounded,
+              ),
+            ],
           ),
         ],
       ),

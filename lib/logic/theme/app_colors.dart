@@ -12,6 +12,7 @@ class AppColors extends ChangeNotifier with WidgetsBindingObserver {
   AppThemeMode _currentThemeMode = AppThemeMode.system;
   bool _isCompactHeader = false;
   bool _saveImagesLocally = true;
+  String _dockPlacement = 'left';
 
   AppColors() {
     init();
@@ -34,6 +35,13 @@ class AppColors extends ChangeNotifier with WidgetsBindingObserver {
 
   Future<void> init() async {
     _togglesBox = await Hive.openBox<TogglesData>('togglesData');
+    
+    try {
+      final desktopBox = await Hive.openBox('desktopSettings');
+      _dockPlacement = desktopBox.get('dockPlacement', defaultValue: 'left') as String;
+    } catch (e) {
+      debugPrint('Error loading desktop settings: $e');
+    }
 
     TogglesData? togglesData = _togglesBox.get(0);
 
@@ -81,6 +89,18 @@ class AppColors extends ChangeNotifier with WidgetsBindingObserver {
 
   bool get isCompactHeader => _isCompactHeader;
   bool get saveImagesLocally => _saveImagesLocally;
+  String get dockPlacement => _dockPlacement;
+
+  Future<void> setDockPlacement(String placement) async {
+    _dockPlacement = placement;
+    try {
+      final desktopBox = await Hive.openBox('desktopSettings');
+      await desktopBox.put('dockPlacement', placement);
+    } catch (e) {
+      debugPrint('Error saving desktop settings: $e');
+    }
+    notifyListeners();
+  }
 
   final _light = LightColors();
   final _dark = DarkColors();

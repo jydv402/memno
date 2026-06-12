@@ -5,7 +5,7 @@ import 'package:memno/desktop/pages/note_page_pc.dart';
 import 'package:memno/desktop/components/desktop_notification.dart';
 import 'package:memno/desktop/pages/search_overlay_pc.dart';
 import 'package:memno/desktop/pages/settings_page_pc.dart';
-import 'package:memno/desktop/components/desktop_sidebar.dart';
+import 'package:memno/desktop/components/desktop_dock.dart';
 import 'package:memno/logic/functionality/code_gen.dart';
 import 'package:memno/logic/theme/app_colors.dart';
 import 'package:provider/provider.dart';
@@ -29,14 +29,8 @@ class _DesktopShellState extends State<DesktopShell> {
   /// When non-null, shows the note page instead of the grid.
   int? _openedNoteCode;
 
-  /// Whether the sidebar is in expanded mode.
-  bool _sidebarExpanded = true;
-
   /// Code to highlight in the grid (from search result).
   int? _highlightedCode;
-
-  /// Tracks whether we've auto-collapsed for the current narrow width.
-  bool _autoCollapsed = false;
 
   // ───────────────────────────────────────────────────────────
   //  Navigation Helpers
@@ -157,45 +151,23 @@ class _DesktopShellState extends State<DesktopShell> {
           child: Focus(
             autofocus: true,
             child: Scaffold(
-              backgroundColor: colors.bgClr,
-              body: LayoutBuilder(
-                builder: (context, constraints) {
-                  // Auto-collapse sidebar when window is narrow
-                  if (constraints.maxWidth < 1000 && !_autoCollapsed) {
-                    WidgetsBinding.instance.addPostFrameCallback((_) {
-                      if (mounted && _sidebarExpanded) {
-                        setState(() {
-                          _sidebarExpanded = false;
-                          _autoCollapsed = true;
-                        });
-                      }
-                    });
-                  } else if (constraints.maxWidth >= 1000 && _autoCollapsed) {
-                    WidgetsBinding.instance.addPostFrameCallback((_) {
-                      if (mounted) {
-                        setState(() {
-                          _sidebarExpanded = true;
-                          _autoCollapsed = false;
-                        });
-                      }
-                    });
-                  }
+              body: Stack(
+                children: [
+                  // ── Content Area ──
+                  Positioned.fill(
+                    child: _buildContent(colors),
+                  ),
 
-                  return Row(
-                    children: [
-                      DesktopSidebar(
-                        isExpanded: _sidebarExpanded,
-                        selectedIndex: _selectedDestination,
-                        onDestinationChanged: _changeDestination,
-                        onSearchTap: _openSearch,
-                        onNewPage: _createNewPage,
-                      ),
-
-                      // ── Content Area ──
-                      Expanded(child: _buildContent(colors)),
-                    ],
-                  );
-                },
+                  // ── Floating Dock ──
+                  Positioned.fill(
+                    child: DesktopDock(
+                      selectedIndex: _selectedDestination,
+                      onDestinationChanged: _changeDestination,
+                      onSearchTap: _openSearch,
+                      onNewPage: _createNewPage,
+                    ),
+                  ),
+                ],
               ),
             ),
           ),
