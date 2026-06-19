@@ -628,10 +628,10 @@ packages:
     dependency: "direct main"
     description:
       name: liquid_glass_easy
-      sha256: "07f7fc2d59aa6058c71db879d918e0995cb9902a96d63c08884c8af4049dde5e"
+      sha256: "8b154304737b5fe7b675ed93a355d41104c06a6dc1c378770c50dd1a6b58e9fc"
       url: "https://pub.dev"
     source: hosted
-    version: "2.0.1"
+    version: "3.0.0"
   logging:
     dependency: transitive
     description:

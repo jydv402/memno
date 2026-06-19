@@ -533,7 +533,9 @@ class _InnerPageState extends State<InnerPage>
                   _isFabExpanded = true;
                 });
                 Future.delayed(const Duration(milliseconds: 300), () {
-                  if (mounted) FocusScope.of(context).requestFocus(_fabFocus);
+                  if (context.mounted) {
+                    FocusScope.of(context).requestFocus(_fabFocus);
+                  }
                 });
               },
               icon: const Icon(Icons.mode_edit_outline_outlined),
