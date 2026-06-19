@@ -15,12 +15,7 @@ import 'package:provider/provider.dart';
 /// Global navigator key used by share intent handler to push ShareTargetPage.
 final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 
-// Obtain flavor type for update logic
-// Will be used to logically disable OTA update check and UI.
-const String updateLogic = String.fromEnvironment(
-  'UPDATE_LOGIC',
-  defaultValue: 'withOTA',
-);
+
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();

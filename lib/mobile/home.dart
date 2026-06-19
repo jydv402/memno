@@ -39,9 +39,7 @@ class _HomePageState extends State<HomePage> {
     super.initState();
     clearState();
     _initShareIntent();
-    if (updateLogic == 'withOTA') {
-      WidgetsBinding.instance.addPostFrameCallback((_) => _checkForUpdates());
-    }
+    WidgetsBinding.instance.addPostFrameCallback((_) => _checkForUpdates());
   }
 
   void _checkForUpdates() async {

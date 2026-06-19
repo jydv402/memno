@@ -32,11 +32,6 @@ jobs:
       - name: Getting Dependencies
         run: flutter pub get
 
-      - name: Removing unnecessary files
-        run: |
-          rm lib/components/settings_page_wo_ota.dart
-          rm lib/home_wo_ota.dart
-
       - name: Extract version from pubspec.yaml
         id: version
         run: |
@@ -59,19 +54,19 @@ jobs:
 
 
       - name: Building signed APK 
-        run: flutter build apk --release --split-per-abi --flavor withOTA --dart-define=UPDATE_LOGIC=withOTA
+        run: flutter build apk --release --split-per-abi
 
       - name: Rename APK files
         run: |
           cd build/app/outputs/flutter-apk
-          mv app-armeabi-v7a-withota-release.apk memno-armeabi-v7a-${{ steps.version.outputs.version_name }}+${{ steps.version.outputs.version_code }}-ota.apk
-          mv app-arm64-v8a-withota-release.apk memno-arm64-v8a-${{ steps.version.outputs.version_name }}+${{ steps.version.outputs.version_code }}-ota.apk
-          mv app-x86_64-withota-release.apk memno-x86_64-${{ steps.version.outputs.version_name }}+${{ steps.version.outputs.version_code }}-ota.apk
+          mv app-armeabi-v7a-release.apk memno-armeabi-v7a-${{ steps.version.outputs.version_name }}+${{ steps.version.outputs.version_code }}.apk
+          mv app-arm64-v8a-release.apk memno-arm64-v8a-${{ steps.version.outputs.version_name }}+${{ steps.version.outputs.version_code }}.apk
+          mv app-x86_64-release.apk memno-x86_64-${{ steps.version.outputs.version_name }}+${{ steps.version.outputs.version_code }}.apk
 
       - name: Upload APK
         uses: ncipollo/release-action@v1
         with:
-          artifacts: "build/app/outputs/flutter-apk/memno-armeabi-v7a-${{ steps.version.outputs.version_name }}+${{ steps.version.outputs.version_code }}-ota.apk,build/app/outputs/flutter-apk/memno-arm64-v8a-${{ steps.version.outputs.version_name }}+${{ steps.version.outputs.version_code }}-ota.apk,build/app/outputs/flutter-apk/memno-x86_64-${{ steps.version.outputs.version_name }}+${{ steps.version.outputs.version_code }}-ota.apk"
+          artifacts: "build/app/outputs/flutter-apk/memno-armeabi-v7a-${{ steps.version.outputs.version_name }}+${{ steps.version.outputs.version_code }}.apk,build/app/outputs/flutter-apk/memno-arm64-v8a-${{ steps.version.outputs.version_name }}+${{ steps.version.outputs.version_code }}.apk,build/app/outputs/flutter-apk/memno-x86_64-${{ steps.version.outputs.version_name }}+${{ steps.version.outputs.version_code }}.apk"
           tag: ${{ steps.version.outputs.version_name }}+${{ steps.version.outputs.version_code }}
-          name: Memno v${{ steps.version.outputs.version_name }} (OTA)
+          name: Memno v${{ steps.version.outputs.version_name }}
           token: ${{ secrets.MEMNO_TOKEN }}
