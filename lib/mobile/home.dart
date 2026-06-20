@@ -15,7 +15,6 @@ import 'package:memno/logic/theme/app_colors.dart';
 import 'package:provider/provider.dart';
 import 'package:receive_sharing_intent/receive_sharing_intent.dart';
 import 'package:memno/logic/functionality/check_update.dart';
-import 'package:memno/mobile/components/update_bottom_sheet.dart';
 
 enum Filters { all, liked, empty }
 
@@ -43,21 +42,8 @@ class _HomePageState extends State<HomePage> {
   }
 
   void _checkForUpdates() async {
-    // Clean up any old APKs first
-    await cleanupUpdateFiles();
-
-    final updateInfo = await checkUpdateAvailable();
-    if (updateInfo != null && mounted) {
-      showModalBottomSheet(
-        context: context,
-        isScrollControlled: true,
-        backgroundColor: Colors.transparent,
-        builder: (context) => UpdateBottomSheet(
-          latestVersion: updateInfo['version'],
-          downloadUrl: updateInfo['url'],
-          releaseNotes: updateInfo['notes'],
-        ),
-      );
+    if (mounted) {
+      await checkAppUpdate(context, false);
     }
   }
 

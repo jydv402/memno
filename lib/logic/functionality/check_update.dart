@@ -1,167 +1,109 @@
-import 'dart:convert';
-import 'dart:io';
+import 'dart:io' show Platform;
+import 'package:flutter/material.dart';
+import 'package:memno/mobile/components/show_toast.dart';
+import 'package:memno/logic/theme/app_colors.dart';
+import 'package:provider/provider.dart';
+import 'package:update_checker_bottom_sheet/update_checker_bottom_sheet.dart';
 
-import 'package:http/http.dart' as http;
-import 'package:ota_update/ota_update.dart';
-import 'package:package_info_plus/package_info_plus.dart';
-import 'package:path_provider/path_provider.dart';
+class AppUpdateTheme {
+  static final UpdateCheckerThemeData lightTheme = UpdateCheckerThemeData(
+    backgroundColor: Colors.white,
+    textColor: Colors.black,
+    secondaryTextColor: Colors.black.withValues(alpha: 0.6),
+    accentColor: const Color(0xFFdafc08),
+    accentTextColor: Colors.black,
+    pillColor: Colors.grey[300]!,
+    boxColor: Colors.grey[100]!,
+    borderRadius: 35.0,
+    buttonBorderRadius: 50.0,
+    titleStyle: const TextStyle(
+      fontFamily: 'GoogleSans',
+      fontWeight: FontWeight.bold,
+      color: Colors.black,
+      fontSize: 32,
+    ),
+    versionStyle: const TextStyle(
+      fontFamily: 'GoogleSans',
+      color: Colors.black,
+    ),
+    whatsNewStyle: const TextStyle(
+      fontFamily: 'GoogleSans',
+      fontWeight: FontWeight.w600,
+      color: Colors.black,
+      fontSize: 24,
+    ),
+    contentStyle: const TextStyle(
+      fontFamily: 'GoogleSans',
+      color: Colors.black,
+    ),
+    buttonTextStyle: const TextStyle(
+      fontFamily: 'GoogleSans',
+      fontWeight: FontWeight.w600,
+      fontSize: 18,
+    ),
+    showBorder: true,
+    showHandle: true,
+  );
 
-Future<Map<String, dynamic>?> getLatestGitHubRelease() async {
-  try {
-    final response = await http.get(
-      Uri.parse("https://api.github.com/repos/jydv402/memno/releases/latest"),
-    );
+  static final UpdateCheckerThemeData darkTheme = UpdateCheckerThemeData(
+    backgroundColor: Colors.grey[900]!,
+    textColor: Colors.white,
+    secondaryTextColor: Colors.white.withValues(alpha: 0.6),
+    accentColor: const Color(0xFFdafc08),
+    accentTextColor: Colors.black,
+    pillColor: Colors.grey[800]!,
+    boxColor: Colors.grey[900]!,
+    borderRadius: 35.0,
+    buttonBorderRadius: 50.0,
+    titleStyle: const TextStyle(
+      fontFamily: 'GoogleSans',
+      fontWeight: FontWeight.bold,
+      color: Colors.white,
+      fontSize: 32,
+    ),
+    versionStyle: const TextStyle(
+      fontFamily: 'GoogleSans',
+      color: Colors.white,
+    ),
+    whatsNewStyle: const TextStyle(
+      fontFamily: 'GoogleSans',
+      fontWeight: FontWeight.w600,
+      color: Colors.white,
+      fontSize: 24,
+    ),
+    contentStyle: const TextStyle(
+      fontFamily: 'GoogleSans',
+      color: Colors.white,
+    ),
+    buttonTextStyle: const TextStyle(
+      fontFamily: 'GoogleSans',
+      fontWeight: FontWeight.w600,
+      fontSize: 18,
+    ),
+    showBorder: true,
+    showHandle: true,
+  );
+}
 
-    if (response.statusCode == 200) {
-      return jsonDecode(response.body);
-    } else {
-      return null;
+// Invoke the updake checker logic
+Future<void> checkAppUpdate(BuildContext context, bool showIfUpToDate) async {
+  if (!Platform.isAndroid) {
+    if (showIfUpToDate) {
+      showToastMsg(context, "Updates are only supported on Android");
     }
-  } catch (e) {
-    return null;
-  }
-}
-
-/// Returns the correct APK download URL for the device's CPU architecture.
-/// Falls back to the first .apk asset if no arch-specific match is found.
-String? getDownloadUrlForDevice(Map<String, dynamic> release) {
-  final assets = release['assets'] as List<dynamic>?;
-  if (assets == null || assets.isEmpty) return null;
-
-  // Map Dart's architecture strings to the APK filename conventions
-  final arch = _getDeviceArch();
-
-  // Try to find an asset matching this device's architecture
-  for (final asset in assets) {
-    final name = (asset['name'] as String?)?.toLowerCase() ?? '';
-    if (name.endsWith('.apk') && name.contains(arch)) {
-      return asset['browser_download_url'] as String?;
-    }
+    return;
   }
 
-  // Fallback: return the first .apk asset
-  for (final asset in assets) {
-    final name = (asset['name'] as String?)?.toLowerCase() ?? '';
-    if (name.endsWith('.apk')) {
-      return asset['browser_download_url'] as String?;
-    }
-  }
+  final colors = Provider.of<AppColors>(context, listen: false);
 
-  return null;
-}
+  UpdateChecker.theme = colors.isDarkMode
+      ? AppUpdateTheme.darkTheme
+      : AppUpdateTheme.lightTheme;
 
-/// Detects the device CPU architecture and maps it to standard APK ABI names.
-String _getDeviceArch() {
-  // SysInfo.kernelArchitecture returns values like "aarch64", "armv7l", "x86_64"
-  final machine = _getMachineArch();
-
-  if (machine.contains('aarch64') || machine.contains('arm64')) {
-    return 'arm64-v8a';
-  } else if (machine.contains('arm')) {
-    return 'armeabi-v7a';
-  } else if (machine.contains('x86_64') || machine.contains('amd64')) {
-    return 'x86_64';
-  }
-
-  // Default fallback for unknown architectures
-  return 'arm64-v8a';
-}
-
-/// Gets the machine architecture string from the OS.
-String _getMachineArch() {
-  try {
-    // On Android/Linux, `uname -m` returns the architecture
-    final result = Process.runSync('uname', ['-m']);
-    return (result.stdout as String).trim().toLowerCase();
-  } catch (_) {
-    // Fallback: most Android devices are arm64
-    return 'aarch64';
-  }
-}
-
-bool isNewerVersion(String latest, String current, String buildNumber) {
-  //print("Comparing versions: Latest: $latest, Current: $current");
-  // eg latest = "1.2.3+11", current = "1.2.2"
-  // Remove after '+' if present in latest version
-  final latestParts =
-      latest.split('+')[0].split('.').map(int.parse).toList() +
-      (latest.contains('+') ? [int.parse(latest.split('+')[1])] : []);
-  final currentParts =
-      current.split('.').map(int.parse).toList() + [int.parse(buildNumber)];
-
-  //print("Latest parts: $latestParts, Current parts: $currentParts");
-
-  for (int i = 0; i < latestParts.length; i++) {
-    if (i >= currentParts.length || latestParts[i] > currentParts[i]) {
-      return true;
-    } else if (latestParts[i] < currentParts[i]) {
-      return false;
-    }
-  }
-  return false;
-}
-
-/// Triggers an OTA update using the provided [url].
-/// Returns a Stream of OtaEvent containing the download progress and status.
-Stream<OtaEvent> startOtaUpdate(String url) {
-  try {
-    return OtaUpdate().execute(
-      url,
-      androidProviderAuthority: 'com.jdmakes.memno.ota_update_provider',
-    );
-  } catch (e) {
-    rethrow;
-  }
-}
-
-/// High-level check for updates.
-/// Returns a Map if an update is available, null otherwise.
-Future<Map<String, dynamic>?> checkUpdateAvailable() async {
-  try {
-    final info = await PackageInfo.fromPlatform();
-    final currVer = info.version;
-    final buildNumber = info.buildNumber;
-
-    if (currVer.isEmpty || buildNumber.isEmpty) return null;
-
-    final release = await getLatestGitHubRelease();
-    if (release == null) return null;
-
-    final latestVerWithTag = release['tag_name'].toString();
-    // Some tags start with 'v', remove it if needed
-    final latestVer = latestVerWithTag.startsWith('v')
-        ? latestVerWithTag.substring(1).split('+')[0]
-        : latestVerWithTag.split('+')[0];
-
-    if (isNewerVersion(latestVer, currVer, buildNumber)) {
-      return {
-        'version': latestVer,
-        'url': getDownloadUrlForDevice(release),
-        'notes': release['body'] ?? "No release notes available.",
-      };
-    }
-  } catch (e) {
-    // Silent fail
-  }
-  return null;
-}
-
-/// Deletes any lingering .apk files in the app's download directory to save space.
-Future<void> cleanupUpdateFiles() async {
-  try {
-    if (Platform.isAndroid) {
-      // ota_update stores files in getExternalFilesDir(null)
-      final directory = await getExternalStorageDirectory();
-      if (directory != null && await directory.exists()) {
-        final List<FileSystemEntity> files = directory.listSync();
-        for (final file in files) {
-          if (file is File && file.path.toLowerCase().endsWith('.apk')) {
-            await file.delete();
-          }
-        }
-      }
-    }
-  } catch (e) {
-    // Silent fail
-  }
+  await UpdateChecker.check(
+    context,
+    githubRepo: "jydv402/memno",
+    showIfUpToDate: showIfUpToDate,
+    androidProviderAuthority: "com.jdmakes.memno.ota_update_provider",
+  );
 }

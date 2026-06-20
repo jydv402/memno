@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:memno/desktop/components/desktop_notification.dart';
+import 'package:memno/logic/functionality/code_gen.dart';
 import 'package:memno/logic/functionality/import_export.dart';
 import 'package:memno/logic/functionality/preview_map.dart';
 import 'package:memno/logic/theme/app_colors.dart';
@@ -347,7 +348,57 @@ class DesktopSettingsPage extends StatelessWidget {
 
   Widget _buildStorageSection(BuildContext context, AppColors colors) {
     return Column(
+      spacing: 12,
       children: [
+        _settingsCard(
+          colors,
+          child: Row(
+            children: [
+              Expanded(
+                child: Text(
+                  'Clear All Codes & Links',
+                  style: TextStyle(
+                    fontFamily: 'GoogleSans',
+                    fontSize: 16,
+                    color: colors.textClr,
+                  ),
+                ),
+              ),
+              OutlinedButton.icon(
+                onPressed: () async {
+                  final codeGen = Provider.of<CodeGen>(context, listen: false);
+                  await codeGen.clearAll();
+                  if (context.mounted) {
+                    showDesktopNotification(
+                      context,
+                      'All codes and links cleared',
+                    );
+                  }
+                },
+                icon: const Icon(Icons.delete_sweep_rounded, size: 18),
+                label: const Text(
+                  'Clear',
+                  style: TextStyle(
+                    fontFamily: 'GoogleSans',
+                    fontWeight: FontWeight.bold,
+                    fontSize: 14,
+                  ),
+                ),
+                style: OutlinedButton.styleFrom(
+                  foregroundColor: colors.textClr,
+                  side: BorderSide(color: colors.pill),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 12,
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
         // Save Previews Locally toggle
         _settingsCard(
           colors,
@@ -378,8 +429,6 @@ class DesktopSettingsPage extends StatelessWidget {
             ],
           ),
         ),
-
-        const SizedBox(height: 12),
 
         // Clear Preview Cache
         Consumer<PreviewMap>(

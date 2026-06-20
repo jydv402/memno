@@ -165,6 +165,12 @@ class CodeGen extends ChangeNotifier {
     }
   }
 
+  // Clear all codes and links
+  Future<void> clearAll() async {
+    await _codeBox.clear();
+    notifyListeners();
+  }
+
   // reloads the code box
   Future<void> reloadCodeBox() async {
     _codeBox = await Hive.openBox<CodeData>('codeData');
