@@ -5,9 +5,9 @@
    
 </p>
 
-- Memno is a **Flutter-based mobile app** for saving important links along with personal notes. It auto-fetches rich metadata for each link, supports offline usage, and generates unique 6-digit codes for easy fetching.
+- Memno is a **Flutter-based mobile and desktop app** for saving important links along with personal notes. It auto-fetches rich metadata for each link, supports offline usage, and generates unique 6-digit codes for easy fetching.
 
-- Think of it as your personal link + note vault with instant previews.
+- Think of it as your personal link + note vault with instant previews—now fully supported on **Android and Windows**.
 
 ![GitHub stars](https://img.shields.io/github/stars/jydv402/memno?style=social)
 ![GitHub forks](https://img.shields.io/github/forks/jydv402/memno?style=social)
@@ -24,7 +24,11 @@
 - 🔒 **6-digit short code** to easily acces the saved URLs
 - 🌗 **Dark mode support**
 - 💾 **Offline-first design**
-- 🛠 Built entirely with **Flutter**
+- 🖥️ **Desktop Support (Windows)** with a dedicated, highly optimized widescreen interface:
+  - ⚓ **Floating Dock**: Collapsible/expandable sidebar navigation.
+  - 🔍 **Spotlight-like Search**: Open a central floating search bar with `Ctrl + F`.
+  - ⌨️ **Keyboard Shortcuts**: Complete desktop navigation (`Ctrl + N` for new page, `Ctrl + ,` for settings, etc.).
+- 🛠 Built entirely with **Flutter** and **Dart**
 
 ---
 
@@ -65,8 +69,14 @@
 ---
 ## 🔧 Installation
 
-- Just download the apk file from [here](https://github.com/jydv402/memno/releases/latest)
-- Install it and BOOM! that's it, you're good to go! 
+### 🤖 Android
+- Download the APK file from [here](https://github.com/jydv402/memno/releases/latest).
+- Install it and you're good to go!
+
+### 💻 Windows
+- Download the installer (`memno-windows-x64-...exe`) from [here](https://github.com/jydv402/memno/releases/latest).
+- Run the installer. It supports dual-mode installation (install for **"Just me"** without requiring admin rights or **"All users"** under standard Program Files).
+- Complete the setup wizard and you're ready to use Memno on your desktop! 
 
 ---
 
@@ -75,25 +85,16 @@
 
 ```
 lib/
-├── components
-│   ├── custom_overlay.dart
-│   ├── inner_page.dart
-│   ├── inner_page_fun.dart
-│   ├── settings_page.dart
-│   ├── show_toast.dart
-│   └── sub_tile.dart
-├── database
-│   ├── code_data.dart
-│   ├── code_data.g.dart
-│   ├── toggles_data.dart
-│   └── toggles_data.g.dart
-├── functionality
-│   ├── code_gen.dart
-│   └── preview_map.dart
+├── components/          # Shared & mobile UI components
+├── database/            # Hive database models
+├── desktop/             # Desktop-specific UI & layout
+│   ├── components/      # Desktop sidebar dock, notification cards, file tiles
+│   ├── pages/           # Desktop pages (Home, Settings, Search overlay, Note editor)
+│   └── desktop_shell.dart
+├── functionality/       # Code generators & preview services
 ├── home.dart
 ├── main.dart
-└── theme
-    └── app_colors.dart
+└── theme/               # Theme & color assets
 
 ```
 
