@@ -33,141 +33,166 @@ class _SubTileStackState extends State<SubTileStack> {
     int length = context.read<CodeGen>().getLinkListLength(widget.code);
     double radius = 50;
     final colors = Provider.of<AppColors>(context);
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(2, 4, 2, 4),
-      child: Container(
-        width: MediaQuery.of(context).size.width,
-        decoration: BoxDecoration(
-          color: colors.box,
-          borderRadius: BorderRadius.circular(radius),
-        ),
-        child: !showDltConfirm
-            ? ClipRRect(
-                borderRadius: BorderRadius.circular(radius),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  spacing: 24,
-                  children: [
-                    // Row 1: Action Bar (Date, Like, Delete)
-                    Padding(
-                      padding: const EdgeInsets.fromLTRB(0, 16, 0, 0),
-                      child: SingleChildScrollView(
-                        scrollDirection: Axis.horizontal,
-                        physics: const BouncingScrollPhysics(),
-                        child: Row(
-                          spacing: 8,
-                          children: [
-                            const SizedBox(width: 12),
-                            // Date Display
-                            InnerPageButton(
-                              icon: Icons.calendar_month_outlined,
-                              label: getFormattedDate(
-                                DateTime.parse(widget.date),
-                              ),
-                              onPressed: () {},
-                            ),
-                            // Like Button
-                            InnerPageButton(
-                              key: ValueKey(widget.code),
-                              icon: widget.isLiked
-                                  ? Icons.favorite_rounded
-                                  : Icons.favorite_border_rounded,
-                              iconColor: widget.isLiked
-                                  ? Colors.red
-                                  : colors.textClr,
-                              label: widget.isLiked ? "Liked" : "Like",
-                              onPressed: () {
-                                context.read<CodeGen>().toggleLike(widget.code);
-                                if (widget.isLiked) {
-                                  showToastMsg(
-                                    context,
-                                    "#${widget.code} removed from favorites",
-                                  );
-                                } else {
-                                  showToastMsg(
-                                    context,
-                                    "#${widget.code} added to favorites",
-                                  );
-                                }
-                              },
-                            ),
-                            // Delete Button
-                            InnerPageButton(
-                              icon: Icons.delete_outline_rounded,
-                              label: "Delete",
-                              onPressed: () {
-                                setState(() {
-                                  showDltConfirm = true;
-                                });
-                              },
-                            ),
-                            const SizedBox(width: 26),
-                          ],
-                        ),
-                      ),
-                    ),
-                    // Row 2: HeadText
-                    HeadText(code: widget.code),
-                    // Row 3: CodeText and LengthIndicator
-                    Padding(
-                      padding: const EdgeInsets.fromLTRB(24, 0, 16, 16),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Expanded(child: CodeText(code: widget.code)),
-                          const SizedBox(width: 8),
-                          OpenContainer(
-                            transitionType: ContainerTransitionType.fade,
-                            openBuilder: (context, _) =>
-                                InnerPage(code: widget.code),
-                            closedElevation: 0,
-                            closedColor: Colors.transparent,
-                            openColor: colors.bgClr,
-                            middleColor: colors.bgClr,
-                            closedShape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(radius),
-                            ),
-                            closedBuilder: (context, openContainer) =>
-                                LengthIndicator(
-                                  radius: radius,
-                                  length: length,
-                                  code: widget.code,
-                                  onTap: openContainer,
-                                ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
-              )
-            : ShowDltPrompt(
-                length: length,
-                radius: radius,
-                onProceed: () {
-                  final codeProvider = context.read<CodeGen>();
-                  final previewMap = context.read<PreviewMap>();
-                  final linksToDelete = codeProvider.getLinksForCode(
-                    widget.code,
-                  );
-                  for (final link in linksToDelete) {
-                    previewMap.deletePreviewForLink(link);
-                  }
-                  codeProvider.clearList(widget.code);
-                  setState(() {
-                    showDltConfirm = false;
-                  });
-                  showToastMsg(context, "Code #${widget.code} deleted");
-                },
-                onCancel: () {
-                  setState(() {
-                    showDltConfirm = false;
-                  });
-                  showToastMsg(context, "Action cancelled");
-                },
-              ),
+
+    return OpenContainer(
+      transitionType: ContainerTransitionType.fade,
+      openBuilder: (context, _) => InnerPage(code: widget.code),
+      closedElevation: 0,
+      closedColor: Colors.transparent,
+      openColor: colors.bgClr,
+      middleColor: colors.bgClr,
+      closedShape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(radius),
       ),
+      closedBuilder: (context, openContainer) {
+        return Padding(
+          padding: const EdgeInsets.fromLTRB(2, 4, 2, 4),
+          child: Container(
+            width: MediaQuery.of(context).size.width,
+            decoration: BoxDecoration(
+              color: colors.box,
+              borderRadius: BorderRadius.circular(radius),
+            ),
+            child: AnimatedSize(
+              duration: const Duration(milliseconds: 300),
+              curve: Curves.easeInOut,
+              child: AnimatedSwitcher(
+                duration: const Duration(milliseconds: 250),
+                switchInCurve: Curves.easeOut,
+                switchOutCurve: Curves.easeIn,
+                transitionBuilder: (Widget child, Animation<double> animation) {
+                  return FadeTransition(
+                    opacity: animation,
+                    child: ScaleTransition(
+                      scale: animation,
+                      child: child,
+                    ),
+                  );
+                },
+                child: !showDltConfirm
+                    ? ClipRRect(
+                        key: const ValueKey('content_card'),
+                        borderRadius: BorderRadius.circular(radius),
+                        child: InkWell(
+                          borderRadius: BorderRadius.circular(radius),
+                          onTap: openContainer,
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            spacing: 24,
+                            children: [
+                              // Row 1: Action Bar (Date, Like, Delete)
+                              Padding(
+                                padding: const EdgeInsets.fromLTRB(0, 16, 0, 0),
+                                child: SingleChildScrollView(
+                                  scrollDirection: Axis.horizontal,
+                                  physics: const BouncingScrollPhysics(),
+                                  child: Row(
+                                    spacing: 8,
+                                    children: [
+                                      const SizedBox(width: 12),
+                                      // Date Display
+                                      InnerPageButton(
+                                        icon: Icons.calendar_month_outlined,
+                                        label: getFormattedDate(
+                                          DateTime.parse(widget.date),
+                                        ),
+                                        onPressed: () {},
+                                      ),
+                                      // Like Button
+                                      InnerPageButton(
+                                        key: ValueKey(widget.code),
+                                        icon: widget.isLiked
+                                            ? Icons.favorite_rounded
+                                            : Icons.favorite_border_rounded,
+                                        iconColor: widget.isLiked
+                                            ? Colors.red
+                                            : colors.textClr,
+                                        label: widget.isLiked ? "Liked" : "Like",
+                                        onPressed: () {
+                                          context.read<CodeGen>().toggleLike(widget.code);
+                                          if (widget.isLiked) {
+                                            showToastMsg(
+                                              context,
+                                              "#${widget.code} removed from favorites",
+                                            );
+                                          } else {
+                                            showToastMsg(
+                                              context,
+                                              "#${widget.code} added to favorites",
+                                            );
+                                          }
+                                        },
+                                      ),
+                                      // Delete Button
+                                      InnerPageButton(
+                                        icon: Icons.delete_outline_rounded,
+                                        label: "Delete",
+                                        onPressed: () {
+                                          setState(() {
+                                            showDltConfirm = true;
+                                          });
+                                        },
+                                      ),
+                                      const SizedBox(width: 26),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                              // Row 2: HeadText
+                              HeadText(code: widget.code),
+                              // Row 3: CodeText and LengthIndicator
+                              Padding(
+                                padding: const EdgeInsets.fromLTRB(24, 0, 16, 16),
+                                child: Row(
+                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    Expanded(child: CodeText(code: widget.code)),
+                                    const SizedBox(width: 8),
+                                    LengthIndicator(
+                                      radius: radius,
+                                      length: length,
+                                      code: widget.code,
+                                      onTap: openContainer,
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      )
+                    : ShowDltPrompt(
+                        key: const ValueKey('delete_prompt'),
+                        length: length,
+                        radius: radius,
+                        onProceed: () {
+                          final codeProvider = context.read<CodeGen>();
+                          final previewMap = context.read<PreviewMap>();
+                          final linksToDelete = codeProvider.getLinksForCode(
+                            widget.code,
+                          );
+                          for (final link in linksToDelete) {
+                            previewMap.deletePreviewForLink(link);
+                          }
+                          codeProvider.clearList(widget.code);
+                          setState(() {
+                            showDltConfirm = false;
+                          });
+                          showToastMsg(context, "Code #${widget.code} deleted");
+                        },
+                        onCancel: () {
+                          setState(() {
+                            showDltConfirm = false;
+                          });
+                          showToastMsg(context, "Action cancelled");
+                        },
+                      ),
+              ),
+            ),
+          ),
+        );
+      },
     );
   }
 }
