@@ -10,6 +10,7 @@ import 'package:memno/logic/database/preview_data.dart';
 import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
 
+/// Manages caching, downloading, and persistence of link preview data and preview images.
 class PreviewMap extends ChangeNotifier {
   final Map<String, LinkPreviewData> cache = {};
   final Map<String, String> localImagePaths = {};
@@ -22,7 +23,7 @@ class PreviewMap extends ChangeNotifier {
     _init();
   }
 
-  /// Returns a Hive-safe key for the given link.
+  /// Returns Hive-safe key for the given link.
   String _hiveKey(String link) {
     if (link.length <= 255) return link;
     return sha256.convert(utf8.encode(link)).toString();
@@ -51,7 +52,7 @@ class PreviewMap extends ChangeNotifier {
     notifyListeners();
   }
 
-  // Save a preview
+  /// Saves preview data and caches image locally if enabled.
   Future<void> savePreview({
     required String link,
     required LinkPreviewData data,
@@ -105,7 +106,7 @@ class PreviewMap extends ChangeNotifier {
     return null;
   }
 
-  // Load a preview synchronous (from Hive cache)
+  /// Loads a preview synchronously from Hive cache.
   LinkPreviewData? loadPreviewSync(String link, {bool saveLocally = true}) {
     try {
       if (_previewBox != null && _previewBox!.isOpen) {
@@ -144,7 +145,7 @@ class PreviewMap extends ChangeNotifier {
     return null;
   }
 
-  // Load a preview async
+  /// Loads a preview asynchronously, initializing database if needed.
   Future<LinkPreviewData?> loadPreview(
     String link, {
     bool saveLocally = true,
@@ -158,7 +159,7 @@ class PreviewMap extends ChangeNotifier {
     }
   }
 
-  // Storage Management
+  // Storage management operations
   Future<double> getTotalCacheSizeMB() async {
     try {
       if (_previewsDirPath == null) await _init();
@@ -210,7 +211,7 @@ class PreviewMap extends ChangeNotifier {
         await dir.create();
       }
 
-      // Update Hive models to remove local paths
+      // Updates Hive models to remove local paths
       if (_previewBox != null && _previewBox!.isOpen) {
         for (var key in _previewBox!.keys) {
           final model = _previewBox!.get(key);

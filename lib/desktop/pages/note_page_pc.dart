@@ -10,13 +10,19 @@ import 'package:provider/provider.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:url_launcher/url_launcher.dart';
 
+/// Implements the desktop note detail page.
+/// Displays a single note page's content, listing individual text entries and link cards
+/// in a responsive grid layout. Includes an inline editor panel for adding entries,
+/// modifying existing ones, or renaming the note title. Supports liking/favoriting,
+/// copying links, and sharing.
+///
 /// Desktop note detail page with a responsive masonry-style card grid.
 ///
 /// Shows note title, entries as [NoteCard] widgets in a [Wrap]-based
 /// responsive layout, and a floating input bar at the bottom for adding
 /// or editing entries.
 class DesktopNotePage extends StatefulWidget {
-  /// The 6-digit note page code.
+  /// Six-digit note page code.
   final int code;
 
   /// Callback to return to the grid home view.
@@ -32,10 +38,10 @@ class _DesktopNotePageState extends State<DesktopNotePage> {
   final TextEditingController _inputController = TextEditingController();
   final FocusNode _inputFocusNode = FocusNode();
 
-  /// 0 = add new, 1 = edit existing entry, 2 = edit title
+  /// Current input editing mode (add new entry, edit existing entry, or rename title).
   int _editMode = 0;
 
-  /// Index of the entry being edited (only for _editMode == 1).
+  /// Index of the entry being edited, applicable when editing an existing entry.
   int _editIndex = -1;
 
   /// Whether the input bar is visible.
@@ -48,9 +54,7 @@ class _DesktopNotePageState extends State<DesktopNotePage> {
     super.dispose();
   }
 
-  // ─
-  //  Action Handlers
-  // ─
+  // Action Handlers
 
   void _startAddEntry() {
     setState(() {
@@ -199,9 +203,7 @@ class _DesktopNotePageState extends State<DesktopNotePage> {
     return LinkUtils.hasLink(text);
   }
 
-  // ─
-  //  Build
-  // ─
+  // Build Method
 
   @override
   Widget build(BuildContext context) {

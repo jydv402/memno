@@ -7,6 +7,11 @@ import 'package:memno/logic/theme/app_colors.dart';
 import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
 
+/// Implements the settings page interface customized for the desktop platform.
+/// Uses a responsive two-column layout with section titles on the left and controls on the right.
+/// Configuration options include theme cycling, dock layout/placement, data backup/restore,
+/// local preview storage configuration, cache management, and application info.
+///
 /// Desktop-optimized settings page with a two-column layout.
 ///
 /// Left column shows section headers; right column contains the controls.
@@ -92,9 +97,7 @@ class DesktopSettingsPage extends StatelessWidget {
     );
   }
 
-  // ─
-  //  Section Wrapper (two-column row)
-  // ─
+  // Section Wrapper (two-column row)
 
   Widget _buildSection({
     required AppColors colors,
@@ -127,9 +130,7 @@ class DesktopSettingsPage extends StatelessWidget {
     );
   }
 
-  // ─
-  //  Rounded Card Container
-  // ─
+  // Rounded Card Container
 
   Widget _settingsCard(AppColors colors, {required Widget child}) {
     return Container(
@@ -143,9 +144,7 @@ class DesktopSettingsPage extends StatelessWidget {
     );
   }
 
-  // ─
-  //  Appearance
-  // ─
+  // Appearance
 
   Widget _buildAppearanceSection(BuildContext context, AppColors colors) {
     final themeMode = colors.themeMode;
@@ -204,9 +203,7 @@ class DesktopSettingsPage extends StatelessWidget {
     );
   }
 
-  // ─
-  //  Dock Layout
-  // ─
+  // Dock Layout
 
   Widget _buildDockLayoutSection(BuildContext context, AppColors colors) {
     final placement = colors.dockPlacement;
@@ -277,9 +274,7 @@ class DesktopSettingsPage extends StatelessWidget {
     );
   }
 
-  // ─
-  //  Data
-  // ─
+  // Data
 
   Widget _buildDataSection(BuildContext context, AppColors colors) {
     return _settingsCard(
@@ -342,9 +337,7 @@ class DesktopSettingsPage extends StatelessWidget {
     );
   }
 
-  // ─
-  //  Storage
-  // ─
+  // Storage
 
   Widget _buildStorageSection(BuildContext context, AppColors colors) {
     return Column(
@@ -507,9 +500,7 @@ class DesktopSettingsPage extends StatelessWidget {
     );
   }
 
-  // ─
-  //  About
-  // ─
+  // About
 
   Widget _buildAboutSection(BuildContext context, AppColors colors) {
     return _settingsCard(

@@ -6,12 +6,17 @@ import 'package:memno/logic/functionality/preview_map.dart';
 import 'package:memno/logic/theme/app_colors.dart';
 import 'package:provider/provider.dart';
 
+/// Represents the desktop home page interface.
+/// Renders a file-explorer style grid layout containing document icons for each note.
+/// Supports filtering notes by category (All, Liked, or Empty) and handles note sorting
+/// (most recently created/edited notes first), deletion, and pulsing search highlights.
+///
 /// File-explorer-style grid view for the desktop home page.
 ///
-/// Accepts a [filterIndex] (0 = all, 1 = liked, 2 = empty), renders a header
+/// Accepts a [filterIndex] indicating the current category filter, renders a header
 /// with the filter name and count badge, and displays note pages as grid tiles.
 class DesktopHomePage extends StatefulWidget {
-  /// Current filter index: 0 = all, 1 = liked, 2 = empty.
+  /// Current filter index corresponding to All Notes, Liked Notes, or Empty Notes.
   final int filterIndex;
 
   /// Callback when a file icon is tapped, passing the note code.
@@ -32,9 +37,7 @@ class DesktopHomePage extends StatefulWidget {
 }
 
 class _DesktopHomePageState extends State<DesktopHomePage> {
-  // ─
-  //  Filtering & Sorting
-  // ─
+  // Filtering and Sorting
 
   List<int> _filteredCodes(CodeGen codeGen) {
     List<int> codes;
@@ -84,9 +87,7 @@ class _DesktopHomePageState extends State<DesktopHomePage> {
     }
   }
 
-  // ─
-  //  Build
-  // ─
+  // Build Method
 
   @override
   Widget build(BuildContext context) {
@@ -296,9 +297,7 @@ class _DesktopHomePageState extends State<DesktopHomePage> {
   }
 }
 
-// ─
-//  Pulsing Highlight Wrapper
-// ─
+// Pulsing Highlight Wrapper
 
 /// Wraps a child with a pulsing border animation when [isHighlighted] is true.
 class _MaybeHighlighted extends StatefulWidget {

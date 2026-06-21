@@ -20,7 +20,7 @@ class FileIconTile extends StatefulWidget {
     this.onLike,
   });
 
-  /// The 6-digit note page code.
+  /// 6-digit note page code.
   final int code;
 
   /// Display title of the note page.

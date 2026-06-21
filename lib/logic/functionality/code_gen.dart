@@ -4,6 +4,9 @@ import 'package:flutter/material.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:memno/logic/database/code_data.dart';
 
+/// Manages code and entry database operations using Hive.
+/// Coordinates generating unique codes, saving entries/links, updating titles,
+/// managing favorite status, and notifying listeners of database updates.
 class CodeGen extends ChangeNotifier {
   late Box<CodeData> _codeBox;
   bool _isReady = false;
@@ -12,7 +15,7 @@ class CodeGen extends ChangeNotifier {
     init();
   }
 
-  //initializes hive
+  /// Initializes Hive database box.
   Future<void> init() async {
     _codeBox = await Hive.openBox<CodeData>('codeData');
     _isReady = true;
@@ -25,7 +28,7 @@ class CodeGen extends ChangeNotifier {
     return _codeBox.values.map((codeData) => codeData.code).toList();
   }
 
-  //generates 6 digit code
+  /// Generates unique 6-digit note page code.
   Future<void> generateCode() async {
     var rnd = Random();
     int code;
@@ -39,7 +42,7 @@ class CodeGen extends ChangeNotifier {
     notifyListeners();
   }
 
-  //deletes a specific code
+  /// Deletes a specific note page code and its contents.
   Future<void> clearList(int code) async {
     final key = _codeBox.keys.cast<dynamic>().firstWhere(
       (key) => _codeBox.get(key)?.code == code,
@@ -50,7 +53,7 @@ class CodeGen extends ChangeNotifier {
     notifyListeners();
   }
 
-  //return the lenght of link list
+  /// Returns the length of the link/entry list for a code.
   int getLinkListLength(int code) {
     final codeData = _codeBox.values.firstWhere(
       (codeData) => codeData.code == code,
@@ -60,7 +63,7 @@ class CodeGen extends ChangeNotifier {
     return codeData.links.length;
   }
 
-  //returns date
+  /// Returns the date string for a code.
   String getDateForCode(int code) {
     final codeData = _codeBox.values.firstWhere(
       (codeData) => codeData.code == code,
@@ -71,7 +74,7 @@ class CodeGen extends ChangeNotifier {
     return codeData.date;
   }
 
-  //returns liked status
+  /// Returns the liked/favorite status for a code.
   bool getLikeForCode(int code) {
     final codeData = _codeBox.values.firstWhere(
       (codeData) => codeData.code == code,
@@ -81,7 +84,7 @@ class CodeGen extends ChangeNotifier {
     return codeData.liked;
   }
 
-  //toggle like
+  /// Toggles the liked/favorite status for a code.
   Future<void> toggleLike(int code) async {
     final codeData = _codeBox.values
         .where((codeData) => codeData.code == code)
@@ -92,7 +95,7 @@ class CodeGen extends ChangeNotifier {
     notifyListeners();
   }
 
-  //returns list of links
+  /// Returns the list of links/entries for a code.
   List<String> getLinksForCode(int code) {
     final codeData = _codeBox.values.firstWhere(
       (codeData) => codeData.code == code,
@@ -103,7 +106,7 @@ class CodeGen extends ChangeNotifier {
     return codeData.links;
   }
 
-  //Add heading text
+  /// Updates heading/title text for a code.
   Future<void> addHead(int code, String head) async {
     final codeData = _codeBox.values
         .where((codeData) => codeData.code == code)
@@ -115,7 +118,7 @@ class CodeGen extends ChangeNotifier {
     notifyListeners();
   }
 
-  //returns heading text
+  /// Returns the heading/title text for a code.
   String getHeadForCode(int code) {
     final codeData = _codeBox.values.firstWhere(
       (codeData) => codeData.code == code,
@@ -125,7 +128,7 @@ class CodeGen extends ChangeNotifier {
     return codeData.head;
   }
 
-  //Add link to a specific code
+  /// Adds a link/entry to a specific note code.
   Future<void> addLink(int code, String link) async {
     final codeData = _codeBox.values
         .where((codeData) => codeData.code == code)
@@ -137,7 +140,7 @@ class CodeGen extends ChangeNotifier {
     notifyListeners();
   }
 
-  //Edit links within a specific code
+  /// Edits a link/entry at a given index within a specific note code.
   Future<void> editLink(int code, int index, String newLink) async {
     final codeData = _codeBox.values
         .where((codeData) => codeData.code == code)
@@ -151,7 +154,7 @@ class CodeGen extends ChangeNotifier {
     }
   }
 
-  //Delete link within a specific code
+  /// Deletes a link/entry at a given index within a specific note code.
   Future<void> deleteLink(int code, int index) async {
     final codeData = _codeBox.values
         .where((codeData) => codeData.code == code)
@@ -165,13 +168,13 @@ class CodeGen extends ChangeNotifier {
     }
   }
 
-  // Clear all codes and links
+  /// Clears all codes, links, and entries from the database.
   Future<void> clearAll() async {
     await _codeBox.clear();
     notifyListeners();
   }
 
-  // reloads the code box
+  /// Reloads the code box from storage.
   Future<void> reloadCodeBox() async {
     _codeBox = await Hive.openBox<CodeData>('codeData');
     _isReady = true;

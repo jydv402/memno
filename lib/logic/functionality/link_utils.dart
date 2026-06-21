@@ -1,11 +1,11 @@
 import 'package:any_link_preview/any_link_preview.dart';
 
-/// Helper class for link extraction and validation.
+/// Provides utility helpers for link extraction and validation.
 class LinkUtils {
   LinkUtils._();
 
-  /// Scans the [text] and returns the first valid URL token if found.
-  /// Otherwise, returns null.
+  /// Scans [text] and returns the first valid URL token if found.
+  /// Returns null if no valid URL is found.
   static String? extractFirstLink(String text) {
     if (text.isEmpty) return null;
     // Split by any whitespace characters (spaces, tabs, newlines)
@@ -18,7 +18,7 @@ class LinkUtils {
     return null;
   }
 
-  /// Returns true if the [text] contains at least one valid URL.
+  /// Returns true if [text] contains at least one valid URL.
   static bool hasLink(String text) {
     return extractFirstLink(text) != null;
   }

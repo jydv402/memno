@@ -10,6 +10,11 @@ import 'package:memno/logic/functionality/code_gen.dart';
 import 'package:memno/logic/theme/app_colors.dart';
 import 'package:provider/provider.dart';
 
+/// Serves as the main entry point and shell layout for the desktop interface.
+/// Manages the overall page scaffold, coordinates hotkeys/keyboard shortcuts,
+/// maintains navigation state across All, Liked, Empty, and Settings views,
+/// handles spotlight search modal display, and coordinates notifications.
+///
 /// Root scaffold for the desktop UI.
 ///
 /// Combines a [DesktopSidebar] with an [Expanded] content area that displays
@@ -23,7 +28,7 @@ class DesktopShell extends StatefulWidget {
 }
 
 class _DesktopShellState extends State<DesktopShell> {
-  /// 0 = All Notes, 1 = Liked, 2 = Empty, 3 = Settings
+  /// Index of the currently active navigation destination (All, Liked, Empty, Settings).
   int _selectedDestination = 0;
 
   /// When non-null, shows the note page instead of the grid.
@@ -32,9 +37,7 @@ class _DesktopShellState extends State<DesktopShell> {
   /// Code to highlight in the grid (from search result).
   int? _highlightedCode;
 
-  //─
-  //  Navigation Helpers
-  //─
+  // Navigation Helpers
 
   void _openNote(int code) {
     setState(() {
@@ -89,9 +92,7 @@ class _DesktopShellState extends State<DesktopShell> {
     });
   }
 
-  //─
-  //  Build
-  //─
+  // Build Method
 
   @override
   Widget build(BuildContext context) {

@@ -7,6 +7,11 @@ import 'package:memno/logic/functionality/code_gen.dart';
 import 'package:memno/logic/theme/app_colors.dart';
 import 'package:provider/provider.dart';
 
+/// Implements the spotlight-style floating search overlay for the desktop UI.
+/// Renders a blurred overlay with an interactive search input at the bottom and search results above it.
+/// Supports keyboard navigation (up/down arrow keys, enter to select, escape to close),
+/// debounced search queries, and shows search highlights based on notes' titles or codes.
+///
 /// A Spotlight-style floating search overlay.
 ///
 /// Displays a blurred backdrop with a bottom-anchored search bar and a results
@@ -64,9 +69,7 @@ class _DesktopSearchOverlayState extends State<DesktopSearchOverlay>
     super.dispose();
   }
 
-  // ─
-  //  Search Logic
-  // ─
+  // Search Logic
 
   void _onSearchChanged(String query) {
     _debounceTimer?.cancel();
@@ -116,9 +119,7 @@ class _DesktopSearchOverlayState extends State<DesktopSearchOverlay>
     Navigator.of(context).pop();
   }
 
-  // ─
-  //  Keyboard Handling
-  // ─
+  // Keyboard Handling
 
   KeyEventResult _handleKeyEvent(FocusNode node, KeyEvent event) {
     if (event is! KeyDownEvent && event is! KeyRepeatEvent) {
@@ -159,9 +160,7 @@ class _DesktopSearchOverlayState extends State<DesktopSearchOverlay>
     return KeyEventResult.ignored;
   }
 
-  // ─
-  //  Build
-  // ─
+  // Build Method
 
   @override
   Widget build(BuildContext context) {
@@ -214,9 +213,7 @@ class _DesktopSearchOverlayState extends State<DesktopSearchOverlay>
     );
   }
 
-  // ─
-  //  Search Bar
-  // ─
+  // Search Bar Widget
 
   Widget _buildSearchBar(AppColors colors) {
     return Container(
@@ -273,9 +270,7 @@ class _DesktopSearchOverlayState extends State<DesktopSearchOverlay>
     );
   }
 
-  // ─
-  //  Results Panel
-  // ─
+  // Results Panel Widget
 
   Widget _buildResultsPanel(AppColors colors) {
     final codeGen = context.read<CodeGen>();

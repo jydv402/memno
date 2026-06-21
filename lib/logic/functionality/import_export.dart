@@ -12,6 +12,7 @@ import 'package:memno/logic/functionality/code_gen.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:provider/provider.dart';
 
+/// Handles JSON-based backup import and export functionality for note databases.
 class ImportExport {
   late Box<CodeData>? _codeBox;
 
@@ -19,7 +20,7 @@ class ImportExport {
     _loadCodeBox();
   }
 
-  // Load the code box
+  /// Loads the code box if it is not already opened.
   Future<void> _loadCodeBox() async {
     try {
       if (!Hive.isBoxOpen('codeData')) {
@@ -32,16 +33,16 @@ class ImportExport {
     }
   }
 
-  // Export to JSON function
+  /// Exports all notes and app metadata to a JSON file.
   Future<void> exportToJSON(BuildContext context) async {
     try {
       await _loadCodeBox();
       if (_codeBox == null) return;
 
-      // Collect the notes
+      // Collects notes
       final notes = _codeBox!.values.map((note) => note.toJSON()).toList();
 
-      // Get app data
+      // Retrieves app metadata
       final pkgInfo = await PackageInfo.fromPlatform();
 
       final appDetails = {
@@ -52,17 +53,16 @@ class ImportExport {
         "notes": notes,
       };
 
-      // Encode JSON
+      // Encodes app details to JSON
       final json = const JsonEncoder.withIndent('  ').convert(appDetails);
-      // Convert the JSON to UTF8 bytes, returns a list of int
-      // Then convert the int list to Uint8List as SAF (Storage Access Framework) demands it
+      // Converts JSON to UTF8 bytes and maps to Uint8List for storage operations
       final bytes = Uint8List.fromList(utf8.encode(json));
 
-      // Clear the temporary files
+      // Clears temporary files
       await FilePicker.clearTemporaryFiles();
 
-      // Get the save destination
-      // Write the file
+      // Retrieves save destination and writes file
+      // Writes the file
       String? result;
       if (!kIsWeb &&
           (Platform.isWindows || Platform.isMacOS || Platform.isLinux)) {
@@ -87,7 +87,7 @@ class ImportExport {
         );
       }
 
-      // Show cancelled message if the export is cancelled halfway
+      // Displays cancellation message if aborted
       if (result == null) {
         if (context.mounted) {
           _showNotification(context, 'Export Cancelled');
@@ -95,7 +95,7 @@ class ImportExport {
         return;
       }
 
-      // Show success message
+      // Displays success message
       if (context.mounted) {
         _showNotification(context, 'Successfully Exported to JSON');
       }
@@ -107,18 +107,18 @@ class ImportExport {
     }
   }
 
-  // Import from JSON function
+  /// Imports notes from a JSON file and reloads the active database.
   Future<void> importFromJSON(BuildContext context) async {
     try {
       await _loadCodeBox();
       if (_codeBox == null) return;
 
-      // Get the file
+      // Retrieves file from picker
       final file = await FilePicker.pickFile(
         type: FileType.custom,
         allowedExtensions: ['json'],
       );
-      // Show cancelled message if the import is cancelled halfway
+      // Displays cancellation message if aborted
       if (file == null) {
         if (context.mounted) {
           _showNotification(context, 'Import Cancelled');
@@ -126,26 +126,26 @@ class ImportExport {
         return;
       }
 
-      // Decode JSON
+      // Decodes JSON
       final bytes = await file.readAsBytes();
       final jsonString = utf8.decode(bytes);
       final json = jsonDecode(jsonString) as Map<String, dynamic>;
 
-      // Get the notes
+      // Retrieves notes list
       final notes = json['notes'] as List;
 
-      // Add the notes to the box
+      // Adds imported notes to storage
       for (final note in notes) {
         final codeData = CodeData.fromJSON(note);
         await _codeBox!.put(codeData.code, codeData);
       }
 
-      // Reload the code box
+      // Reloads database box
       if (context.mounted) {
         context.read<CodeGen>().reloadCodeBox();
       }
 
-      // Show success message
+      // Displays success message
       if (context.mounted) {
         _showNotification(context, 'Successfully Imported from JSON');
       }

@@ -5,6 +5,7 @@ import 'package:memno/logic/theme/app_colors.dart';
 import 'package:provider/provider.dart';
 import 'package:update_checker_bottom_sheet/update_checker_bottom_sheet.dart';
 
+/// Manages application update themes and checks for updates on GitHub.
 class AppUpdateTheme {
   static final UpdateCheckerThemeData lightTheme = UpdateCheckerThemeData(
     backgroundColor: Colors.white,
@@ -85,7 +86,7 @@ class AppUpdateTheme {
   );
 }
 
-// Invoke the updake checker logic
+/// Checks and triggers the update checker flow.
 Future<void> checkAppUpdate(BuildContext context, bool showIfUpToDate) async {
   if (!Platform.isAndroid) {
     if (showIfUpToDate) {

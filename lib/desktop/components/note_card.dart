@@ -28,10 +28,10 @@ class NoteCard extends StatefulWidget {
     this.onTapUrl,
   });
 
-  /// The 1-based index of this entry within the note page.
+  /// 1-based index of this entry within the note page.
   final int index;
 
-  /// The text content or URL string.
+  /// Text content or URL string.
   final String content;
 
   /// Whether [content] is a URL (renders in linkified blue style).
