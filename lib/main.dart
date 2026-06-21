@@ -1,7 +1,9 @@
 import 'dart:io' show Platform;
 
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:hive_flutter/hive_flutter.dart';
+import 'package:path/path.dart' as p;
 import 'package:memno/logic/database/code_data.dart';
 import 'package:memno/logic/database/preview_data.dart';
 import 'package:memno/logic/database/toggles_data.dart';
@@ -21,7 +23,18 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   // Initialize Hive and register adapters
   try {
-    await Hive.initFlutter();
+    if (!kIsWeb && (Platform.isWindows || Platform.isLinux || Platform.isMacOS)) {
+      final String? home = Platform.isWindows
+          ? Platform.environment['USERPROFILE']
+          : Platform.environment['HOME'];
+      if (home != null) {
+        Hive.init(p.join(home, '.memno'));
+      } else {
+        await Hive.initFlutter();
+      }
+    } else {
+      await Hive.initFlutter();
+    }
 
     if (!Hive.isAdapterRegistered(0)) {
       Hive.registerAdapter(CodeDataAdapter());
