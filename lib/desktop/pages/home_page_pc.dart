@@ -32,9 +32,9 @@ class DesktopHomePage extends StatefulWidget {
 }
 
 class _DesktopHomePageState extends State<DesktopHomePage> {
-  // ───────────────────────────────────────────────────────────
+  // ─
   //  Filtering & Sorting
-  // ───────────────────────────────────────────────────────────
+  // ─
 
   List<int> _filteredCodes(CodeGen codeGen) {
     List<int> codes;
@@ -84,9 +84,9 @@ class _DesktopHomePageState extends State<DesktopHomePage> {
     }
   }
 
-  // ───────────────────────────────────────────────────────────
+  // ─
   //  Build
-  // ───────────────────────────────────────────────────────────
+  // ─
 
   @override
   Widget build(BuildContext context) {
@@ -125,7 +125,7 @@ class _DesktopHomePageState extends State<DesktopHomePage> {
       key: key,
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        // ── Header Bar ──
+        //  Header Bar
         Padding(
           padding: const EdgeInsets.fromLTRB(24, 28, 24, 8),
           child: Row(
@@ -163,7 +163,7 @@ class _DesktopHomePageState extends State<DesktopHomePage> {
           ),
         ),
 
-        // ── Grid / Empty State ──
+        //  Grid / Empty State
         Expanded(
           child: codes.isEmpty
               ? Center(
@@ -296,9 +296,9 @@ class _DesktopHomePageState extends State<DesktopHomePage> {
   }
 }
 
-// ─────────────────────────────────────────────────────────────
+// ─
 //  Pulsing Highlight Wrapper
-// ─────────────────────────────────────────────────────────────
+// ─
 
 /// Wraps a child with a pulsing border animation when [isHighlighted] is true.
 class _MaybeHighlighted extends StatefulWidget {

@@ -48,9 +48,9 @@ class _DesktopNotePageState extends State<DesktopNotePage> {
     super.dispose();
   }
 
-  // ───────────────────────────────────────────────────────────
+  // ─
   //  Action Handlers
-  // ───────────────────────────────────────────────────────────
+  // ─
 
   void _startAddEntry() {
     setState(() {
@@ -199,9 +199,9 @@ class _DesktopNotePageState extends State<DesktopNotePage> {
     return LinkUtils.hasLink(text);
   }
 
-  // ───────────────────────────────────────────────────────────
+  // ─
   //  Build
-  // ───────────────────────────────────────────────────────────
+  // ─
 
   @override
   Widget build(BuildContext context) {
@@ -216,10 +216,10 @@ class _DesktopNotePageState extends State<DesktopNotePage> {
           children: [
             Column(
               children: [
-                // ── Top Bar ──
+                //  Top Bar
                 _buildTopBar(colors, title),
 
-                // ── Content Grid ──
+                //  Content Grid
                 Expanded(
                   child: links.isEmpty
                       ? _buildEmptyState(colors)
@@ -231,10 +231,10 @@ class _DesktopNotePageState extends State<DesktopNotePage> {
               ],
             ),
 
-            // ── Floating Input Bar ──
+            //  Floating Input Bar
             if (_showInputBar) _buildInputBar(colors),
 
-            // ── FAB to add entry (when input bar is hidden) ──
+            //  FAB to add entry (when input bar is hidden)
             if (!_showInputBar)
               Positioned(
                 bottom: 24,

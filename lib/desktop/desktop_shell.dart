@@ -32,9 +32,9 @@ class _DesktopShellState extends State<DesktopShell> {
   /// Code to highlight in the grid (from search result).
   int? _highlightedCode;
 
-  // ───────────────────────────────────────────────────────────
+  //─
   //  Navigation Helpers
-  // ───────────────────────────────────────────────────────────
+  //─
 
   void _openNote(int code) {
     setState(() {
@@ -89,9 +89,9 @@ class _DesktopShellState extends State<DesktopShell> {
     });
   }
 
-  // ───────────────────────────────────────────────────────────
+  //─
   //  Build
-  // ───────────────────────────────────────────────────────────
+  //─
 
   @override
   Widget build(BuildContext context) {
@@ -153,12 +153,33 @@ class _DesktopShellState extends State<DesktopShell> {
             child: Scaffold(
               body: Stack(
                 children: [
-                  // ── Content Area ──
-                  Positioned.fill(
-                    child: _buildContent(colors),
+                  // Content Area
+                  Positioned.fill(child: _buildContent(colors)),
+
+                  // Keyboard Shortcuts Help Button
+                  Positioned(
+                    bottom: 24,
+                    left: 24,
+                    child: IconButton(
+                      tooltip: 'Keyboard Shortcuts',
+                      icon: Icon(
+                        Icons.keyboard_rounded,
+                        color: colors.textClr.withValues(alpha: 0.5),
+                        size: 20,
+                      ),
+                      style: IconButton.styleFrom(
+                        backgroundColor: colors.box,
+                        hoverColor: colors.pill.withValues(alpha: 0.2),
+                        padding: const EdgeInsets.all(8),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                      ),
+                      onPressed: () => _showShortcutsDialog(context, colors),
+                    ),
                   ),
 
-                  // ── Floating Dock ──
+                  // Floating Dock
                   Positioned.fill(
                     child: DesktopDock(
                       selectedIndex: _selectedDestination,
@@ -197,6 +218,175 @@ class _DesktopShellState extends State<DesktopShell> {
       filterIndex: _selectedDestination,
       onCodeSelected: _openNote,
       highlightedCode: _highlightedCode,
+    );
+  }
+
+  void _showShortcutsDialog(BuildContext context, AppColors colors) {
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        backgroundColor: colors.box,
+        surfaceTintColor: Colors.transparent,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+        title: Row(
+          children: [
+            Icon(Icons.keyboard_rounded, color: colors.accnt),
+            const SizedBox(width: 12),
+            Text(
+              'Keyboard Shortcuts',
+              style: TextStyle(
+                fontFamily: 'GoogleSans',
+                fontWeight: FontWeight.bold,
+                color: colors.textClr,
+              ),
+            ),
+          ],
+        ),
+        content: SizedBox(
+          width: 500,
+          child: SingleChildScrollView(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                _buildShortcutGroupHeader('Global Navigation', colors),
+                const SizedBox(height: 8),
+                _buildShortcutRow('Ctrl + N', 'Create new code page', colors),
+                _buildShortcutRow('Ctrl + F', 'Open Spotlight search', colors),
+                _buildShortcutRow('Ctrl + ,', 'Open settings page', colors),
+                _buildShortcutRow('Ctrl + 1', 'Filter by "All Notes"', colors),
+                _buildShortcutRow(
+                  'Ctrl + 2',
+                  'Filter by "Liked Notes"',
+                  colors,
+                ),
+                _buildShortcutRow(
+                  'Ctrl + 3',
+                  'Filter by "Empty Notes"',
+                  colors,
+                ),
+                _buildShortcutRow('Escape', 'Go back / Close note', colors),
+                const SizedBox(height: 20),
+                _buildShortcutGroupHeader(
+                  'Note Editor (When editing a note)',
+                  colors,
+                ),
+                const SizedBox(height: 8),
+                _buildShortcutRow(
+                  'Ctrl + Enter',
+                  'Save / Confirm entry',
+                  colors,
+                ),
+                _buildShortcutRow('Escape', 'Cancel editing', colors),
+              ],
+            ),
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx),
+            style: TextButton.styleFrom(
+              foregroundColor: colors.textClr,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
+            ),
+            child: const Text(
+              'Close',
+              style: TextStyle(
+                fontFamily: 'GoogleSans',
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Column _buildShortcutGroupHeader(String title, AppColors colors) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          title,
+          style: TextStyle(
+            fontFamily: 'GoogleSans',
+            fontWeight: FontWeight.bold,
+            fontSize: 15,
+            color: colors.accnt,
+          ),
+        ),
+        const Divider(height: 16, thickness: 1),
+      ],
+    );
+  }
+
+  Padding _buildShortcutRow(String keys, String description, AppColors colors) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 6.0),
+      child: Row(
+        spacing: 12,
+        children: [
+          Expanded(
+            flex: 2,
+            child: Row(
+              children: keys.split(' + ').map((key) {
+                final isLast = key == keys.split(' + ').last;
+                return Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 8,
+                        vertical: 4,
+                      ),
+                      decoration: BoxDecoration(
+                        color: colors.pill.withValues(alpha: 0.3),
+                        borderRadius: BorderRadius.circular(6),
+                        border: Border.all(
+                          color: colors.pill.withValues(alpha: 0.6),
+                          width: 1,
+                        ),
+                      ),
+                      child: Text(
+                        key,
+                        style: TextStyle(
+                          fontFamily: 'GoogleSans',
+                          fontWeight: FontWeight.bold,
+                          fontSize: 12,
+                          color: colors.textClr,
+                        ),
+                      ),
+                    ),
+                    if (!isLast)
+                      Text(
+                        ' + ',
+                        style: TextStyle(
+                          fontFamily: 'GoogleSans',
+                          fontWeight: FontWeight.bold,
+                          fontSize: 12,
+                          color: colors.textClr.withValues(alpha: 0.6),
+                        ),
+                      ),
+                  ],
+                );
+              }).toList(),
+            ),
+          ),
+          Expanded(
+            flex: 3,
+            child: Text(
+              description,
+              style: TextStyle(
+                fontFamily: 'GoogleSans',
+                fontSize: 14,
+                color: colors.textClr.withValues(alpha: 0.8),
+              ),
+            ),
+          ),
+        ],
+      ),
     );
   }
 }

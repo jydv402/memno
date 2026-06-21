@@ -40,7 +40,7 @@ class DesktopSettingsPage extends StatelessWidget {
                 ),
                 const SizedBox(height: 32),
 
-                // ── Appearance ──
+                //  Appearance
                 _buildSection(
                   colors: colors,
                   sectionTitle: 'Appearance',
@@ -58,7 +58,7 @@ class DesktopSettingsPage extends StatelessWidget {
 
                 const SizedBox(height: 24),
 
-                // ── Data ──
+                //  Data
                 _buildSection(
                   colors: colors,
                   sectionTitle: 'Data',
@@ -67,7 +67,7 @@ class DesktopSettingsPage extends StatelessWidget {
 
                 const SizedBox(height: 24),
 
-                // ── Storage ──
+                //  Storage
                 _buildSection(
                   colors: colors,
                   sectionTitle: 'Storage',
@@ -76,7 +76,7 @@ class DesktopSettingsPage extends StatelessWidget {
 
                 const SizedBox(height: 24),
 
-                // ── About ──
+                //  About
                 _buildSection(
                   colors: colors,
                   sectionTitle: 'About',
@@ -92,9 +92,9 @@ class DesktopSettingsPage extends StatelessWidget {
     );
   }
 
-  // ───────────────────────────────────────────────────────────
+  // ─
   //  Section Wrapper (two-column row)
-  // ───────────────────────────────────────────────────────────
+  // ─
 
   Widget _buildSection({
     required AppColors colors,
@@ -127,9 +127,9 @@ class DesktopSettingsPage extends StatelessWidget {
     );
   }
 
-  // ───────────────────────────────────────────────────────────
+  // ─
   //  Rounded Card Container
-  // ───────────────────────────────────────────────────────────
+  // ─
 
   Widget _settingsCard(AppColors colors, {required Widget child}) {
     return Container(
@@ -143,9 +143,9 @@ class DesktopSettingsPage extends StatelessWidget {
     );
   }
 
-  // ───────────────────────────────────────────────────────────
+  // ─
   //  Appearance
-  // ───────────────────────────────────────────────────────────
+  // ─
 
   Widget _buildAppearanceSection(BuildContext context, AppColors colors) {
     final themeMode = colors.themeMode;
@@ -204,9 +204,9 @@ class DesktopSettingsPage extends StatelessWidget {
     );
   }
 
-  // ───────────────────────────────────────────────────────────
+  // ─
   //  Dock Layout
-  // ───────────────────────────────────────────────────────────
+  // ─
 
   Widget _buildDockLayoutSection(BuildContext context, AppColors colors) {
     final placement = colors.dockPlacement;
@@ -277,9 +277,9 @@ class DesktopSettingsPage extends StatelessWidget {
     );
   }
 
-  // ───────────────────────────────────────────────────────────
+  // ─
   //  Data
-  // ───────────────────────────────────────────────────────────
+  // ─
 
   Widget _buildDataSection(BuildContext context, AppColors colors) {
     return _settingsCard(
@@ -342,9 +342,9 @@ class DesktopSettingsPage extends StatelessWidget {
     );
   }
 
-  // ───────────────────────────────────────────────────────────
+  // ─
   //  Storage
-  // ───────────────────────────────────────────────────────────
+  // ─
 
   Widget _buildStorageSection(BuildContext context, AppColors colors) {
     return Column(
@@ -507,9 +507,9 @@ class DesktopSettingsPage extends StatelessWidget {
     );
   }
 
-  // ───────────────────────────────────────────────────────────
+  // ─
   //  About
-  // ───────────────────────────────────────────────────────────
+  // ─
 
   Widget _buildAboutSection(BuildContext context, AppColors colors) {
     return _settingsCard(

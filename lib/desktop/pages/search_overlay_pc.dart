@@ -64,9 +64,9 @@ class _DesktopSearchOverlayState extends State<DesktopSearchOverlay>
     super.dispose();
   }
 
-  // ───────────────────────────────────────────────────────────
+  // ─
   //  Search Logic
-  // ───────────────────────────────────────────────────────────
+  // ─
 
   void _onSearchChanged(String query) {
     _debounceTimer?.cancel();
@@ -116,9 +116,9 @@ class _DesktopSearchOverlayState extends State<DesktopSearchOverlay>
     Navigator.of(context).pop();
   }
 
-  // ───────────────────────────────────────────────────────────
+  // ─
   //  Keyboard Handling
-  // ───────────────────────────────────────────────────────────
+  // ─
 
   KeyEventResult _handleKeyEvent(FocusNode node, KeyEvent event) {
     if (event is! KeyDownEvent && event is! KeyRepeatEvent) {
@@ -159,9 +159,9 @@ class _DesktopSearchOverlayState extends State<DesktopSearchOverlay>
     return KeyEventResult.ignored;
   }
 
-  // ───────────────────────────────────────────────────────────
+  // ─
   //  Build
-  // ───────────────────────────────────────────────────────────
+  // ─
 
   @override
   Widget build(BuildContext context) {
@@ -173,7 +173,7 @@ class _DesktopSearchOverlayState extends State<DesktopSearchOverlay>
         onKeyEvent: _handleKeyEvent,
         child: Stack(
           children: [
-            // ── Blurred Backdrop ──
+            //  Blurred Backdrop
             Positioned.fill(
               child: GestureDetector(
                 onTap: _dismiss,
@@ -184,7 +184,7 @@ class _DesktopSearchOverlayState extends State<DesktopSearchOverlay>
               ),
             ),
 
-            // ── Search Bar + Results ──
+            //  Search Bar + Results
             Positioned(
               left: 0,
               right: 0,
@@ -214,9 +214,9 @@ class _DesktopSearchOverlayState extends State<DesktopSearchOverlay>
     );
   }
 
-  // ───────────────────────────────────────────────────────────
+  // ─
   //  Search Bar
-  // ───────────────────────────────────────────────────────────
+  // ─
 
   Widget _buildSearchBar(AppColors colors) {
     return Container(
@@ -273,9 +273,9 @@ class _DesktopSearchOverlayState extends State<DesktopSearchOverlay>
     );
   }
 
-  // ───────────────────────────────────────────────────────────
+  // ─
   //  Results Panel
-  // ───────────────────────────────────────────────────────────
+  // ─
 
   Widget _buildResultsPanel(AppColors colors) {
     final codeGen = context.read<CodeGen>();
