@@ -54,7 +54,9 @@ jobs:
 
 
       - name: Building signed APK 
-        run: flutter build apk --release --split-per-abi
+        run: |
+          flutter build apk --release --split-per-abi
+          flutter build apk --release
 
       - name: Rename APK files
         run: |
@@ -62,11 +64,27 @@ jobs:
           mv app-armeabi-v7a-release.apk memno-armeabi-v7a-${{ steps.version.outputs.version_name }}+${{ steps.version.outputs.version_code }}.apk
           mv app-arm64-v8a-release.apk memno-arm64-v8a-${{ steps.version.outputs.version_name }}+${{ steps.version.outputs.version_code }}.apk
           mv app-x86_64-release.apk memno-x86_64-${{ steps.version.outputs.version_name }}+${{ steps.version.outputs.version_code }}.apk
+          mv app-release.apk memno-universal-${{ steps.version.outputs.version_name }}+${{ steps.version.outputs.version_code }}.apk
 
       - name: Upload APK
         uses: ncipollo/release-action@v1
         with:
-          artifacts: "build/app/outputs/flutter-apk/memno-armeabi-v7a-${{ steps.version.outputs.version_name }}+${{ steps.version.outputs.version_code }}.apk,build/app/outputs/flutter-apk/memno-arm64-v8a-${{ steps.version.outputs.version_name }}+${{ steps.version.outputs.version_code }}.apk,build/app/outputs/flutter-apk/memno-x86_64-${{ steps.version.outputs.version_name }}+${{ steps.version.outputs.version_code }}.apk"
+          artifacts: "build/app/outputs/flutter-apk/memno-armeabi-v7a-${{ steps.version.outputs.version_name }}+${{ steps.version.outputs.version_code }}.apk,build/app/outputs/flutter-apk/memno-arm64-v8a-${{ steps.version.outputs.version_name }}+${{ steps.version.outputs.version_code }}.apk,build/app/outputs/flutter-apk/memno-x86_64-${{ steps.version.outputs.version_name }}+${{ steps.version.outputs.version_code }}.apk,build/app/outputs/flutter-apk/memno-universal-${{ steps.version.outputs.version_name }}+${{ steps.version.outputs.version_code }}.apk"
           tag: ${{ steps.version.outputs.version_name }}+${{ steps.version.outputs.version_code }}
           name: Memno v${{ steps.version.outputs.version_name }}
+          body: |
+            ### Release Notes
+            - Version: ${{ steps.version.outputs.version_name }}+${{ steps.version.outputs.version_code }}
+            ---
+
+            ### Which APK file should I download?
+            This release includes optimized APK files for different device architectures as well as a universal installer. Please choose the appropriate file for your device:
+            
+            *   **`memno-arm64-v8a-...apk`**: For almost all modern Android phones and tablets (64-bit ARM devices).
+            *   **`memno-armeabi-v7a-...apk`**: For older 32-bit Android phones and tablets.
+            *   **`memno-x86_64-...apk`**: For Android Emulators, ChromeOS/Chromebooks, or Intel/AMD-powered Android devices.
+            *   **`memno-universal-...apk`**: For all devices (Universal fat APK). Download this if you're unsure or having issues installing arch-specific versions.
+            
+            ---
+            *Note: If you are not sure, try downloading the **`universal`** version.*
           token: ${{ secrets.MEMNO_TOKEN }}
