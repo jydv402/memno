@@ -2,9 +2,12 @@ import 'dart:io' show File;
 
 import 'package:flutter/material.dart';
 import 'package:flutter_link_previewer/flutter_link_previewer.dart';
+import 'package:linkfy_text/linkfy_text.dart';
+import 'package:memno/logic/functionality/link_utils.dart';
 import 'package:memno/logic/functionality/preview_map.dart';
 import 'package:memno/logic/theme/app_colors.dart';
 import 'package:provider/provider.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 /// A card widget for displaying a single note entry or link in the desktop
 /// masonry grid layout.
@@ -130,6 +133,22 @@ class _NoteCardState extends State<NoteCard> {
 
   Widget _buildContent(AppColors colors) {
     if (widget.isUrl) {
+      final firstLink = LinkUtils.extractFirstLink(widget.content);
+      if (firstLink == null) {
+        return Padding(
+          padding: const EdgeInsets.only(bottom: 8),
+          child: Text(
+            widget.content,
+            style: TextStyle(
+              fontFamily: 'GoogleSans',
+              fontSize: 24,
+              fontWeight: FontWeight.w700,
+              color: colors.textClr,
+              height: 1.2,
+            ),
+          ),
+        );
+      }
       final previewMap = Provider.of<PreviewMap>(context);
       return Padding(
         padding: const EdgeInsets.only(bottom: 8),
@@ -137,23 +156,28 @@ class _NoteCardState extends State<NoteCard> {
           crossAxisAlignment: CrossAxisAlignment.start,
           mainAxisSize: MainAxisSize.min,
           children: [
-            GestureDetector(
-              onTap: widget.onTapUrl,
-              child: MouseRegion(
-                cursor: SystemMouseCursors.click,
-                child: Text(
-                  widget.content,
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
-                  style: const TextStyle(
-                    fontFamily: 'GoogleSans',
-                    fontSize: 13,
-                    color: Color(0xFF4A90D9),
-                    decoration: TextDecoration.underline,
-                    decorationColor: Color(0xFF4A90D9),
-                    height: 1.4,
-                  ),
-                ),
+            LinkifyText(
+              widget.content,
+              onTap: (link) {
+                if (link.value != null) {
+                  final uri = Uri.tryParse(link.value!);
+                  if (uri != null) {
+                    launchUrl(uri, mode: LaunchMode.externalApplication);
+                  }
+                }
+              },
+              linkStyle: const TextStyle(
+                color: Color(0xFF4A90D9),
+                fontFamily: 'GoogleSans',
+                fontSize: 13,
+                decoration: TextDecoration.underline,
+                decorationColor: Color(0xFF4A90D9),
+              ),
+              textStyle: TextStyle(
+                color: colors.textClr,
+                fontFamily: 'GoogleSans',
+                fontSize: 13,
+                height: 1.4,
               ),
             ),
             const SizedBox(height: 8),
@@ -165,7 +189,7 @@ class _NoteCardState extends State<NoteCard> {
               sideBorderColor: Colors.transparent,
               imageBuilder: (image) {
                 final preview = previewMap.loadPreviewSync(
-                  widget.content,
+                  firstLink,
                   saveLocally: colors.saveImagesLocally,
                 );
                 final isSquare =
@@ -176,9 +200,9 @@ class _NoteCardState extends State<NoteCard> {
                         ? BorderRadius.circular(10)
                         : BorderRadius.circular(16),
                     image: DecorationImage(
-                      image: previewMap.localImagePaths[widget.content] != null
+                      image: previewMap.localImagePaths[firstLink] != null
                           ? FileImage(
-                              File(previewMap.localImagePaths[widget.content]!),
+                              File(previewMap.localImagePaths[firstLink]!),
                             )
                           : NetworkImage(image) as ImageProvider,
                       fit: BoxFit.cover,
@@ -201,16 +225,16 @@ class _NoteCardState extends State<NoteCard> {
               ),
               onLinkPreviewDataFetched: (data) async {
                 await previewMap.savePreview(
-                  link: widget.content,
+                  link: firstLink,
                   data: data,
                   saveLocally: colors.saveImagesLocally,
                 );
               },
               linkPreviewData: previewMap.loadPreviewSync(
-                widget.content,
+                firstLink,
                 saveLocally: colors.saveImagesLocally,
               ),
-              text: widget.content,
+              text: firstLink,
             ),
           ],
         ),

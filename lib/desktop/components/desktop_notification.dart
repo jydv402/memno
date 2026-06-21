@@ -65,7 +65,7 @@ class _DesktopNotificationCardState extends State<_DesktopNotificationCard>
     );
 
     _slideAnimation =
-        Tween<Offset>(begin: const Offset(1.0, 0.0), end: Offset.zero).animate(
+        Tween<Offset>(begin: const Offset(-1.0, 0.0), end: Offset.zero).animate(
           CurvedAnimation(
             parent: _controller,
             curve: Curves.easeOutCubic,
@@ -112,7 +112,7 @@ class _DesktopNotificationCardState extends State<_DesktopNotificationCard>
 
     return Positioned(
       bottom: 16,
-      right: 16,
+      left: 16,
       child: SlideTransition(
         position: _slideAnimation,
         child: FadeTransition(

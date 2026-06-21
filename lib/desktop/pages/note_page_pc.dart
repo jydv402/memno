@@ -1,9 +1,9 @@
-import 'package:any_link_preview/any_link_preview.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:memno/desktop/components/desktop_notification.dart';
 import 'package:memno/desktop/components/note_card.dart';
 import 'package:memno/logic/functionality/code_gen.dart';
+import 'package:memno/logic/functionality/link_utils.dart';
 import 'package:memno/logic/functionality/preview_map.dart';
 import 'package:memno/logic/theme/app_colors.dart';
 import 'package:provider/provider.dart';
@@ -166,7 +166,10 @@ class _DesktopNotePageState extends State<DesktopNotePage> {
               final codeProvider = context.read<CodeGen>();
               final previewMap = context.read<PreviewMap>();
               codeProvider.deleteLink(widget.code, index);
-              previewMap.deletePreviewForLink(content);
+              final firstLink = LinkUtils.extractFirstLink(content);
+              if (firstLink != null) {
+                previewMap.deletePreviewForLink(firstLink);
+              }
               showDesktopNotification(context, 'Entry deleted');
             },
             child: Text(
@@ -183,15 +186,17 @@ class _DesktopNotePageState extends State<DesktopNotePage> {
   }
 
   void _openUrl(String url) {
-    final uri = Uri.tryParse(url);
-    if (uri != null) {
-      launchUrl(uri, mode: LaunchMode.externalApplication);
+    final firstLink = LinkUtils.extractFirstLink(url);
+    if (firstLink != null) {
+      final uri = Uri.tryParse(firstLink);
+      if (uri != null) {
+        launchUrl(uri, mode: LaunchMode.externalApplication);
+      }
     }
   }
 
   bool _isUrl(String text) {
-    final firstWord = text.split(' ').first;
-    return AnyLinkPreview.isValidLink(firstWord);
+    return LinkUtils.hasLink(text);
   }
 
   // ───────────────────────────────────────────────────────────

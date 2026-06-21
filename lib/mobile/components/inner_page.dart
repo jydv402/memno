@@ -1,6 +1,5 @@
 import 'dart:io';
 
-import 'package:any_link_preview/any_link_preview.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_link_previewer/flutter_link_previewer.dart';
@@ -9,6 +8,7 @@ import 'package:linkfy_text/linkfy_text.dart';
 import 'package:memno/mobile/components/inner_page_fun.dart';
 import 'package:memno/mobile/components/show_toast.dart';
 import 'package:memno/logic/functionality/code_gen.dart';
+import 'package:memno/logic/functionality/link_utils.dart';
 import 'package:memno/logic/functionality/preview_map.dart';
 import 'package:memno/logic/theme/app_colors.dart';
 import 'package:provider/provider.dart';
@@ -210,11 +210,14 @@ class _InnerPageState extends State<InnerPage>
                                                     Navigator.pop(
                                                       dialogContext,
                                                     );
-                                                    context
-                                                        .read<PreviewMap>()
-                                                        .deletePreviewForLink(
-                                                          links[index - 1],
-                                                        );
+                                                    final firstLink = LinkUtils.extractFirstLink(links[index - 1]);
+                                                    if (firstLink != null) {
+                                                      context
+                                                          .read<PreviewMap>()
+                                                          .deletePreviewForLink(
+                                                            firstLink,
+                                                          );
+                                                    }
                                                     context
                                                         .read<CodeGen>()
                                                         .deleteLink(
@@ -245,173 +248,148 @@ class _InnerPageState extends State<InnerPage>
                                 ),
                               ),
                               // Content section below the button bar
-                              AnyLinkPreview.isValidLink(
-                                    //Check if the link is valid or not
-                                    links[index - 1].split(' ').first,
-                                  )
-                                  ? Column(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      children: [
-                                        // Show the link text
-                                        Padding(
-                                          padding: const EdgeInsets.fromLTRB(
-                                            22,
-                                            4,
-                                            22,
-                                            0,
-                                          ),
-                                          child: LinkifyText(
-                                            links[index - 1],
-                                            onTap: (link) {
-                                              launchUrl(
-                                                Uri.parse(link.value!),
-                                                mode: LaunchMode
-                                                    .externalApplication,
-                                              );
-                                            },
-                                            linkStyle: TextStyle(
-                                              color: Colors.blue[300],
-                                              fontFamily: 'GoogleSans',
-                                              fontSize: 16,
-                                            ),
-                                            maxLines: 2,
-                                            overflow: TextOverflow.ellipsis,
-                                          ),
+                              (() {
+                                final firstLink = LinkUtils.extractFirstLink(links[index - 1]);
+                                if (firstLink != null) {
+                                  return Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      // Show the link text
+                                      Padding(
+                                        padding: const EdgeInsets.fromLTRB(
+                                          22,
+                                          4,
+                                          22,
+                                          0,
                                         ),
-
-                                        // Show the link preview
-                                        LinkPreview(
-                                          requestTimeout: const Duration(
-                                            seconds: 10,
-                                          ),
-                                          minWidth: widget.isEmbedded
-                                              ? 400
-                                              : MediaQuery.of(
-                                                      context,
-                                                    ).size.width +
-                                                    50,
-                                          gap: 20,
-                                          backgroundColor: Colors.transparent,
-                                          sideBorderColor: Colors.transparent,
-                                          imageBuilder: (image) {
-                                            return Container(
-                                              decoration: BoxDecoration(
-                                                // Check if the image is a square or a rectangle
-                                                // if square -> curve is 10
-                                                // if rectangle -> curve is 30
-                                                borderRadius:
-                                                    previewMap
-                                                            .loadPreviewSync(
-                                                              links[index - 1],
-                                                              saveLocally: colors
-                                                                  .saveImagesLocally,
-                                                            )
-                                                            ?.image
-                                                            ?.height ==
-                                                        previewMap
-                                                            .loadPreviewSync(
-                                                              links[index - 1],
-                                                              saveLocally: colors
-                                                                  .saveImagesLocally,
-                                                            )
-                                                            ?.image
-                                                            ?.width
-                                                    ? BorderRadius.circular(
-                                                        10,
-                                                        // Square image
-                                                      )
-                                                    : BorderRadius.circular(
-                                                        30,
-                                                        // Rectangle image
-                                                      ),
-                                                image: DecorationImage(
-                                                  image:
-                                                      previewMap
-                                                              .localImagePaths[links[index -
-                                                              1]] !=
-                                                          null
-                                                      ? FileImage(
-                                                          File(
-                                                            previewMap
-                                                                .localImagePaths[links[index -
-                                                                1]]!,
-                                                          ),
-                                                        )
-                                                      : NetworkImage(image)
-                                                            as ImageProvider,
-                                                  fit: BoxFit.cover,
-                                                ),
-                                              ),
+                                        child: LinkifyText(
+                                          links[index - 1],
+                                          onTap: (link) {
+                                            launchUrl(
+                                              Uri.parse(link.value!),
+                                              mode: LaunchMode
+                                                  .externalApplication,
                                             );
                                           },
-                                          outsidePadding:
-                                              const EdgeInsets.fromLTRB(
-                                                10,
-                                                10,
-                                                10,
-                                                18,
-                                              ),
-                                          enableAnimation: true,
-
-                                          // Style of the head text
-                                          titleTextStyle: TextStyle(
-                                            color: colors.textClr,
-                                            fontWeight: FontWeight.bold,
-                                            fontSize: 32,
+                                          linkStyle: TextStyle(
+                                            color: Colors.blue[300],
                                             fontFamily: 'GoogleSans',
+                                            fontSize: 16,
                                           ),
-
-                                          // Style of the description text
-                                          descriptionTextStyle: TextStyle(
-                                            color: colors.textClr,
-                                            fontFamily: 'GoogleSans',
-                                            fontSize: 14,
-                                          ),
-
-                                          // Save the preview data locally when it is fetched
-                                          onLinkPreviewDataFetched:
-                                              (data) async {
-                                                await previewMap.savePreview(
-                                                  link: links[index - 1],
-                                                  data: data,
-                                                  saveLocally:
-                                                      colors.saveImagesLocally,
-                                                );
-                                              },
-
-                                          // Load from the previously saved data
-                                          linkPreviewData: previewMap
-                                              .loadPreviewSync(
-                                                links[index - 1],
-                                                saveLocally:
-                                                    colors.saveImagesLocally,
-                                              ),
-
-                                          // The link to be fetched
-                                          text: links[index - 1],
+                                          maxLines: 2,
+                                          overflow: TextOverflow.ellipsis,
                                         ),
-                                      ],
-                                    )
-                                  :
-                                    // If the link is not a valid URL, it is a normal note. Add it as is
-                                    Padding(
-                                      padding: const EdgeInsets.fromLTRB(
-                                        36,
-                                        14,
-                                        26,
-                                        26,
                                       ),
-                                      child: Text(
-                                        links[index - 1],
-                                        style: TextStyle(
+
+                                      // Show the link preview
+                                      LinkPreview(
+                                        requestTimeout: const Duration(
+                                          seconds: 10,
+                                        ),
+                                        minWidth: widget.isEmbedded
+                                            ? 400
+                                            : MediaQuery.of(
+                                                    context,
+                                                  ).size.width +
+                                                  50,
+                                        gap: 20,
+                                        backgroundColor: Colors.transparent,
+                                        sideBorderColor: Colors.transparent,
+                                        imageBuilder: (image) {
+                                          final preview = previewMap.loadPreviewSync(
+                                            firstLink,
+                                            saveLocally: colors.saveImagesLocally,
+                                          );
+                                          final isSquare = preview?.image?.height == preview?.image?.width;
+                                          return Container(
+                                            decoration: BoxDecoration(
+                                              borderRadius: isSquare
+                                                  ? BorderRadius.circular(10)
+                                                  : BorderRadius.circular(30),
+                                              image: DecorationImage(
+                                                image: previewMap.localImagePaths[firstLink] != null
+                                                    ? FileImage(
+                                                        File(
+                                                          previewMap
+                                                              .localImagePaths[firstLink]!,
+                                                        ),
+                                                      )
+                                                    : NetworkImage(image)
+                                                          as ImageProvider,
+                                                fit: BoxFit.cover,
+                                              ),
+                                            ),
+                                          );
+                                        },
+                                        outsidePadding:
+                                            const EdgeInsets.fromLTRB(
+                                              10,
+                                              10,
+                                              10,
+                                              18,
+                                            ),
+                                        enableAnimation: true,
+
+                                        // Style of the head text
+                                        titleTextStyle: TextStyle(
                                           color: colors.textClr,
                                           fontWeight: FontWeight.bold,
+                                          fontSize: 32,
                                           fontFamily: 'GoogleSans',
-                                          fontSize: 24,
                                         ),
+
+                                        // Style of the description text
+                                        descriptionTextStyle: TextStyle(
+                                          color: colors.textClr,
+                                          fontFamily: 'GoogleSans',
+                                          fontSize: 14,
+                                        ),
+
+                                        // Save the preview data locally when it is fetched
+                                        onLinkPreviewDataFetched:
+                                            (data) async {
+                                              await previewMap.savePreview(
+                                                link: firstLink,
+                                                data: data,
+                                                saveLocally:
+                                                    colors.saveImagesLocally,
+                                              );
+                                            },
+
+                                        // Load from the previously saved data
+                                        linkPreviewData: previewMap
+                                            .loadPreviewSync(
+                                              firstLink,
+                                              saveLocally:
+                                                  colors.saveImagesLocally,
+                                            ),
+
+                                        // The link to be fetched
+                                        text: firstLink,
+                                      ),
+                                    ],
+                                  );
+                                } else {
+                                  return Padding(
+                                    padding: const EdgeInsets.fromLTRB(
+                                      36,
+                                      14,
+                                      26,
+                                      26,
+                                    ),
+                                    child: Text(
+                                      links[index - 1],
+                                      style: TextStyle(
+                                        color: colors.textClr,
+                                        fontWeight: FontWeight.bold,
+                                        fontFamily: 'GoogleSans',
+                                        fontSize: 24,
                                       ),
                                     ),
+                                  );
+                                }
+                              })()
                             ],
                           ),
                         ),
