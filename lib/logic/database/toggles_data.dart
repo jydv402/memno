@@ -16,10 +16,14 @@ class TogglesData extends HiveObject {
   @HiveField(3, defaultValue: true)
   bool saveImagesLocally;
 
+  @HiveField(4, defaultValue: 'bottom')
+  String dockPlacement;
+
   TogglesData({
     this.darkMode = false,
     this.compactHeader = false,
     this.themeMode,
     this.saveImagesLocally = true,
+    this.dockPlacement = 'left',
   });
 }

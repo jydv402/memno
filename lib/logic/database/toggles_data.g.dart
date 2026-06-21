@@ -21,13 +21,14 @@ class TogglesDataAdapter extends TypeAdapter<TogglesData> {
       compactHeader: fields[1] as bool,
       themeMode: fields[2] as int?,
       saveImagesLocally: fields[3] == null ? true : fields[3] as bool,
+      dockPlacement: fields[4] == null ? 'left' : fields[4] as String,
     );
   }
 
   @override
   void write(BinaryWriter writer, TogglesData obj) {
     writer
-      ..writeByte(4)
+      ..writeByte(5)
       ..writeByte(0)
       ..write(obj.darkMode)
       ..writeByte(1)
@@ -35,7 +36,9 @@ class TogglesDataAdapter extends TypeAdapter<TogglesData> {
       ..writeByte(2)
       ..write(obj.themeMode)
       ..writeByte(3)
-      ..write(obj.saveImagesLocally);
+      ..write(obj.saveImagesLocally)
+      ..writeByte(4)
+      ..write(obj.dockPlacement);
   }
 
   @override

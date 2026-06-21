@@ -104,6 +104,5 @@ Future<void> checkAppUpdate(BuildContext context, bool showIfUpToDate) async {
     context,
     githubRepo: "jydv402/memno",
     showIfUpToDate: showIfUpToDate,
-    androidProviderAuthority: "com.jdmakes.memno.ota_update_provider",
   );
 }

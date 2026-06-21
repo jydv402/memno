@@ -35,13 +35,6 @@ class AppColors extends ChangeNotifier with WidgetsBindingObserver {
 
   Future<void> init() async {
     _togglesBox = await Hive.openBox<TogglesData>('togglesData');
-    
-    try {
-      final desktopBox = await Hive.openBox('desktopSettings');
-      _dockPlacement = desktopBox.get('dockPlacement', defaultValue: 'left') as String;
-    } catch (e) {
-      debugPrint('Error loading desktop settings: $e');
-    }
 
     TogglesData? togglesData = _togglesBox.get(0);
 
@@ -49,6 +42,7 @@ class AppColors extends ChangeNotifier with WidgetsBindingObserver {
       // Default to system
       _currentThemeMode = AppThemeMode.system;
       _saveImagesLocally = true;
+      _dockPlacement = 'left';
       await _togglesBox.put(
         0,
         TogglesData(
@@ -56,11 +50,13 @@ class AppColors extends ChangeNotifier with WidgetsBindingObserver {
           compactHeader: _isCompactHeader,
           themeMode: 0,
           saveImagesLocally: true,
+          dockPlacement: 'left',
         ),
       );
     } else {
       _isCompactHeader = togglesData.compactHeader;
       _saveImagesLocally = togglesData.saveImagesLocally;
+      _dockPlacement = togglesData.dockPlacement;
 
       // Migration and Load logic
       if (togglesData.themeMode != null) {
@@ -87,17 +83,17 @@ class AppColors extends ChangeNotifier with WidgetsBindingObserver {
     return _currentThemeMode == AppThemeMode.dark;
   }
 
+  // Getters for application properties
   bool get isCompactHeader => _isCompactHeader;
   bool get saveImagesLocally => _saveImagesLocally;
   String get dockPlacement => _dockPlacement;
 
   Future<void> setDockPlacement(String placement) async {
     _dockPlacement = placement;
-    try {
-      final desktopBox = await Hive.openBox('desktopSettings');
-      await desktopBox.put('dockPlacement', placement);
-    } catch (e) {
-      debugPrint('Error saving desktop settings: $e');
+    TogglesData? togglesData = _togglesBox.get(0);
+    if (togglesData != null) {
+      togglesData.dockPlacement = placement;
+      await togglesData.save();
     }
     notifyListeners();
   }

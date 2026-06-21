@@ -54,9 +54,10 @@ class _DesktopDockState extends State<DesktopDock> {
     super.dispose();
   }
 
+  // Starts or restarts the timer that will hide the dock after a delay
   void _startHideTimer() {
     _hideTimer?.cancel();
-    _hideTimer = Timer(const Duration(milliseconds: 2500), () {
+    _hideTimer = Timer(const Duration(milliseconds: 600), () {
       if (mounted) {
         setState(() {
           _isVisible = false;
@@ -96,7 +97,9 @@ class _DesktopDockState extends State<DesktopDock> {
         index: 0,
       ),
       _DockItem(
-        icon: widget.selectedIndex == 1 ? Icons.favorite : Icons.favorite_border_rounded,
+        icon: widget.selectedIndex == 1
+            ? Icons.favorite
+            : Icons.favorite_border_rounded,
         label: 'Liked Notes',
         index: 1,
       ),
@@ -106,7 +109,9 @@ class _DesktopDockState extends State<DesktopDock> {
         index: 2,
       ),
       _DockItem(
-        icon: widget.selectedIndex == 3 ? Icons.settings : Icons.settings_outlined,
+        icon: widget.selectedIndex == 3
+            ? Icons.settings
+            : Icons.settings_outlined,
         label: 'Settings',
         index: 3,
       ),
@@ -165,7 +170,9 @@ class _DesktopDockState extends State<DesktopDock> {
           fontWeight: FontWeight.w600,
         ),
         child: Material(
-          color: isSelected ? colors.accnt : colors.pill.withValues(alpha: 0.25),
+          color: isSelected
+              ? colors.accnt
+              : colors.pill.withValues(alpha: 0.25),
           shape: const CircleBorder(),
           clipBehavior: Clip.antiAlias,
           child: InkWell(
@@ -192,47 +199,91 @@ class _DesktopDockState extends State<DesktopDock> {
         ),
       );
 
-      children.add(
-        Padding(
-          padding: const EdgeInsets.all(4.0),
-          child: button,
-        ),
-      );
+      // Add the button with padding to the children list
+      children.add(Padding(padding: const EdgeInsets.all(4.0), child: button));
     }
 
     final dockBody = MouseRegion(
       onEnter: (_) => _onDockHoverEnter(),
       onExit: (_) => _onDockHoverExit(),
       child: ClipRRect(
-        borderRadius: BorderRadius.circular(32),
+        borderRadius: BorderRadius.circular(_isVisible ? 32 : 12),
         child: BackdropFilter(
           filter: ImageFilter.blur(sigmaX: 16, sigmaY: 16),
-          child: Container(
+          child: AnimatedContainer(
+            duration: const Duration(milliseconds: 200),
+            curve: Curves.easeOutCubic,
             decoration: BoxDecoration(
-              color: colors.box.withValues(alpha: 0.55),
-              borderRadius: BorderRadius.circular(32),
+              color: colors.box.withValues(alpha: _isVisible ? 0.55 : 0.35),
+              borderRadius: BorderRadius.circular(_isVisible ? 32 : 12),
               border: Border.all(
-                color: colors.textClr.withValues(alpha: 0.15),
+                color: colors.textClr.withValues(
+                  alpha: _isVisible ? 0.15 : 0.1,
+                ),
                 width: 1.2,
               ),
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withValues(alpha: 0.15),
-                  blurRadius: 24,
-                  offset: const Offset(0, 8),
+                  color: Colors.black.withValues(
+                    alpha: _isVisible ? 0.15 : 0.05,
+                  ),
+                  blurRadius: _isVisible ? 24 : 8,
+                  offset: _isVisible ? const Offset(0, 8) : const Offset(0, 2),
                 ),
               ],
             ),
-            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
-            child: isHorizontal
-                ? Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: children,
-                  )
-                : Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: children,
-                  ),
+            padding: EdgeInsets.symmetric(
+              horizontal: _isVisible ? 10 : (isHorizontal ? 32 : 8),
+              vertical: _isVisible ? 10 : (isHorizontal ? 8 : 32),
+            ),
+            child: AnimatedSize(
+              duration: const Duration(milliseconds: 200),
+              curve: Curves.easeOutBack,
+              child: AnimatedSwitcher(
+                duration: const Duration(milliseconds: 200),
+                switchInCurve: Curves.easeOut,
+                switchOutCurve: Curves.easeIn,
+                transitionBuilder: (child, animation) {
+                  return FadeTransition(
+                    opacity: animation,
+                    child: ScaleTransition(scale: animation, child: child),
+                  );
+                },
+                child: _isVisible
+                    ? KeyedSubtree(
+                        key: const ValueKey('full_dock'),
+                        child: isHorizontal
+                            ? Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: children,
+                              )
+                            : Column(
+                                mainAxisSize: MainAxisSize.min,
+                                children: children,
+                              ),
+                      )
+                    : KeyedSubtree(
+                        key: const ValueKey('collapsed_pill'),
+                        child: isHorizontal
+                            ? Container(
+                                width: 40,
+                                height: 4,
+                                decoration: BoxDecoration(
+                                  color: colors.textClr.withValues(alpha: 0.5),
+                                  borderRadius: BorderRadius.circular(2),
+                                ),
+                              )
+                            : Container(
+                                width: 4,
+                                height: 40,
+                                decoration: BoxDecoration(
+                                  color: colors.textClr.withValues(alpha: 0.5),
+                                  borderRadius: BorderRadius.circular(2),
+                                ),
+                              ),
+                      ),
+              ),
+            ),
           ),
         ),
       ),
@@ -244,78 +295,26 @@ class _DesktopDockState extends State<DesktopDock> {
     if (placement == 'bottom') {
       left = 0;
       right = 0;
-      bottom = _isVisible ? 20.0 : -88.0;
+      bottom = 20.0;
     } else if (placement == 'top') {
       left = 0;
       right = 0;
-      top = _isVisible ? 20.0 : -88.0;
+      top = 20.0;
     } else if (placement == 'left') {
       top = 0;
       bottom = 0;
-      left = _isVisible ? 20.0 : -88.0;
+      left = 20.0;
     } else if (placement == 'right') {
       top = 0;
       bottom = 0;
-      right = _isVisible ? 20.0 : -88.0;
-    }
-
-    // Build the hover sensor trigger
-    Widget? sensorWidget;
-    if (!_isVisible) {
-      const sensorColor = Colors.transparent;
-      if (placement == 'bottom') {
-        sensorWidget = Positioned(
-          bottom: 0,
-          left: 0,
-          right: 0,
-          height: 12,
-          child: MouseRegion(
-            onEnter: (_) => _onDockHoverEnter(),
-            child: Container(color: sensorColor),
-          ),
-        );
-      } else if (placement == 'top') {
-        sensorWidget = Positioned(
-          top: 0,
-          left: 0,
-          right: 0,
-          height: 12,
-          child: MouseRegion(
-            onEnter: (_) => _onDockHoverEnter(),
-            child: Container(color: sensorColor),
-          ),
-        );
-      } else if (placement == 'left') {
-        sensorWidget = Positioned(
-          left: 0,
-          top: 0,
-          bottom: 0,
-          width: 12,
-          child: MouseRegion(
-            onEnter: (_) => _onDockHoverEnter(),
-            child: Container(color: sensorColor),
-          ),
-        );
-      } else if (placement == 'right') {
-        sensorWidget = Positioned(
-          right: 0,
-          top: 0,
-          bottom: 0,
-          width: 12,
-          child: MouseRegion(
-            onEnter: (_) => _onDockHoverEnter(),
-            child: Container(color: sensorColor),
-          ),
-        );
-      }
+      right = 20.0;
     }
 
     return Stack(
       clipBehavior: Clip.none,
       children: [
-        ?sensorWidget,
         AnimatedPositioned(
-          duration: const Duration(milliseconds: 350),
+          duration: const Duration(milliseconds: 200),
           curve: Curves.easeOutBack,
           left: left,
           right: right,
