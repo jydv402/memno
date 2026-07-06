@@ -1,27 +1,22 @@
 import 'dart:ui';
 
 import 'package:flutter/material.dart';
-import 'package:hive/hive.dart';
-import 'package:memno/logic/database/toggles_data.dart';
+import 'app_settings.dart';
 
-enum AppThemeMode { system, light, dark }
+export 'app_settings.dart' show AppThemeMode;
 
+/// Provides theme colors for the application.
+/// Depends on [AppSettings] to determine when the dark mode layout should be active.
 class AppColors extends ChangeNotifier with WidgetsBindingObserver {
-  late Box<TogglesData> _togglesBox;
-
-  AppThemeMode _currentThemeMode = AppThemeMode.system;
-  bool _isCompactHeader = false;
-  bool _saveImagesLocally = true;
-  String _dockPlacement = 'left';
+  AppSettings? _settings;
 
   AppColors() {
-    init();
     WidgetsBinding.instance.addObserver(this);
   }
 
   @override
   void didChangePlatformBrightness() {
-    if (_currentThemeMode == AppThemeMode.system) {
+    if (_settings?.themeMode == AppThemeMode.system) {
       notifyListeners();
     }
     super.didChangePlatformBrightness();
@@ -33,109 +28,28 @@ class AppColors extends ChangeNotifier with WidgetsBindingObserver {
     super.dispose();
   }
 
-  Future<void> init() async {
-    _togglesBox = await Hive.openBox<TogglesData>('togglesData');
-
-    TogglesData? togglesData = _togglesBox.get(0);
-
-    if (togglesData == null) {
-      // Default to system
-      _currentThemeMode = AppThemeMode.system;
-      _saveImagesLocally = true;
-      _dockPlacement = 'left';
-      await _togglesBox.put(
-        0,
-        TogglesData(
-          darkMode: false,
-          compactHeader: _isCompactHeader,
-          themeMode: 0,
-          saveImagesLocally: true,
-          dockPlacement: 'left',
-        ),
-      );
-    } else {
-      _isCompactHeader = togglesData.compactHeader;
-      _saveImagesLocally = togglesData.saveImagesLocally;
-      _dockPlacement = togglesData.dockPlacement;
-
-      // Migration and Load logic
-      if (togglesData.themeMode != null) {
-        _currentThemeMode = AppThemeMode.values[togglesData.themeMode!];
-      } else {
-        // Migrate from old darkMode boolean
-        _currentThemeMode = togglesData.darkMode
-            ? AppThemeMode.dark
-            : AppThemeMode.light;
-
-        // Save the migrated value
-        togglesData.themeMode = _currentThemeMode.index;
-        await togglesData.save();
-      }
+  /// Updates the internal settings reference.
+  /// Notifies listeners *only* if the dark mode state actually toggles.
+  void update(AppSettings settings) {
+    final oldDarkMode = isDarkMode;
+    _settings = settings;
+    if (isDarkMode != oldDarkMode) {
+      notifyListeners();
     }
-    notifyListeners();
   }
 
-  AppThemeMode get themeMode => _currentThemeMode;
   bool get isDarkMode {
-    if (_currentThemeMode == AppThemeMode.system) {
+    if (_settings == null) {
       return PlatformDispatcher.instance.platformBrightness == Brightness.dark;
     }
-    return _currentThemeMode == AppThemeMode.dark;
-  }
-
-  // Getters for application properties
-  bool get isCompactHeader => _isCompactHeader;
-  bool get saveImagesLocally => _saveImagesLocally;
-  String get dockPlacement => _dockPlacement;
-
-  Future<void> setDockPlacement(String placement) async {
-    _dockPlacement = placement;
-    TogglesData? togglesData = _togglesBox.get(0);
-    if (togglesData != null) {
-      togglesData.dockPlacement = placement;
-      await togglesData.save();
+    if (_settings!.themeMode == AppThemeMode.system) {
+      return PlatformDispatcher.instance.platformBrightness == Brightness.dark;
     }
-    notifyListeners();
+    return _settings!.themeMode == AppThemeMode.dark;
   }
 
   final _light = LightColors();
   final _dark = DarkColors();
-
-  Future<void> setThemeMode(AppThemeMode mode) async {
-    _currentThemeMode = mode;
-    TogglesData? togglesData = _togglesBox.get(0);
-    if (togglesData != null) {
-      togglesData.themeMode = mode.index;
-      await togglesData.save();
-    }
-    notifyListeners();
-  }
-
-  Future<void> setSaveImagesLocally(bool value) async {
-    _saveImagesLocally = value;
-    TogglesData? togglesData = _togglesBox.get(0);
-    if (togglesData != null) {
-      togglesData.saveImagesLocally = value;
-      await togglesData.save();
-    }
-    notifyListeners();
-  }
-
-  Future<void> cycleThemeMode() async {
-    final nextIndex =
-        (_currentThemeMode.index + 1) % AppThemeMode.values.length;
-    await setThemeMode(AppThemeMode.values[nextIndex]);
-  }
-
-  Future<void> toggleCompactHeader() async {
-    _isCompactHeader = !_isCompactHeader;
-    TogglesData? togglesData = _togglesBox.get(0);
-    if (togglesData != null) {
-      togglesData.compactHeader = _isCompactHeader;
-      await togglesData.save();
-    }
-    notifyListeners();
-  }
 
   Color get bgClr => isDarkMode ? _dark.bgClr : _light.bgClr;
   Color get fgClr => isDarkMode ? _dark.fgClr : _light.fgClr;

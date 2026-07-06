@@ -95,12 +95,13 @@ class _DesktopSearchOverlayState extends State<DesktopSearchOverlay>
       return codeString.contains(queryLower) || heading.contains(queryLower);
     }).toList();
 
-    // Sort by date, most recent first.
-    filtered.sort((a, b) {
-      final aDate = DateTime.parse(codeGen.getDateForCode(a));
-      final bDate = DateTime.parse(codeGen.getDateForCode(b));
-      return bDate.compareTo(aDate);
-    });
+    // Sort by date, most recent first (Schwartzian transform)
+    final parsedDates = <int, DateTime>{};
+    for (final code in filtered) {
+      final dateStr = codeGen.getDateForCode(code);
+      parsedDates[code] = DateTime.tryParse(dateStr) ?? DateTime.fromMillisecondsSinceEpoch(0);
+    }
+    filtered.sort((a, b) => parsedDates[b]!.compareTo(parsedDates[a]!));
 
     setState(() {
       _results = filtered;

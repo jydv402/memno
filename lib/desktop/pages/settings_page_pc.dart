@@ -4,6 +4,7 @@ import 'package:memno/logic/functionality/code_gen.dart';
 import 'package:memno/logic/functionality/import_export.dart';
 import 'package:memno/logic/functionality/preview_map.dart';
 import 'package:memno/logic/theme/app_colors.dart';
+import 'package:memno/logic/theme/app_settings.dart';
 import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -22,6 +23,7 @@ class DesktopSettingsPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colors = Provider.of<AppColors>(context);
+    final settings = Provider.of<AppSettings>(context);
 
     return Scaffold(
       backgroundColor: colors.bgClr,
@@ -49,7 +51,7 @@ class DesktopSettingsPage extends StatelessWidget {
                 _buildSection(
                   colors: colors,
                   sectionTitle: 'Appearance',
-                  child: _buildAppearanceSection(context, colors),
+                  child: _buildAppearanceSection(context, colors, settings),
                 ),
 
                 const SizedBox(height: 24),
@@ -58,7 +60,7 @@ class DesktopSettingsPage extends StatelessWidget {
                 _buildSection(
                   colors: colors,
                   sectionTitle: 'Dock Layout',
-                  child: _buildDockLayoutSection(context, colors),
+                  child: _buildDockLayoutSection(context, colors, settings),
                 ),
 
                 const SizedBox(height: 24),
@@ -76,7 +78,7 @@ class DesktopSettingsPage extends StatelessWidget {
                 _buildSection(
                   colors: colors,
                   sectionTitle: 'Storage',
-                  child: _buildStorageSection(context, colors),
+                  child: _buildStorageSection(context, colors, settings),
                 ),
 
                 const SizedBox(height: 24),
@@ -146,8 +148,8 @@ class DesktopSettingsPage extends StatelessWidget {
 
   // Appearance
 
-  Widget _buildAppearanceSection(BuildContext context, AppColors colors) {
-    final themeMode = colors.themeMode;
+  Widget _buildAppearanceSection(BuildContext context, AppColors colors, AppSettings settings) {
+    final themeMode = settings.themeMode;
 
     IconData modeIcon;
     String modeLabel;
@@ -179,7 +181,7 @@ class DesktopSettingsPage extends StatelessWidget {
             ),
           ),
           OutlinedButton.icon(
-            onPressed: () => colors.cycleThemeMode(),
+            onPressed: () => settings.cycleThemeMode(),
             icon: Icon(modeIcon, size: 18),
             label: Text(
               modeLabel,
@@ -205,13 +207,13 @@ class DesktopSettingsPage extends StatelessWidget {
 
   // Dock Layout
 
-  Widget _buildDockLayoutSection(BuildContext context, AppColors colors) {
-    final placement = colors.dockPlacement;
+  Widget _buildDockLayoutSection(BuildContext context, AppColors colors, AppSettings settings) {
+    final placement = settings.dockPlacement;
 
     Widget buildPlacementButton(String value, String label, IconData icon) {
       final isSelected = placement == value;
       return OutlinedButton.icon(
-        onPressed: () => colors.setDockPlacement(value),
+        onPressed: () => settings.setDockPlacement(value),
         icon: Icon(
           icon,
           size: 18,
@@ -339,7 +341,7 @@ class DesktopSettingsPage extends StatelessWidget {
 
   // Storage
 
-  Widget _buildStorageSection(BuildContext context, AppColors colors) {
+  Widget _buildStorageSection(BuildContext context, AppColors colors, AppSettings settings) {
     return Column(
       spacing: 12,
       children: [
@@ -392,7 +394,6 @@ class DesktopSettingsPage extends StatelessWidget {
             ],
           ),
         ),
-        // Save Previews Locally toggle
         _settingsCard(
           colors,
           child: Row(
@@ -408,9 +409,9 @@ class DesktopSettingsPage extends StatelessWidget {
                 ),
               ),
               Switch(
-                value: context.watch<AppColors>().saveImagesLocally,
+                value: settings.saveImagesLocally,
                 onChanged: (val) async {
-                  await colors.setSaveImagesLocally(val);
+                  await settings.setSaveImagesLocally(val);
                 },
                 activeThumbColor: colors.accnt,
                 activeTrackColor: colors.accnt.withValues(alpha: 0.3),

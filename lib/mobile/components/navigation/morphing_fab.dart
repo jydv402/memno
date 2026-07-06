@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:memno/mobile/components/collapsed_inner_fab.dart';
-import 'package:memno/mobile/components/custom_inner_fab.dart';
+import 'package:memno/mobile/components/navigation/collapsed_inner_fab.dart';
+import 'package:memno/mobile/components/navigation/custom_inner_fab.dart';
 
 class MorphingFAB extends StatelessWidget {
   final bool isExpanded;

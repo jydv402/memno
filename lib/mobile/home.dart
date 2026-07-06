@@ -3,8 +3,9 @@ import 'dart:io' show Platform;
 
 import 'package:animations/animations.dart';
 import 'package:flutter/material.dart';
-import 'package:glassmorphism/glassmorphism.dart';
-import 'package:memno/mobile/pages/inner_page.dart';
+import 'package:memno/mobile/components/home_search_tile.dart';
+import 'package:memno/mobile/components/navigation/home_custom_fab.dart';
+import 'package:memno/mobile/components/home_top_accent_box.dart';
 import 'package:memno/mobile/pages/settings_page.dart';
 import 'package:memno/mobile/pages/share_target_page.dart';
 import 'package:memno/mobile/components/show_toast.dart';
@@ -130,12 +131,14 @@ class _HomePageState extends State<HomePage> {
             headString.contains(searchCodeLwr);
       }).toList();
     }
-    // Sort based on the date
-    filteredList.sort((a, b) {
-      final aDate = DateTime.parse(codeProvider.getDateForCode(a));
-      final bDate = DateTime.parse(codeProvider.getDateForCode(b));
-      return bDate.compareTo(aDate);
-    });
+    // Sort based on the date using Schwartzian transform (cache parses)
+    final parsedDates = <int, DateTime>{};
+    for (final code in filteredList) {
+      final dateStr = codeProvider.getDateForCode(code);
+      parsedDates[code] =
+          DateTime.tryParse(dateStr) ?? DateTime.fromMillisecondsSinceEpoch(0);
+    }
+    filteredList.sort((a, b) => parsedDates[b]!.compareTo(parsedDates[a]!));
 
     return filteredList;
   }
@@ -270,7 +273,14 @@ class _HomePageState extends State<HomePage> {
           return ScaleTransition(scale: animation, child: child);
         },
         child: isSearchBarVisible
-            ? subTileSearch(context)
+            ? SearchTile(
+                searchController: _searchController,
+                onSearch: _onSearch,
+                onPressed: () {
+                  switchSearchMode();
+                  clearState();
+                },
+              )
             : CustomFAB(
                 key: const ValueKey('fabToggle'),
                 onSearch: () {
@@ -331,243 +341,6 @@ class _HomePageState extends State<HomePage> {
           ),
         ),
       ],
-    );
-  }
-
-  Widget subTileSearch(BuildContext context) {
-    final colors = Provider.of<AppColors>(context);
-    return Padding(
-      key: const ValueKey('searchBar'),
-      padding: const EdgeInsets.fromLTRB(4, 0, 4, 0),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Expanded(
-            child: Container(
-              margin: const EdgeInsets.fromLTRB(2, 4, 2, 4),
-              padding: const EdgeInsets.fromLTRB(26, 0, 4, 0),
-              height: 75,
-              alignment: Alignment.center,
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(50),
-                color: colors.box,
-                border: Border.all(color: colors.search),
-              ),
-              child: TextField(
-                controller: _searchController,
-                autofocus: true,
-                onChanged: _onSearch,
-                maxLines: 1,
-                style: TextStyle(color: colors.fgClr, fontFamily: 'GoogleSans'),
-                decoration: InputDecoration(
-                  icon: const Icon(Icons.search_rounded),
-                  iconColor: colors.search,
-                  contentPadding: const EdgeInsets.symmetric(
-                    horizontal: 16,
-                    vertical: 8,
-                  ),
-                  border: InputBorder.none,
-                  focusedBorder: InputBorder.none,
-                  enabledBorder: InputBorder.none,
-                  errorBorder: InputBorder.none,
-                  disabledBorder: InputBorder.none,
-                ),
-              ),
-            ),
-          ),
-          const SizedBox(width: 4),
-          ElevatedButton(
-            style: ElevatedButton.styleFrom(
-              backgroundColor: colors.search,
-              shape: const CircleBorder(),
-              padding: const EdgeInsets.all(25),
-            ),
-            onPressed: () {
-              switchSearchMode();
-              clearState();
-            },
-            child: Icon(Icons.close_rounded, color: colors.box),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class CustomFAB extends StatelessWidget {
-  const CustomFAB({super.key, required this.onSearch});
-
-  final double radius = 50.0;
-  final double height = 100.0;
-  final double width = 200.0;
-  final VoidCallback onSearch;
-
-  @override
-  Widget build(BuildContext context) {
-    final colors = Provider.of<AppColors>(context);
-
-    return OpenContainer(
-      transitionType: ContainerTransitionType.fade,
-      openBuilder: (context, _) =>
-          InnerPage(code: context.read<CodeGen>().codeList.last),
-      closedElevation: 0,
-      closedShape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(radius + 10),
-      ),
-      closedColor: Colors.transparent,
-      openColor: colors.bgClr,
-      middleColor: colors.bgClr,
-      closedBuilder: (context, openContainer) => GlassmorphicContainer(
-        width: width,
-        height: height,
-        alignment: Alignment.center,
-        blur: 20,
-        borderRadius: radius + 10,
-        border: 2,
-        linearGradient: LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: [
-            const Color(0xFFffffff).withValues(alpha: 0.1),
-            const Color(0xFFFFFFFF).withValues(alpha: 0.05),
-          ],
-          stops: const [0.1, 1],
-        ),
-        borderGradient: LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: [
-            const Color(0xFFffffff).withValues(alpha: 0.5),
-            const Color((0xFFFFFFFF)).withValues(alpha: 0.5),
-          ],
-        ),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            const Spacer(),
-            ElevatedButton(
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.black,
-                foregroundColor: Colors.white,
-                shape: const CircleBorder(),
-                fixedSize: Size(height - 20, height - 20),
-              ),
-              onPressed: () {
-                context.read<CodeGen>().generateCode();
-                openContainer();
-              },
-              child: const Icon(Icons.add_rounded, size: 30),
-            ),
-            const Spacer(),
-            ElevatedButton(
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.black,
-                foregroundColor: Colors.white,
-                shape: const CircleBorder(),
-                fixedSize: Size(height - 20, height - 20),
-              ),
-              onPressed: onSearch,
-              child: const Icon(Icons.search_rounded, size: 30),
-            ),
-            const Spacer(),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-class TopAccentBox extends StatelessWidget {
-  const TopAccentBox({
-    super.key,
-    required this.colors,
-    required this.length,
-    required this.filter,
-    required this.customToggle,
-  });
-
-  final AppColors colors;
-  final int length;
-  final Filters filter;
-  final Widget customToggle;
-
-  @override
-  Widget build(BuildContext context) {
-    double width = MediaQuery.of(context).size.width;
-    return Container(
-      margin: const EdgeInsets.fromLTRB(2, 0, 2, 4),
-      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 20),
-      decoration: BoxDecoration(
-        borderRadius: const BorderRadius.all(Radius.circular(50.0)),
-        color: colors.accnt,
-      ),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          if (!colors.isCompactHeader) ...[
-            Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Padding(
-                  padding: const EdgeInsets.only(left: 10, top: 16),
-                  child: Text(
-                    "Hi,\nI'm Memno",
-                    style: TextStyle(
-                      fontFamily: 'GoogleSans',
-                      fontWeight: FontWeight.w700,
-                      fontSize: width * 0.11,
-                    ),
-                  ),
-                ),
-                Padding(
-                  padding: const EdgeInsets.only(right: 8, top: 16),
-                  child: Image.asset(
-                    'assets/memno_clear_blk.png',
-                    height: width * 0.25,
-                    width: width * 0.25,
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 24),
-          ],
-
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              // Toggle for All, Liked or Empty
-              Expanded(
-                child: Align(
-                  alignment: Alignment.centerLeft,
-                  child: FittedBox(
-                    fit: BoxFit.scaleDown,
-                    child: customToggle,
-                  ),
-                ),
-              ),
-              const SizedBox(width: 12),
-              // Total number of counts
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 18),
-                decoration: BoxDecoration(
-                  border: Border.all(color: Colors.black),
-                  color: colors.accntPill,
-                  borderRadius: BorderRadius.circular(50),
-                ),
-                child: Text(
-                  length == 1 ? '$length Code' : '$length Codes',
-                  textAlign: TextAlign.center,
-                  style: TextStyle(
-                    fontFamily: 'GoogleSans',
-                    color: colors.accntText,
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ],
-      ),
     );
   }
 }

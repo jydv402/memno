@@ -12,6 +12,7 @@ import 'package:memno/logic/functionality/preview_map.dart';
 import 'package:memno/desktop/desktop_shell.dart';
 import 'package:memno/mobile/home.dart';
 import 'package:memno/logic/theme/app_colors.dart';
+import 'package:memno/logic/theme/app_settings.dart';
 import 'package:provider/provider.dart';
 
 /// Global navigator key used by share intent handler to push ShareTargetPage.
@@ -54,7 +55,11 @@ void main() async {
       providers: [
         ChangeNotifierProvider(create: (context) => CodeGen()),
         ChangeNotifierProvider(create: (context) => PreviewMap()),
-        ChangeNotifierProvider(create: (context) => AppColors()),
+        ChangeNotifierProvider(create: (context) => AppSettings()),
+        ChangeNotifierProxyProvider<AppSettings, AppColors>(
+          create: (context) => AppColors(),
+          update: (context, settings, colors) => colors!..update(settings),
+        ),
       ],
       child: const MyApp(),
     ),

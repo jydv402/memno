@@ -7,6 +7,7 @@ import 'package:memno/logic/functionality/import_export.dart';
 import 'package:memno/logic/functionality/preview_map.dart';
 
 import 'package:memno/logic/theme/app_colors.dart';
+import 'package:memno/logic/theme/app_settings.dart';
 import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -17,6 +18,7 @@ class SettingsPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colors = Provider.of<AppColors>(context);
+    final settings = Provider.of<AppSettings>(context);
     return Scaffold(
       backgroundColor: colors.bgClr,
       appBar: AppBar(
@@ -30,19 +32,12 @@ class SettingsPage extends StatelessWidget {
           SettingsTitle(title: "Settings", textClr: colors.textClr),
           SettingsTile(
             title: "Appearance",
-            onTap: () => colors.cycleThemeMode(),
-            trailingIcon: colors.themeMode == AppThemeMode.system
+            onTap: () => settings.cycleThemeMode(),
+            trailingIcon: settings.themeMode == AppThemeMode.system
                 ? Icons.brightness_auto_rounded
-                : colors.themeMode == AppThemeMode.light
+                : settings.themeMode == AppThemeMode.light
                 ? Icons.light_mode_rounded
                 : Icons.dark_mode_rounded,
-          ),
-          SettingsTile(
-            title: "Compact Header",
-            value: context.watch<AppColors>().isCompactHeader,
-            onChanged: (_) async {
-              await colors.toggleCompactHeader();
-            },
           ),
           // Settings for Data
           SettingsTitle(title: "Data", textClr: colors.textClr),
@@ -74,9 +69,9 @@ class SettingsPage extends StatelessWidget {
           // Settings for saving previews locally
           SettingsTile(
             title: "Save Previews Locally",
-            value: context.watch<AppColors>().saveImagesLocally,
+            value: settings.saveImagesLocally,
             onChanged: (val) async {
-              await colors.setSaveImagesLocally(val);
+              await settings.setSaveImagesLocally(val);
             },
           ),
           // Settings for showing the storage used and to clear the cache

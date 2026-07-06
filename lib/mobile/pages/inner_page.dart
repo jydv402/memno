@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:memno/mobile/components/inner_page_tile.dart';
-import 'package:memno/mobile/components/morphing_fab.dart';
+import 'package:memno/mobile/components/navigation/morphing_fab.dart';
 import 'package:memno/mobile/components/inner_page_top_bar.dart';
 import 'package:memno/mobile/components/show_toast.dart';
 import 'package:memno/logic/functionality/code_gen.dart';

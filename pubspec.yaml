@@ -50,7 +50,6 @@ dependencies:
   # UI, Design & Animations
   cupertino_icons: ^1.0.6
   glassmorphism: ^3.0.0
-  liquid_glass_easy: ^3.2.2
   animations: ^2.1.1
   delightful_toast: ^1.1.0
 

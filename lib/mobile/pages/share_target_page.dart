@@ -53,12 +53,13 @@ class _ShareTargetPageState extends State<ShareTargetPage> {
       }).toList();
     }
 
-    // Sort by date, most recent first
-    codes.sort((a, b) {
-      final aDate = DateTime.parse(codeProvider.getDateForCode(a));
-      final bDate = DateTime.parse(codeProvider.getDateForCode(b));
-      return bDate.compareTo(aDate);
-    });
+    // Sort by date, most recent first (Schwartzian transform)
+    final parsedDates = <int, DateTime>{};
+    for (final code in codes) {
+      final dateStr = codeProvider.getDateForCode(code);
+      parsedDates[code] = DateTime.tryParse(dateStr) ?? DateTime.fromMillisecondsSinceEpoch(0);
+    }
+    codes.sort((a, b) => parsedDates[b]!.compareTo(parsedDates[a]!));
 
     return codes;
   }

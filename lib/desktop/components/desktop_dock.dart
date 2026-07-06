@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:memno/logic/theme/app_colors.dart';
+import 'package:memno/logic/theme/app_settings.dart';
 import 'package:provider/provider.dart';
 
 class _DockItem {
@@ -86,7 +87,7 @@ class _DesktopDockState extends State<DesktopDock> {
   @override
   Widget build(BuildContext context) {
     final colors = Provider.of<AppColors>(context);
-    final String placement = colors.dockPlacement;
+    final String placement = Provider.of<AppSettings>(context).dockPlacement;
 
     final isHorizontal = placement == 'bottom' || placement == 'top';
 

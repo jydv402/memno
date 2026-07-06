@@ -1,11 +1,13 @@
 import 'dart:io' show File;
 
 import 'package:flutter/material.dart';
+import 'package:flutter_chat_core/flutter_chat_core.dart';
 import 'package:flutter_link_previewer/flutter_link_previewer.dart';
 import 'package:linkfy_text/linkfy_text.dart';
 import 'package:memno/logic/functionality/link_utils.dart';
 import 'package:memno/logic/functionality/preview_map.dart';
 import 'package:memno/logic/theme/app_colors.dart';
+import 'package:memno/logic/theme/app_settings.dart';
 import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -149,7 +151,8 @@ class _NoteCardState extends State<NoteCard> {
           ),
         );
       }
-      final previewMap = Provider.of<PreviewMap>(context);
+      final previewMap = Provider.of<PreviewMap>(context, listen: false);
+      final saveImagesLocally = Provider.of<AppSettings>(context, listen: false).saveImagesLocally;
       return Padding(
         padding: const EdgeInsets.only(bottom: 8),
         child: Column(
@@ -182,60 +185,64 @@ class _NoteCardState extends State<NoteCard> {
               ),
             ),
             const SizedBox(height: 8),
-            LinkPreview(
-              requestTimeout: const Duration(seconds: 10),
-              minWidth: 280,
-              gap: 12,
-              backgroundColor: Colors.transparent,
-              sideBorderColor: Colors.transparent,
-              imageBuilder: (image) {
-                final preview = previewMap.loadPreviewSync(
-                  firstLink,
-                  saveLocally: colors.saveImagesLocally,
-                );
-                final isSquare =
-                    preview?.image?.height == preview?.image?.width;
-                return Container(
-                  decoration: BoxDecoration(
-                    borderRadius: isSquare
-                        ? BorderRadius.circular(10)
-                        : BorderRadius.circular(16),
-                    image: DecorationImage(
-                      image: previewMap.localImagePaths[firstLink] != null
-                          ? FileImage(
-                              File(previewMap.localImagePaths[firstLink]!),
-                            )
-                          : NetworkImage(image) as ImageProvider,
-                      fit: BoxFit.cover,
-                    ),
+            // Show the link preview (rebuild isolated)
+            Selector<PreviewMap, LinkPreviewData?>(
+              selector: (context, pm) {
+                if (!pm.cache.containsKey(firstLink)) {
+                  pm.loadPreviewSync(firstLink, saveLocally: saveImagesLocally);
+                }
+                return pm.cache[firstLink];
+              },
+              builder: (context, previewData, child) {
+                return LinkPreview(
+                  requestTimeout: const Duration(seconds: 10),
+                  minWidth: 280,
+                  gap: 12,
+                  backgroundColor: Colors.transparent,
+                  sideBorderColor: Colors.transparent,
+                  imageBuilder: (image) {
+                    final isSquare =
+                        previewData?.image?.height == previewData?.image?.width;
+                    return Container(
+                      decoration: BoxDecoration(
+                        borderRadius: isSquare
+                            ? BorderRadius.circular(10)
+                            : BorderRadius.circular(16),
+                        image: DecorationImage(
+                          image: previewMap.localImagePaths[firstLink] != null
+                              ? FileImage(
+                                  File(previewMap.localImagePaths[firstLink]!),
+                                )
+                              : NetworkImage(image) as ImageProvider,
+                          fit: BoxFit.cover,
+                        ),
+                      ),
+                    );
+                  },
+                  outsidePadding: const EdgeInsets.symmetric(vertical: 4),
+                  enableAnimation: true,
+                  titleTextStyle: TextStyle(
+                    color: colors.textClr,
+                    fontWeight: FontWeight.bold,
+                    fontSize: 16,
+                    fontFamily: 'GoogleSans',
                   ),
+                  descriptionTextStyle: TextStyle(
+                    color: colors.textClr.withValues(alpha: 0.7),
+                    fontFamily: 'GoogleSans',
+                    fontSize: 12,
+                  ),
+                  onLinkPreviewDataFetched: (data) async {
+                    await previewMap.savePreview(
+                      link: firstLink,
+                      data: data,
+                      saveLocally: saveImagesLocally,
+                    );
+                  },
+                  linkPreviewData: previewData,
+                  text: firstLink,
                 );
               },
-              outsidePadding: const EdgeInsets.symmetric(vertical: 4),
-              enableAnimation: true,
-              titleTextStyle: TextStyle(
-                color: colors.textClr,
-                fontWeight: FontWeight.bold,
-                fontSize: 16,
-                fontFamily: 'GoogleSans',
-              ),
-              descriptionTextStyle: TextStyle(
-                color: colors.textClr.withValues(alpha: 0.7),
-                fontFamily: 'GoogleSans',
-                fontSize: 12,
-              ),
-              onLinkPreviewDataFetched: (data) async {
-                await previewMap.savePreview(
-                  link: firstLink,
-                  data: data,
-                  saveLocally: colors.saveImagesLocally,
-                );
-              },
-              linkPreviewData: previewMap.loadPreviewSync(
-                firstLink,
-                saveLocally: colors.saveImagesLocally,
-              ),
-              text: firstLink,
             ),
           ],
         ),
