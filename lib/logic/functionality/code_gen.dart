@@ -15,9 +15,30 @@ class CodeGen extends ChangeNotifier {
     init();
   }
 
-  /// Initializes Hive database box.
+  /// Initializes Hive database box and migrates legacy auto-increment keys
+  /// to use the unique 6-digit code as the key.
   Future<void> init() async {
     _codeBox = await Hive.openBox<CodeData>('codeData');
+    
+    // Migration: ensure all keys are the code itself
+    try {
+      final keys = List.from(_codeBox.keys);
+      bool migrated = false;
+      for (final key in keys) {
+        final value = _codeBox.get(key);
+        if (value != null && key != value.code) {
+          await _codeBox.delete(key);
+          await _codeBox.put(value.code, value);
+          migrated = true;
+        }
+      }
+      if (migrated) {
+        debugPrint('Migration completed: All Hive keys are now the unique 6-digit codes.');
+      }
+    } catch (e, st) {
+      debugPrint('CodeGen Migration error: $e\n$st');
+    }
+
     _isReady = true;
     notifyListeners();
   }
@@ -25,7 +46,7 @@ class CodeGen extends ChangeNotifier {
   bool get isReady => _isReady;
 
   List<int> get codeList {
-    return _codeBox.values.map((codeData) => codeData.code).toList();
+    return _codeBox.keys.cast<int>().toList();
   }
 
   /// Generates unique 6-digit note page code.
@@ -34,9 +55,10 @@ class CodeGen extends ChangeNotifier {
     int code;
     do {
       code = 100000 + (rnd.nextInt(900000));
-    } while (_codeBox.values.any((codeData) => codeData.code == code));
+    } while (_codeBox.containsKey(code));
 
-    await _codeBox.add(
+    await _codeBox.put(
+      code,
       CodeData(code, [], DateTime.now().toString(), false, "Untitled"),
     );
     notifyListeners();
@@ -44,51 +66,28 @@ class CodeGen extends ChangeNotifier {
 
   /// Deletes a specific note page code and its contents.
   Future<void> clearList(int code) async {
-    final key = _codeBox.keys.cast<dynamic>().firstWhere(
-      (key) => _codeBox.get(key)?.code == code,
-      orElse: () => null,
-    );
-    if (key == null) return;
-    await _codeBox.delete(key);
+    await _codeBox.delete(code);
     notifyListeners();
   }
 
   /// Returns the length of the link/entry list for a code.
   int getLinkListLength(int code) {
-    final codeData = _codeBox.values.firstWhere(
-      (codeData) => codeData.code == code,
-      orElse: () => CodeData(code, [], "", false, ""),
-    );
-    //orElse: () => CodeData(code, [], date, liked, head));
-    return codeData.links.length;
+    return _codeBox.get(code)?.links.length ?? 0;
   }
 
   /// Returns the date string for a code.
   String getDateForCode(int code) {
-    final codeData = _codeBox.values.firstWhere(
-      (codeData) => codeData.code == code,
-      orElse: () => CodeData(code, [], "", false, ""),
-    );
-    //orElse: () => CodeData(code, [], date, liked, head));
-
-    return codeData.date;
+    return _codeBox.get(code)?.date ?? "";
   }
 
   /// Returns the liked/favorite status for a code.
   bool getLikeForCode(int code) {
-    final codeData = _codeBox.values.firstWhere(
-      (codeData) => codeData.code == code,
-      orElse: () => CodeData(code, [], "", false, ""),
-    );
-    //orElse: () => CodeData(code, [], date, liked, head));
-    return codeData.liked;
+    return _codeBox.get(code)?.liked ?? false;
   }
 
   /// Toggles the liked/favorite status for a code.
   Future<void> toggleLike(int code) async {
-    final codeData = _codeBox.values
-        .where((codeData) => codeData.code == code)
-        .firstOrNull;
+    final codeData = _codeBox.get(code);
     if (codeData == null) return;
     codeData.liked = !codeData.liked;
     await codeData.save();
@@ -97,20 +96,12 @@ class CodeGen extends ChangeNotifier {
 
   /// Returns the list of links/entries for a code.
   List<String> getLinksForCode(int code) {
-    final codeData = _codeBox.values.firstWhere(
-      (codeData) => codeData.code == code,
-      orElse: () => CodeData(code, [], "", false, ""),
-    );
-    //orElse: () => CodeData(code, [], date, liked, head));
-
-    return codeData.links;
+    return _codeBox.get(code)?.links ?? [];
   }
 
   /// Updates heading/title text for a code.
   Future<void> addHead(int code, String head) async {
-    final codeData = _codeBox.values
-        .where((codeData) => codeData.code == code)
-        .firstOrNull;
+    final codeData = _codeBox.get(code);
     if (codeData == null) return;
     codeData.head = head;
     codeData.date = DateTime.now().toString();
@@ -120,19 +111,12 @@ class CodeGen extends ChangeNotifier {
 
   /// Returns the heading/title text for a code.
   String getHeadForCode(int code) {
-    final codeData = _codeBox.values.firstWhere(
-      (codeData) => codeData.code == code,
-      orElse: () => CodeData(code, [], "", false, "Untitled"),
-    );
-    //orElse: () => CodeData(code, [], date, liked, head));
-    return codeData.head;
+    return _codeBox.get(code)?.head ?? "Untitled";
   }
 
   /// Adds a link/entry to a specific note code.
   Future<void> addLink(int code, String link) async {
-    final codeData = _codeBox.values
-        .where((codeData) => codeData.code == code)
-        .firstOrNull;
+    final codeData = _codeBox.get(code);
     if (codeData == null) return;
     codeData.links.add(link);
     codeData.date = DateTime.now().toString();
@@ -142,9 +126,7 @@ class CodeGen extends ChangeNotifier {
 
   /// Edits a link/entry at a given index within a specific note code.
   Future<void> editLink(int code, int index, String newLink) async {
-    final codeData = _codeBox.values
-        .where((codeData) => codeData.code == code)
-        .firstOrNull;
+    final codeData = _codeBox.get(code);
     if (codeData == null) return;
     if (codeData.links.length > index) {
       codeData.links[index] = newLink;
@@ -156,9 +138,7 @@ class CodeGen extends ChangeNotifier {
 
   /// Deletes a link/entry at a given index within a specific note code.
   Future<void> deleteLink(int code, int index) async {
-    final codeData = _codeBox.values
-        .where((codeData) => codeData.code == code)
-        .firstOrNull;
+    final codeData = _codeBox.get(code);
     if (codeData == null) return;
     if (codeData.links.length > index) {
       codeData.links.removeAt(index);
