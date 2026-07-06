@@ -29,11 +29,12 @@ class AppColors extends ChangeNotifier with WidgetsBindingObserver {
   }
 
   /// Updates the internal settings reference.
-  /// Notifies listeners *only* if the dark mode state actually toggles.
+  /// Notifies listeners if the dark mode state or theme mode setting changes.
   void update(AppSettings settings) {
     final oldDarkMode = isDarkMode;
+    final oldThemeMode = _settings?.themeMode;
     _settings = settings;
-    if (isDarkMode != oldDarkMode) {
+    if (isDarkMode != oldDarkMode || settings.themeMode != oldThemeMode) {
       notifyListeners();
     }
   }

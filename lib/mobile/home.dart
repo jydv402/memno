@@ -202,8 +202,8 @@ class _HomePageState extends State<HomePage> {
           openBuilder: (context, _) => const SettingsPage(),
           closedElevation: 0,
           closedColor: Colors.transparent,
-          openColor: colors.bgClr,
-          middleColor: colors.bgClr,
+          openColor: Theme.of(context).scaffoldBackgroundColor,
+          middleColor: Theme.of(context).scaffoldBackgroundColor,
           closedBuilder: (context, openContainer) => IconButton(
             onPressed: openContainer,
             icon: const Icon(Icons.menu_rounded),
@@ -301,6 +301,7 @@ class _HomePageState extends State<HomePage> {
       selectedBorderColor: Colors.black,
       selectedColor: colors.accntText,
       fillColor: colors.accntPill,
+      color: Colors.black,
       direction: Axis.horizontal,
       onPressed: (int index) {
         setState(() {

@@ -97,9 +97,16 @@ class SettingsPage extends StatelessWidget {
             },
           ),
           // About section
-          SettingsTitle(title: "About", textClr: colors.textClr),
+          SettingsTitle(title: "Support", textClr: colors.textClr),
           SettingsTile(
-            title: "Find Memno on GitHub",
+            title: "Sponsor the Developer",
+            onTap: () {
+              launchUrl(Uri.parse("https://github.com/sponsors/jydv402"));
+            },
+            trailingIcon: Icons.favorite_border_rounded,
+          ),
+          SettingsTile(
+            title: "Star Memno on GitHub",
             onTap: () {
               launchUrl(Uri.parse("https://github.com/jydv402/memno"));
             },

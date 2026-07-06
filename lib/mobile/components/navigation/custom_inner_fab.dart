@@ -28,27 +28,18 @@ class CustomInnerFAB extends StatelessWidget {
     final colors = Provider.of<AppColors>(context);
 
     return SingleChildScrollView(
-      physics: const NeverScrollableScrollPhysics(),
+      physics: const BouncingScrollPhysics(),
       child: Column(
         mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          SizedBox(
-            height: 50,
-            width: double.infinity,
-            child: SingleChildScrollView(
-              scrollDirection: Axis.horizontal,
-              physics: const BouncingScrollPhysics(),
-              child: Row(
-                spacing: 8,
-                children: [
-                  PillButton(
-                    label: "Collapse",
-                    icon: Icons.keyboard_arrow_down_rounded,
-                    onPressed: onCollapse,
-                  ),
-                ],
-              ),
-            ),
+          PillButton(
+            label: "Collapse",
+            icon: Icons.keyboard_arrow_down_rounded,
+            onPressed: onCollapse,
+            backgroundColor: colors.accnt,
+            foregroundColor: Colors.black,
+            iconColor: Colors.black,
           ),
           const SizedBox(height: 8),
           Container(
@@ -115,7 +106,7 @@ class CustomInnerFAB extends StatelessWidget {
                           isEditMode == 0
                               ? Icons.add_rounded
                               : Icons.check_rounded,
-                          color: Colors.green,
+                          color: colors.accnt,
                         ),
                       ),
                       const Spacer(),

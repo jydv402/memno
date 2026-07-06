@@ -75,13 +75,44 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colors = Provider.of<AppColors>(context);
+    final settings = Provider.of<AppSettings>(context);
     return MaterialApp(
       navigatorKey: navigatorKey,
       title: 'Memno',
       debugShowCheckedModeBanner: false,
       home: _isDesktopPlatform ? const DesktopShell() : const HomePage(),
+      themeMode: switch (settings.themeMode) {
+        AppThemeMode.system => ThemeMode.system,
+        AppThemeMode.light => ThemeMode.light,
+        AppThemeMode.dark => ThemeMode.dark,
+      },
       theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: colors.accnt),
+        brightness: Brightness.light,
+        colorScheme: ColorScheme.fromSeed(
+          seedColor: colors.accnt,
+          brightness: Brightness.light,
+        ),
+        scaffoldBackgroundColor: colors.bgClr,
+        canvasColor: colors.bgClr,
+        elevatedButtonTheme: ElevatedButtonThemeData(
+          style: ButtonStyle(
+            overlayColor: WidgetStateProperty.all(
+              colors.accnt.withValues(alpha: 0.025),
+            ),
+          ),
+        ),
+        textSelectionTheme: TextSelectionThemeData(
+          cursorColor: colors.fgClr,
+          selectionColor: colors.accnt.withValues(alpha: 0.25),
+          selectionHandleColor: colors.fgClr,
+        ),
+      ),
+      darkTheme: ThemeData(
+        brightness: Brightness.dark,
+        colorScheme: ColorScheme.fromSeed(
+          seedColor: colors.accnt,
+          brightness: Brightness.dark,
+        ),
         scaffoldBackgroundColor: colors.bgClr,
         canvasColor: colors.bgClr,
         elevatedButtonTheme: ElevatedButtonThemeData(

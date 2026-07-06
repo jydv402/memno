@@ -39,8 +39,8 @@ class _SubTileStackState extends State<SubTileStack> {
       openBuilder: (context, _) => InnerPage(code: widget.code),
       closedElevation: 0,
       closedColor: Colors.transparent,
-      openColor: colors.bgClr,
-      middleColor: colors.bgClr,
+      openColor: Theme.of(context).scaffoldBackgroundColor,
+      middleColor: Theme.of(context).scaffoldBackgroundColor,
       closedShape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(radius),
       ),
