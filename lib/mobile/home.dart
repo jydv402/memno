@@ -495,55 +495,61 @@ class TopAccentBox extends StatelessWidget {
   Widget build(BuildContext context) {
     double width = MediaQuery.of(context).size.width;
     return Container(
-      height: colors.isCompactHeader ? width * 0.236 : width * 0.585,
       margin: const EdgeInsets.fromLTRB(2, 0, 2, 4),
-      padding: EdgeInsets.symmetric(horizontal: 16),
+      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 20),
       decoration: BoxDecoration(
         borderRadius: const BorderRadius.all(Radius.circular(50.0)),
         color: colors.accnt,
       ),
       child: Column(
+        mainAxisSize: MainAxisSize.min,
         children: [
-          if (!colors.isCompactHeader)
-            Expanded(
-              child: Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Padding(
-                    padding: const EdgeInsets.only(left: 10, top: 22),
-                    child: Text(
-                      "Hi,\nI'm Memno",
-                      style: TextStyle(
-                        fontFamily: 'GoogleSans',
-                        fontWeight: FontWeight.w700,
-                        fontSize: width * 0.11,
-                      ),
+          if (!colors.isCompactHeader) ...[
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Padding(
+                  padding: const EdgeInsets.only(left: 10, top: 16),
+                  child: Text(
+                    "Hi,\nI'm Memno",
+                    style: TextStyle(
+                      fontFamily: 'GoogleSans',
+                      fontWeight: FontWeight.w700,
+                      fontSize: width * 0.11,
                     ),
                   ),
-                  Padding(
-                    padding: const EdgeInsets.only(right: 8, top: 38),
-                    child: Image.asset(
-                      'assets/memno_clear_blk.png',
-                      height: width * 0.25,
-                      width: width * 0.25,
-                    ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.only(right: 8, top: 16),
+                  child: Image.asset(
+                    'assets/memno_clear_blk.png',
+                    height: width * 0.25,
+                    width: width * 0.25,
                   ),
-                ],
-              ),
-            )
-          else
-            const Spacer(),
+                ),
+              ],
+            ),
+            const SizedBox(height: 24),
+          ],
 
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               // Toggle for All, Liked or Empty
-              customToggle,
+              Expanded(
+                child: Align(
+                  alignment: Alignment.centerLeft,
+                  child: FittedBox(
+                    fit: BoxFit.scaleDown,
+                    child: customToggle,
+                  ),
+                ),
+              ),
+              const SizedBox(width: 12),
               // Total number of counts
               Container(
-                width: width * 0.26,
-                padding: const EdgeInsets.all(20),
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 18),
                 decoration: BoxDecoration(
                   border: Border.all(color: Colors.black),
                   color: colors.accntPill,
@@ -560,8 +566,6 @@ class TopAccentBox extends StatelessWidget {
               ),
             ],
           ),
-          if (colors.isCompactHeader) const Spacer(),
-          if (!colors.isCompactHeader) SizedBox(height: 16),
         ],
       ),
     );
