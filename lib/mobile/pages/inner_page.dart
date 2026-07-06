@@ -63,7 +63,9 @@ class _InnerPageState extends State<InnerPage>
                 )
               // Otherwise, show the list of links with previews
               : ListView.builder(
-                  padding: const EdgeInsets.only(bottom: 160),
+                  padding: .only(
+                    bottom: MediaQuery.of(context).size.height * 0.30,
+                  ),
                   itemCount: links.length + 1,
                   itemBuilder: (context, index) {
                     if (index == 0) {
@@ -79,20 +81,14 @@ class _InnerPageState extends State<InnerPage>
                           setState(() {
                             _isEditMode = 1;
                             _editIndex = index - 1;
-                            _linkController.text =
-                                links[index - 1];
+                            _linkController.text = links[index - 1];
                             _isFabExpanded = true;
                           });
-                          Future.delayed(
-                            const Duration(milliseconds: 300),
-                            () {
-                              if (context.mounted) {
-                                FocusScope.of(
-                                  context,
-                                ).requestFocus(_fabFocus);
-                              }
-                            },
-                          );
+                          Future.delayed(const Duration(milliseconds: 300), () {
+                            if (context.mounted) {
+                              FocusScope.of(context).requestFocus(_fabFocus);
+                            }
+                          });
                         },
                       );
                     }

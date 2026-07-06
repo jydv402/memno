@@ -18,6 +18,14 @@ class LinkUtils {
     return null;
   }
 
+  /// Cleans the input [val] by removing the specified [link] and any leading/trailing punctuation or whitespace.
+  /// Returns the cleaned string.
+  static String cleanText(String val, String link) {
+    final t = val.replaceFirst(link, '').trim();
+    final pattern = RegExp(r'^[:\-\|\s,;]+|[:\-\|\s,;]+$');
+    return t.replaceAll(pattern, '').trim();
+  }
+
   /// Returns true if [text] contains at least one valid URL.
   static bool hasLink(String text) {
     return extractFirstLink(text) != null;

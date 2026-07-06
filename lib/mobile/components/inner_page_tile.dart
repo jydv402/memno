@@ -3,7 +3,6 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_link_previewer/flutter_link_previewer.dart';
-import 'package:linkfy_text/linkfy_text.dart';
 import 'package:memno/logic/functionality/code_gen.dart';
 import 'package:memno/logic/functionality/link_utils.dart';
 import 'package:memno/logic/functionality/preview_map.dart';
@@ -34,7 +33,7 @@ class InnerPageTile extends StatelessWidget {
   Widget build(BuildContext context) {
     final colors = Provider.of<AppColors>(context);
     final previewMap = Provider.of<PreviewMap>(context);
-    final link = LinkUtils.extractFirstLink(value);
+    final firstLink = LinkUtils.extractFirstLink(value);
 
     return Container(
       key: ValueKey(value),
@@ -71,13 +70,13 @@ class InnerPageTile extends StatelessWidget {
                     ),
 
                     // Open Link Button
-                    if (link != null)
+                    if (firstLink != null)
                       PillButton(
                         label: "Open Link",
                         icon: Icons.public,
                         onPressed: () {
                           launchUrl(
-                            Uri.parse(LinkUtils.normalizeUrl(link)),
+                            Uri.parse(LinkUtils.normalizeUrl(firstLink)),
                             mode: LaunchMode.externalApplication,
                           );
                         },
@@ -148,9 +147,6 @@ class InnerPageTile extends StatelessWidget {
                               TextButton(
                                 onPressed: () {
                                   Navigator.pop(dialogContext);
-                                  final firstLink = LinkUtils.extractFirstLink(
-                                    value,
-                                  );
                                   if (firstLink != null) {
                                     context
                                         .read<PreviewMap>()
@@ -182,31 +178,50 @@ class InnerPageTile extends StatelessWidget {
             ),
             // Content section below the button bar
             (() {
-              final firstLink = LinkUtils.extractFirstLink(value);
               if (firstLink != null) {
+                final text = LinkUtils.cleanText(value, firstLink);
                 return Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    // Show the link text
+                    // Show the link text on top
                     Padding(
                       padding: const EdgeInsets.fromLTRB(22, 4, 22, 0),
-                      child: LinkifyText(
-                        value,
-                        onTap: (link) {
+                      child: InkWell(
+                        onTap: () {
                           launchUrl(
-                            Uri.parse(LinkUtils.normalizeUrl(link.value!)),
+                            Uri.parse(LinkUtils.normalizeUrl(firstLink)),
                             mode: LaunchMode.externalApplication,
                           );
                         },
-                        linkStyle: TextStyle(
-                          color: Colors.blue[300],
-                          fontFamily: 'GoogleSans',
-                          fontSize: 16,
+                        child: Text(
+                          firstLink,
+                          style: TextStyle(
+                            color: Colors.blue[300],
+                            fontFamily: 'GoogleSans',
+                            fontSize: 16,
+                            decoration: TextDecoration.underline,
+                            decorationColor: Colors.blue[300],
+                          ),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
                         ),
-                        maxLines: 2,
-                        overflow: TextOverflow.ellipsis,
                       ),
                     ),
+
+                    // Show the description text after the link (if present)
+                    if (text.isNotEmpty)
+                      Padding(
+                        padding: const EdgeInsets.fromLTRB(22, 8, 22, 0),
+                        child: Text(
+                          text,
+                          style: TextStyle(
+                            color: colors.textClr,
+                            fontFamily: 'GoogleSans',
+                            fontSize: 24,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ),
 
                     // Show the link preview
                     LinkPreview(
