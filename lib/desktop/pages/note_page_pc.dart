@@ -192,7 +192,8 @@ class _DesktopNotePageState extends State<DesktopNotePage> {
   void _openUrl(String url) {
     final firstLink = LinkUtils.extractFirstLink(url);
     if (firstLink != null) {
-      final uri = Uri.tryParse(firstLink);
+      final normalized = LinkUtils.normalizeUrl(firstLink);
+      final uri = Uri.tryParse(normalized);
       if (uri != null) {
         launchUrl(uri, mode: LaunchMode.externalApplication);
       }

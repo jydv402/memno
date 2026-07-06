@@ -7,7 +7,7 @@ import 'package:memno/logic/functionality/preview_map.dart';
 import 'package:memno/logic/theme/app_colors.dart';
 import 'package:provider/provider.dart';
 
-import 'package:memno/mobile/pages/inner_page_fun.dart';
+import 'package:memno/mobile/components/pill_button.dart';
 
 class SubTileStack extends StatefulWidget {
   const SubTileStack({
@@ -89,7 +89,7 @@ class _SubTileStackState extends State<SubTileStack> {
                                     children: [
                                       const SizedBox(width: 12),
                                       // Date Display
-                                      InnerPageButton(
+                                      PillButton(
                                         icon: Icons.calendar_month_outlined,
                                         label: getFormattedDate(
                                           DateTime.parse(widget.date),
@@ -97,7 +97,7 @@ class _SubTileStackState extends State<SubTileStack> {
                                         onPressed: () {},
                                       ),
                                       // Like Button
-                                      InnerPageButton(
+                                      PillButton(
                                         key: ValueKey(widget.code),
                                         icon: widget.isLiked
                                             ? Icons.favorite_rounded
@@ -126,7 +126,7 @@ class _SubTileStackState extends State<SubTileStack> {
                                         },
                                       ),
                                       // Delete Button
-                                      InnerPageButton(
+                                      PillButton(
                                         icon: Icons.delete_outline_rounded,
                                         label: "Delete",
                                         onPressed: () {

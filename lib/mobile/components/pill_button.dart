@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:memno/logic/theme/app_colors.dart';
 import 'package:provider/provider.dart';
 
-class InnerPageButton extends StatelessWidget {
-  const InnerPageButton({
+class PillButton extends StatelessWidget {
+  const PillButton({
     super.key,
     required this.icon,
     required this.onPressed,

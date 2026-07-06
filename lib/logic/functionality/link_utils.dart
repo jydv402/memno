@@ -22,4 +22,13 @@ class LinkUtils {
   static bool hasLink(String text) {
     return extractFirstLink(text) != null;
   }
+
+  /// Ensures the URL has a scheme prefix (defaults to https:// if missing).
+  static String normalizeUrl(String url) {
+    final trimmedURL = url.trim();
+    if (!trimmedURL.startsWith(RegExp(r'^[a-zA-Z0-9+.-]+://'))) {
+      return 'https://$trimmedURL';
+    }
+    return trimmedURL;
+  }
 }

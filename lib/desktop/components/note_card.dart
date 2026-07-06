@@ -160,7 +160,8 @@ class _NoteCardState extends State<NoteCard> {
               widget.content,
               onTap: (link) {
                 if (link.value != null) {
-                  final uri = Uri.tryParse(link.value!);
+                  final normalized = LinkUtils.normalizeUrl(link.value!);
+                  final uri = Uri.tryParse(normalized);
                   if (uri != null) {
                     launchUrl(uri, mode: LaunchMode.externalApplication);
                   }

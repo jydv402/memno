@@ -1,19 +1,11 @@
-import 'dart:io';
-
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
-import 'package:flutter_link_previewer/flutter_link_previewer.dart';
 import 'package:glassmorphism/glassmorphism.dart';
-import 'package:linkfy_text/linkfy_text.dart';
-import 'package:memno/mobile/pages/inner_page_fun.dart';
+import 'package:memno/mobile/components/inner_page_tile.dart';
+import 'package:memno/mobile/components/pill_button.dart';
 import 'package:memno/mobile/components/show_toast.dart';
 import 'package:memno/logic/functionality/code_gen.dart';
-import 'package:memno/logic/functionality/link_utils.dart';
-import 'package:memno/logic/functionality/preview_map.dart';
 import 'package:memno/logic/theme/app_colors.dart';
 import 'package:provider/provider.dart';
-import 'package:share_plus/share_plus.dart';
-import 'package:url_launcher/url_launcher.dart';
 
 /// Main page widget for displaying and editing a list of links and a title.
 class InnerPage extends StatefulWidget {
@@ -47,8 +39,8 @@ class _InnerPageState extends State<InnerPage>
         surfaceTintColor: colors.bgClr,
         automaticallyImplyLeading: !widget.isEmbedded,
       ),
-      body: Consumer2<CodeGen, PreviewMap>(
-        builder: (context, codeProvider, previewMap, child) {
+      body: Consumer<CodeGen>(
+        builder: (context, codeProvider, child) {
           final links = codeProvider.getLinksForCode(widget.code);
           String head = codeProvider.getHeadForCode(widget.code);
 
@@ -78,332 +70,30 @@ class _InnerPageState extends State<InnerPage>
                       // Top bar with title
                       return innerPageTopBar(context, head);
                     } else {
-                      return Container(
-                        key: ValueKey(links[index - 1]),
-                        width: MediaQuery.of(context).size.width,
-                        margin: const EdgeInsets.fromLTRB(2, 4, 2, 4),
-                        decoration: BoxDecoration(
-                          borderRadius: const BorderRadius.all(
-                            Radius.circular(50),
-                          ),
-                          color: colors.box,
-                        ),
-                        child: ClipRRect(
-                          borderRadius: const BorderRadius.all(
-                            Radius.circular(50),
-                          ),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              // Button bar (copy, edit, delete) moved to the top of the column
-                              SizedBox(
-                                height: 80,
-                                child: SingleChildScrollView(
-                                  scrollDirection: Axis.horizontal,
-                                  physics: const BouncingScrollPhysics(),
-                                  child: Row(
-                                    spacing: 8,
-                                    children: [
-                                      const SizedBox(width: 12),
-                                      // Index Badge (Unified Style)
-                                      InnerPageButton(
-                                        icon: Icons.tag_rounded,
-                                        label: index.toString(),
-                                        onPressed: () {},
-                                        backgroundColor: Colors.black,
-                                        foregroundColor: Colors.white,
-                                        iconColor: Colors.white,
-                                      ),
-
-                                      // Edit Button
-                                      InnerPageButton(
-                                        label: "Edit",
-                                        icon: Icons.edit_note_rounded,
-                                        onPressed: () {
-                                          setState(() {
-                                            _isEditMode = 1;
-                                            _editIndex = index - 1;
-                                            _linkController.text =
-                                                links[index - 1];
-                                            _isFabExpanded = true;
-                                          });
-                                          Future.delayed(
-                                            const Duration(milliseconds: 300),
-                                            () {
-                                              if (context.mounted) {
-                                                FocusScope.of(
-                                                  context,
-                                                ).requestFocus(_fabFocus);
-                                              }
-                                            },
-                                          );
-                                        },
-                                      ),
-                                      // Copy Button
-                                      InnerPageButton(
-                                        label: "Copy",
-                                        onPressed: () {
-                                          showToastMsg(context, "Item copied!");
-                                          Clipboard.setData(
-                                            ClipboardData(
-                                              text: links[index - 1],
-                                            ),
-                                          );
-                                        },
-                                        icon: Icons.copy_rounded,
-                                      ),
-                                      // Share Button
-                                      InnerPageButton(
-                                        label: "Share",
-                                        onPressed: () {
-                                          SharePlus.instance.share(
-                                            ShareParams(text: links[index - 1]),
-                                          );
-                                        },
-                                        icon: Icons.share_outlined,
-                                      ),
-
-                                      // Delete Button
-                                      InnerPageButton(
-                                        label: "Delete",
-                                        icon: Icons.delete_outline_rounded,
-                                        onPressed: () {
-                                          final colors = Provider.of<AppColors>(
-                                            context,
-                                            listen: false,
-                                          );
-                                          showDialog(
-                                            context: context,
-                                            builder: (dialogContext) => AlertDialog(
-                                              backgroundColor: colors.box,
-                                              title: Text(
-                                                "Delete Entry",
-                                                style: TextStyle(
-                                                  fontFamily: 'GoogleSans',
-                                                  color: colors.textClr,
-                                                ),
-                                              ),
-                                              content: Text(
-                                                "Do you want to delete entry no.$index? This is irreversible.",
-                                                style: TextStyle(
-                                                  fontFamily: 'GoogleSans',
-                                                  color: colors.textClr,
-                                                ),
-                                              ),
-                                              actions: [
-                                                TextButton(
-                                                  onPressed: () =>
-                                                      Navigator.pop(
-                                                        dialogContext,
-                                                      ),
-                                                  child: Text(
-                                                    "Cancel",
-                                                    style: TextStyle(
-                                                      fontFamily: 'GoogleSans',
-                                                      color: colors.textClr,
-                                                    ),
-                                                  ),
-                                                ),
-                                                TextButton(
-                                                  onPressed: () {
-                                                    Navigator.pop(
-                                                      dialogContext,
-                                                    );
-                                                    final firstLink =
-                                                        LinkUtils.extractFirstLink(
-                                                          links[index - 1],
-                                                        );
-                                                    if (firstLink != null) {
-                                                      context
-                                                          .read<PreviewMap>()
-                                                          .deletePreviewForLink(
-                                                            firstLink,
-                                                          );
-                                                    }
-                                                    context
-                                                        .read<CodeGen>()
-                                                        .deleteLink(
-                                                          widget.code,
-                                                          index - 1,
-                                                        );
-                                                    showToastMsg(
-                                                      context,
-                                                      "Entry deleted!",
-                                                    );
-                                                  },
-                                                  child: Text(
-                                                    "Delete",
-                                                    style: TextStyle(
-                                                      fontFamily: 'GoogleSans',
-                                                      color: Colors.red,
-                                                    ),
-                                                  ),
-                                                ),
-                                              ],
-                                            ),
-                                          );
-                                        },
-                                      ),
-                                      const SizedBox(width: 24),
-                                    ],
-                                  ),
-                                ),
-                              ),
-                              // Content section below the button bar
-                              (() {
-                                final firstLink = LinkUtils.extractFirstLink(
-                                  links[index - 1],
-                                );
-                                if (firstLink != null) {
-                                  return Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      // Show the link text
-                                      Padding(
-                                        padding: const EdgeInsets.fromLTRB(
-                                          22,
-                                          4,
-                                          22,
-                                          0,
-                                        ),
-                                        child: LinkifyText(
-                                          links[index - 1],
-                                          onTap: (link) {
-                                            launchUrl(
-                                              Uri.parse(link.value!),
-                                              mode: LaunchMode
-                                                  .externalApplication,
-                                            );
-                                          },
-                                          linkStyle: TextStyle(
-                                            color: Colors.blue[300],
-                                            fontFamily: 'GoogleSans',
-                                            fontSize: 16,
-                                          ),
-                                          maxLines: 2,
-                                          overflow: TextOverflow.ellipsis,
-                                        ),
-                                      ),
-
-                                      // Show the link preview
-                                      LinkPreview(
-                                        requestTimeout: const Duration(
-                                          seconds: 10,
-                                        ),
-                                        minWidth: widget.isEmbedded
-                                            ? 400
-                                            : MediaQuery.of(
-                                                    context,
-                                                  ).size.width +
-                                                  50,
-                                        gap: 20,
-                                        backgroundColor: Colors.transparent,
-                                        sideBorderColor: Colors.transparent,
-                                        imageBuilder: (image) {
-                                          final preview = previewMap
-                                              .loadPreviewSync(
-                                                firstLink,
-                                                saveLocally:
-                                                    colors.saveImagesLocally,
-                                              );
-                                          final isSquare =
-                                              preview?.image?.height ==
-                                              preview?.image?.width;
-                                          return Container(
-                                            decoration: BoxDecoration(
-                                              borderRadius: isSquare
-                                                  ? BorderRadius.circular(10)
-                                                  : BorderRadius.circular(30),
-                                              image: DecorationImage(
-                                                image:
-                                                    previewMap
-                                                            .localImagePaths[firstLink] !=
-                                                        null
-                                                    ? FileImage(
-                                                        File(
-                                                          previewMap
-                                                              .localImagePaths[firstLink]!,
-                                                        ),
-                                                      )
-                                                    : NetworkImage(image)
-                                                          as ImageProvider,
-                                                fit: BoxFit.cover,
-                                              ),
-                                            ),
-                                          );
-                                        },
-                                        outsidePadding:
-                                            const EdgeInsets.fromLTRB(
-                                              10,
-                                              10,
-                                              10,
-                                              18,
-                                            ),
-                                        enableAnimation: true,
-
-                                        // Style of the head text
-                                        titleTextStyle: TextStyle(
-                                          color: colors.textClr,
-                                          fontWeight: FontWeight.bold,
-                                          fontSize: 32,
-                                          fontFamily: 'GoogleSans',
-                                        ),
-
-                                        // Style of the description text
-                                        descriptionTextStyle: TextStyle(
-                                          color: colors.textClr,
-                                          fontFamily: 'GoogleSans',
-                                          fontSize: 14,
-                                        ),
-
-                                        // Save the preview data locally when it is fetched
-                                        onLinkPreviewDataFetched: (data) async {
-                                          await previewMap.savePreview(
-                                            link: firstLink,
-                                            data: data,
-                                            saveLocally:
-                                                colors.saveImagesLocally,
-                                          );
-                                        },
-
-                                        // Load from the previously saved data
-                                        linkPreviewData: previewMap
-                                            .loadPreviewSync(
-                                              firstLink,
-                                              saveLocally:
-                                                  colors.saveImagesLocally,
-                                            ),
-
-                                        // The link to be fetched
-                                        text: firstLink,
-                                      ),
-                                    ],
-                                  );
-                                } else {
-                                  return Padding(
-                                    padding: const EdgeInsets.fromLTRB(
-                                      36,
-                                      14,
-                                      26,
-                                      26,
-                                    ),
-                                    child: Text(
-                                      links[index - 1],
-                                      style: TextStyle(
-                                        color: colors.textClr,
-                                        fontWeight: FontWeight.bold,
-                                        fontFamily: 'GoogleSans',
-                                        fontSize: 24,
-                                      ),
-                                    ),
-                                  );
-                                }
-                              })(),
-                            ],
-                          ),
-                        ),
+                      return InnerPageTile(
+                        code: widget.code,
+                        index: index,
+                        value: links[index - 1],
+                        isEmbedded: widget.isEmbedded,
+                        onEdit: () {
+                          setState(() {
+                            _isEditMode = 1;
+                            _editIndex = index - 1;
+                            _linkController.text =
+                                links[index - 1];
+                            _isFabExpanded = true;
+                          });
+                          Future.delayed(
+                            const Duration(milliseconds: 300),
+                            () {
+                              if (context.mounted) {
+                                FocusScope.of(
+                                  context,
+                                ).requestFocus(_fabFocus);
+                              }
+                            },
+                          );
+                        },
                       );
                     }
                   },
@@ -583,7 +273,7 @@ class CustomInnerFAB extends StatelessWidget {
               child: Row(
                 spacing: 8,
                 children: [
-                  InnerPageButton(
+                  PillButton(
                     label: "Collapse",
                     icon: Icons.keyboard_arrow_down_rounded,
                     onPressed: onCollapse,
