@@ -238,7 +238,9 @@ class _HomePageState extends State<HomePage> {
                   ],
                 )
               : ListView.builder(
-                  padding: const EdgeInsets.only(bottom: 130),
+                  padding: .only(
+                    bottom: MediaQuery.of(context).size.height * 0.40,
+                  ),
                   itemCount: filteredList.length + 1,
                   itemBuilder: (context, index) {
                     if (index == 0) {
