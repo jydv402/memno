@@ -178,7 +178,7 @@ class _InnerPageState extends State<InnerPage>
         fabFocus: _fabFocus,
         isEmbedded: widget.isEmbedded,
       ),
-      floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
+      floatingActionButtonLocation: FloatingActionButtonLocation.startFloat,
     );
   }
 

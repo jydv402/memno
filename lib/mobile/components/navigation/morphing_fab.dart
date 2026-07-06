@@ -32,56 +32,42 @@ class MorphingFAB extends StatelessWidget {
 
     // Target dimensions
     final double targetWidth = isExpanded
-        ? (isEmbedded ? 500.0 : (screenWidth - 25))
+        ? (isEmbedded ? 500.0 : (screenWidth - 32.0))
         : 50.0;
     final double targetHeight = isExpanded ? 200.0 : 50.0;
 
-    return Container(
-      width: isEmbedded ? 500.0 : screenWidth,
-      height: 204.0,
-      color: Colors.transparent,
-      alignment: isExpanded ? Alignment.bottomCenter : Alignment.bottomLeft,
-      child: Padding(
-        padding: EdgeInsets.only(
-          left: isExpanded
-              ? 0.0
-              : 24.0, // Match standard startFloat layout margin
-          bottom: isExpanded ? 0.0 : 16.0,
-        ),
-        child: AnimatedContainer(
-          duration: const Duration(milliseconds: 300),
-          curve: Curves.easeInOut,
-          width: targetWidth,
-          height: targetHeight,
-          clipBehavior: Clip.antiAlias,
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(isExpanded ? 0.0 : 25.0),
-          ),
-          child: AnimatedSwitcher(
-            duration: const Duration(milliseconds: 200),
-            transitionBuilder: (Widget child, Animation<double> animation) {
-              return FadeTransition(
-                opacity: animation,
-                child: ScaleTransition(scale: animation, child: child),
-              );
-            },
-            child: isExpanded
-                ? CustomInnerFAB(
-                    key: const ValueKey('expandedFAB'),
-                    isEmbedded: isEmbedded,
-                    onCollapse: onCollapse,
-                    onConfirm: onConfirm,
-                    onCancel: onCancel,
-                    controller: controller,
-                    isEditMode: isEditMode,
-                    fabFocus: fabFocus,
-                  )
-                : CollapsedInnerFAB(
-                    key: const ValueKey('collapsedFAB'),
-                    onExpand: onExpand,
-                  ),
-          ),
-        ),
+    return AnimatedContainer(
+      duration: const Duration(milliseconds: 300),
+      curve: Curves.easeInOut,
+      width: targetWidth,
+      height: targetHeight,
+      clipBehavior: Clip.antiAlias,
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(isExpanded ? 0.0 : 25.0),
+      ),
+      child: AnimatedSwitcher(
+        duration: const Duration(milliseconds: 200),
+        transitionBuilder: (Widget child, Animation<double> animation) {
+          return FadeTransition(
+            opacity: animation,
+            child: ScaleTransition(scale: animation, child: child),
+          );
+        },
+        child: isExpanded
+            ? CustomInnerFAB(
+                key: const ValueKey('expandedFAB'),
+                isEmbedded: isEmbedded,
+                onCollapse: onCollapse,
+                onConfirm: onConfirm,
+                onCancel: onCancel,
+                controller: controller,
+                isEditMode: isEditMode,
+                fabFocus: fabFocus,
+              )
+            : CollapsedInnerFAB(
+                key: const ValueKey('collapsedFAB'),
+                onExpand: onExpand,
+              ),
       ),
     );
   }
