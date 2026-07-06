@@ -44,7 +44,7 @@ dependencies:
   # System & Platform Integration
   url_launcher: ^6.3.0
   file_picker: ^12.0.0-beta.1
-  receive_sharing_intent: 1.8.1
+  receive_sharing_intent: ^1.9.0
   share_plus: ^13.1.0
 
   # UI, Design & Animations
