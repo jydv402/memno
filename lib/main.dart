@@ -17,13 +17,12 @@ import 'package:provider/provider.dart';
 /// Global navigator key used by share intent handler to push ShareTargetPage.
 final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 
-
-
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   // Initialize Hive and register adapters
   try {
-    if (!kIsWeb && (Platform.isWindows || Platform.isLinux || Platform.isMacOS)) {
+    if (!kIsWeb &&
+        (Platform.isWindows || Platform.isLinux || Platform.isMacOS)) {
       final String? home = Platform.isWindows
           ? Platform.environment['USERPROFILE']
           : Platform.environment['HOME'];

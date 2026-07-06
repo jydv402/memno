@@ -5,7 +5,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_link_previewer/flutter_link_previewer.dart';
 import 'package:glassmorphism/glassmorphism.dart';
 import 'package:linkfy_text/linkfy_text.dart';
-import 'package:memno/mobile/components/inner_page_fun.dart';
+import 'package:memno/mobile/pages/inner_page_fun.dart';
 import 'package:memno/mobile/components/show_toast.dart';
 import 'package:memno/logic/functionality/code_gen.dart';
 import 'package:memno/logic/functionality/link_utils.dart';
@@ -210,7 +210,10 @@ class _InnerPageState extends State<InnerPage>
                                                     Navigator.pop(
                                                       dialogContext,
                                                     );
-                                                    final firstLink = LinkUtils.extractFirstLink(links[index - 1]);
+                                                    final firstLink =
+                                                        LinkUtils.extractFirstLink(
+                                                          links[index - 1],
+                                                        );
                                                     if (firstLink != null) {
                                                       context
                                                           .read<PreviewMap>()
@@ -249,7 +252,9 @@ class _InnerPageState extends State<InnerPage>
                               ),
                               // Content section below the button bar
                               (() {
-                                final firstLink = LinkUtils.extractFirstLink(links[index - 1]);
+                                final firstLink = LinkUtils.extractFirstLink(
+                                  links[index - 1],
+                                );
                                 if (firstLink != null) {
                                   return Column(
                                     crossAxisAlignment:
@@ -297,18 +302,25 @@ class _InnerPageState extends State<InnerPage>
                                         backgroundColor: Colors.transparent,
                                         sideBorderColor: Colors.transparent,
                                         imageBuilder: (image) {
-                                          final preview = previewMap.loadPreviewSync(
-                                            firstLink,
-                                            saveLocally: colors.saveImagesLocally,
-                                          );
-                                          final isSquare = preview?.image?.height == preview?.image?.width;
+                                          final preview = previewMap
+                                              .loadPreviewSync(
+                                                firstLink,
+                                                saveLocally:
+                                                    colors.saveImagesLocally,
+                                              );
+                                          final isSquare =
+                                              preview?.image?.height ==
+                                              preview?.image?.width;
                                           return Container(
                                             decoration: BoxDecoration(
                                               borderRadius: isSquare
                                                   ? BorderRadius.circular(10)
                                                   : BorderRadius.circular(30),
                                               image: DecorationImage(
-                                                image: previewMap.localImagePaths[firstLink] != null
+                                                image:
+                                                    previewMap
+                                                            .localImagePaths[firstLink] !=
+                                                        null
                                                     ? FileImage(
                                                         File(
                                                           previewMap
@@ -347,15 +359,14 @@ class _InnerPageState extends State<InnerPage>
                                         ),
 
                                         // Save the preview data locally when it is fetched
-                                        onLinkPreviewDataFetched:
-                                            (data) async {
-                                              await previewMap.savePreview(
-                                                link: firstLink,
-                                                data: data,
-                                                saveLocally:
-                                                    colors.saveImagesLocally,
-                                              );
-                                            },
+                                        onLinkPreviewDataFetched: (data) async {
+                                          await previewMap.savePreview(
+                                            link: firstLink,
+                                            data: data,
+                                            saveLocally:
+                                                colors.saveImagesLocally,
+                                          );
+                                        },
 
                                         // Load from the previously saved data
                                         linkPreviewData: previewMap
@@ -389,7 +400,7 @@ class _InnerPageState extends State<InnerPage>
                                     ),
                                   );
                                 }
-                              })()
+                              })(),
                             ],
                           ),
                         ),

@@ -1,13 +1,13 @@
 import 'package:animations/animations.dart';
 import 'package:flutter/material.dart';
-import 'package:memno/mobile/components/inner_page.dart';
+import 'package:memno/mobile/pages/inner_page.dart';
 import 'package:memno/mobile/components/show_toast.dart';
 import 'package:memno/logic/functionality/code_gen.dart';
 import 'package:memno/logic/functionality/preview_map.dart';
 import 'package:memno/logic/theme/app_colors.dart';
 import 'package:provider/provider.dart';
 
-import 'package:memno/mobile/components/inner_page_fun.dart';
+import 'package:memno/mobile/pages/inner_page_fun.dart';
 
 class SubTileStack extends StatefulWidget {
   const SubTileStack({
@@ -63,10 +63,7 @@ class _SubTileStackState extends State<SubTileStack> {
                 transitionBuilder: (Widget child, Animation<double> animation) {
                   return FadeTransition(
                     opacity: animation,
-                    child: ScaleTransition(
-                      scale: animation,
-                      child: child,
-                    ),
+                    child: ScaleTransition(scale: animation, child: child),
                   );
                 },
                 child: !showDltConfirm
@@ -108,9 +105,13 @@ class _SubTileStackState extends State<SubTileStack> {
                                         iconColor: widget.isLiked
                                             ? Colors.red
                                             : colors.textClr,
-                                        label: widget.isLiked ? "Liked" : "Like",
+                                        label: widget.isLiked
+                                            ? "Liked"
+                                            : "Like",
                                         onPressed: () {
-                                          context.read<CodeGen>().toggleLike(widget.code);
+                                          context.read<CodeGen>().toggleLike(
+                                            widget.code,
+                                          );
                                           if (widget.isLiked) {
                                             showToastMsg(
                                               context,
@@ -143,11 +144,19 @@ class _SubTileStackState extends State<SubTileStack> {
                               HeadText(code: widget.code),
                               // Row 3: CodeText and LengthIndicator
                               Padding(
-                                padding: const EdgeInsets.fromLTRB(24, 0, 16, 16),
+                                padding: const EdgeInsets.fromLTRB(
+                                  24,
+                                  0,
+                                  16,
+                                  16,
+                                ),
                                 child: Row(
-                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
                                   children: [
-                                    Expanded(child: CodeText(code: widget.code)),
+                                    Expanded(
+                                      child: CodeText(code: widget.code),
+                                    ),
                                     const SizedBox(width: 8),
                                     LengthIndicator(
                                       radius: radius,
