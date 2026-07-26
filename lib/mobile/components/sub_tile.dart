@@ -74,7 +74,10 @@ class _SubTileStackState extends State<SubTileStack> {
                         child: InkWell(
                           borderRadius: BorderRadius.circular(radius),
                           onTap: () {
-                            Provider.of<AppSettings>(context, listen: false).triggerHaptic();
+                            Provider.of<AppSettings>(
+                              context,
+                              listen: false,
+                            ).triggerHaptic();
                             openContainer();
                           },
                           child: Column(
@@ -99,7 +102,10 @@ class _SubTileStackState extends State<SubTileStack> {
                                           DateTime.parse(widget.date),
                                         ),
                                         onPressed: () {
-                                          Provider.of<AppSettings>(context, listen: false).triggerHaptic();
+                                          Provider.of<AppSettings>(
+                                            context,
+                                            listen: false,
+                                          ).triggerHaptic();
                                         },
                                       ),
                                       // Like Button
@@ -115,7 +121,10 @@ class _SubTileStackState extends State<SubTileStack> {
                                             ? "Liked"
                                             : "Like",
                                         onPressed: () {
-                                          Provider.of<AppSettings>(context, listen: false).triggerHaptic();
+                                          Provider.of<AppSettings>(
+                                            context,
+                                            listen: false,
+                                          ).triggerHaptic();
                                           context.read<CodeGen>().toggleLike(
                                             widget.code,
                                           );
@@ -137,7 +146,10 @@ class _SubTileStackState extends State<SubTileStack> {
                                         icon: Icons.delete_outline_rounded,
                                         label: "Delete",
                                         onPressed: () {
-                                          Provider.of<AppSettings>(context, listen: false).triggerHaptic();
+                                          Provider.of<AppSettings>(
+                                            context,
+                                            listen: false,
+                                          ).triggerHaptic();
                                           setState(() {
                                             showDltConfirm = true;
                                           });
@@ -171,9 +183,12 @@ class _SubTileStackState extends State<SubTileStack> {
                                       length: length,
                                       code: widget.code,
                                       onTap: () {
-                            Provider.of<AppSettings>(context, listen: false).triggerHaptic();
-                            openContainer();
-                          },
+                                        Provider.of<AppSettings>(
+                                          context,
+                                          listen: false,
+                                        ).triggerHaptic();
+                                        openContainer();
+                                      },
                                     ),
                                   ],
                                 ),

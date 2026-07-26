@@ -48,7 +48,10 @@ class InnerPageTopBar extends StatelessWidget {
             child: IconButton(
               tooltip: "Edit title",
               onPressed: () {
-                Provider.of<AppSettings>(context, listen: false).triggerHaptic();
+                Provider.of<AppSettings>(
+                  context,
+                  listen: false,
+                ).triggerHaptic();
                 onPressed?.call();
               },
               icon: const Icon(Icons.mode_edit_outline_outlined),

@@ -7,22 +7,36 @@ import 'package:memno/mobile/pages/inner_page.dart';
 import 'package:memno/logic/theme/app_settings.dart';
 import 'package:provider/provider.dart';
 
-class CustomFAB extends StatelessWidget {
+class CustomFAB extends StatefulWidget {
   const CustomFAB({super.key, required this.onSearch});
 
+  final VoidCallback onSearch;
+
+  @override
+  State<CustomFAB> createState() => _CustomFABState();
+}
+
+class _CustomFABState extends State<CustomFAB> {
   final double radius = 50.0;
   final double height = 100.0;
   final double width = 200.0;
-  final VoidCallback onSearch;
+  int? _newlyGeneratedCode;
 
   @override
   Widget build(BuildContext context) {
     final colors = Provider.of<AppColors>(context);
 
     return OpenContainer(
+      tappable: false,
       transitionType: ContainerTransitionType.fade,
-      openBuilder: (context, _) =>
-          InnerPage(code: context.read<CodeGen>().codeList.last),
+      openBuilder: (context, _) {
+        final code =
+            _newlyGeneratedCode ??
+            (context.read<CodeGen>().codeList.isNotEmpty
+                ? context.read<CodeGen>().codeList.last
+                : 0);
+        return InnerPage(code: code);
+      },
       closedElevation: 0,
       closedShape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(radius + 10),
@@ -65,10 +79,18 @@ class CustomFAB extends StatelessWidget {
                 shape: const CircleBorder(),
                 fixedSize: Size(height - 20, height - 20),
               ),
-              onPressed: () {
-                Provider.of<AppSettings>(context, listen: false).triggerHaptic();
-                context.read<CodeGen>().generateCode();
-                openContainer();
+              onPressed: () async {
+                Provider.of<AppSettings>(
+                  context,
+                  listen: false,
+                ).triggerHaptic();
+                final code = await context.read<CodeGen>().generateCode();
+                if (mounted) {
+                  setState(() {
+                    _newlyGeneratedCode = code;
+                  });
+                  openContainer();
+                }
               },
               child: const Icon(Icons.add_rounded, size: 30),
             ),
@@ -81,8 +103,11 @@ class CustomFAB extends StatelessWidget {
                 fixedSize: Size(height - 20, height - 20),
               ),
               onPressed: () {
-                Provider.of<AppSettings>(context, listen: false).triggerHaptic();
-                onSearch();
+                Provider.of<AppSettings>(
+                  context,
+                  listen: false,
+                ).triggerHaptic();
+                widget.onSearch();
               },
               child: const Icon(Icons.search_rounded, size: 30),
             ),

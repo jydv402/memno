@@ -28,12 +28,16 @@ class HapticAppBar extends StatelessWidget implements PreferredSizeWidget {
       foregroundColor: foregroundColor,
       surfaceTintColor: surfaceTintColor,
       automaticallyImplyLeading: false,
-      leading: leading ??
+      leading:
+          leading ??
           ((implyLeading && Navigator.canPop(context))
               ? BackButton(
                   color: foregroundColor,
                   onPressed: () {
-                    Provider.of<AppSettings>(context, listen: false).triggerHaptic();
+                    Provider.of<AppSettings>(
+                      context,
+                      listen: false,
+                    ).triggerHaptic();
                     Navigator.of(context).maybePop();
                   },
                 )

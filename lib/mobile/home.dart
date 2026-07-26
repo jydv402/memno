@@ -294,8 +294,12 @@ class _HomePageState extends State<HomePage> {
             : CustomFAB(
                 key: const ValueKey('fabToggle'),
                 onSearch: () {
-                  switchSearchMode();
-                  clearState();
+                  if (context.read<CodeGen>().codeList.isEmpty) {
+                    showToastMsg(context, "No notes to search for");
+                  } else {
+                    switchSearchMode();
+                    clearState();
+                  }
                 },
               ),
       ),

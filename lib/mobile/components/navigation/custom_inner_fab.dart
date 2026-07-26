@@ -103,7 +103,10 @@ class CustomInnerFAB extends StatelessWidget {
                       const Spacer(),
                       IconButton(
                         onPressed: () {
-                          Provider.of<AppSettings>(context, listen: false).triggerHaptic();
+                          Provider.of<AppSettings>(
+                            context,
+                            listen: false,
+                          ).triggerHaptic();
                           onConfirm();
                         },
                         icon: Icon(
@@ -116,7 +119,10 @@ class CustomInnerFAB extends StatelessWidget {
                       const Spacer(),
                       IconButton(
                         onPressed: () {
-                          Provider.of<AppSettings>(context, listen: false).triggerHaptic();
+                          Provider.of<AppSettings>(
+                            context,
+                            listen: false,
+                          ).triggerHaptic();
                           onCancel();
                         },
                         icon: const Icon(

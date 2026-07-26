@@ -59,7 +59,8 @@ class _ShareTargetPageState extends State<ShareTargetPage> {
     final parsedDates = <int, DateTime>{};
     for (final code in codes) {
       final dateStr = codeProvider.getDateForCode(code);
-      parsedDates[code] = DateTime.tryParse(dateStr) ?? DateTime.fromMillisecondsSinceEpoch(0);
+      parsedDates[code] =
+          DateTime.tryParse(dateStr) ?? DateTime.fromMillisecondsSinceEpoch(0);
     }
     codes.sort((a, b) => parsedDates[b]!.compareTo(parsedDates[a]!));
 
@@ -75,13 +76,13 @@ class _ShareTargetPageState extends State<ShareTargetPage> {
     );
   }
 
-  void _createNewAndSave() {
+  void _createNewAndSave() async {
     Provider.of<AppSettings>(context, listen: false).triggerHaptic();
     if (_sharedTextController.text.isEmpty) return;
     final codeProvider = context.read<CodeGen>();
-    codeProvider.generateCode();
-    final newCode = codeProvider.codeList.last;
-    codeProvider.addLink(newCode, _sharedTextController.text);
+    final newCode = await codeProvider.generateCode();
+    await codeProvider.addLink(newCode, _sharedTextController.text);
+    if (!mounted) return;
     showToastMsg(context, "Saved to new code #$newCode");
 
     // Replace this page with InnerPage for the new code

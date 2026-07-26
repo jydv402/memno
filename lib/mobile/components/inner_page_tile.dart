@@ -236,7 +236,10 @@ class InnerPageTile extends StatelessWidget {
                     Selector<PreviewMap, LinkPreviewData?>(
                       selector: (context, pm) {
                         if (!pm.cache.containsKey(firstLink)) {
-                          pm.loadPreviewSync(firstLink, saveLocally: saveImagesLocally);
+                          pm.loadPreviewSync(
+                            firstLink,
+                            saveLocally: saveImagesLocally,
+                          );
                         }
                         return pm.cache[firstLink];
                       },
@@ -251,7 +254,8 @@ class InnerPageTile extends StatelessWidget {
                           sideBorderColor: Colors.transparent,
                           imageBuilder: (image) {
                             final isSquare =
-                                previewData?.image?.height == previewData?.image?.width;
+                                previewData?.image?.height ==
+                                previewData?.image?.width;
                             return Container(
                               decoration: BoxDecoration(
                                 borderRadius: isSquare
@@ -259,10 +263,12 @@ class InnerPageTile extends StatelessWidget {
                                     : BorderRadius.circular(30),
                                 image: DecorationImage(
                                   image:
-                                      previewMap.localImagePaths[firstLink] != null
+                                      previewMap.localImagePaths[firstLink] !=
+                                          null
                                       ? FileImage(
                                           File(
-                                            previewMap.localImagePaths[firstLink]!,
+                                            previewMap
+                                                .localImagePaths[firstLink]!,
                                           ),
                                         )
                                       : NetworkImage(image) as ImageProvider,
@@ -271,7 +277,12 @@ class InnerPageTile extends StatelessWidget {
                               ),
                             );
                           },
-                          outsidePadding: const EdgeInsets.fromLTRB(10, 10, 10, 18),
+                          outsidePadding: const EdgeInsets.fromLTRB(
+                            10,
+                            10,
+                            10,
+                            18,
+                          ),
                           enableAnimation: true,
 
                           // Style of the head text
