@@ -79,16 +79,13 @@ class _DesktopShellState extends State<DesktopShell> {
 
   void _createNewPage() {
     final codeProvider = context.read<CodeGen>();
-    codeProvider.generateCode().then((_) {
+    codeProvider.generateCode().then((newCode) {
       if (!mounted) return;
-      if (codeProvider.codeList.isNotEmpty) {
-        final newCode = codeProvider.codeList.last;
-        setState(() {
-          _openedNoteCode = newCode;
-          _selectedDestination = 0;
-        });
-        showDesktopNotification(context, 'New code page generated!');
-      }
+      setState(() {
+        _openedNoteCode = newCode;
+        _selectedDestination = 0;
+      });
+      showDesktopNotification(context, 'New code page generated!');
     });
   }
 

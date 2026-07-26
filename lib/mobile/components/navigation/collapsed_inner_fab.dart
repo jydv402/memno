@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:glassmorphism/glassmorphism.dart';
+import 'package:memno/logic/theme/app_settings.dart';
+import 'package:provider/provider.dart';
 
 class CollapsedInnerFAB extends StatelessWidget {
   const CollapsedInnerFAB({super.key, required this.onExpand});
@@ -46,7 +48,10 @@ class CollapsedInnerFAB extends StatelessWidget {
               shape: const CircleBorder(),
               padding: EdgeInsets.zero,
             ),
-            onPressed: onExpand,
+            onPressed: () {
+              Provider.of<AppSettings>(context, listen: false).triggerHaptic();
+              onExpand();
+            },
             child: const Icon(Icons.open_in_full_rounded, size: 15),
           ),
         ),

@@ -148,7 +148,11 @@ class DesktopSettingsPage extends StatelessWidget {
 
   // Appearance
 
-  Widget _buildAppearanceSection(BuildContext context, AppColors colors, AppSettings settings) {
+  Widget _buildAppearanceSection(
+    BuildContext context,
+    AppColors colors,
+    AppSettings settings,
+  ) {
     final themeMode = settings.themeMode;
 
     IconData modeIcon;
@@ -207,7 +211,11 @@ class DesktopSettingsPage extends StatelessWidget {
 
   // Dock Layout
 
-  Widget _buildDockLayoutSection(BuildContext context, AppColors colors, AppSettings settings) {
+  Widget _buildDockLayoutSection(
+    BuildContext context,
+    AppColors colors,
+    AppSettings settings,
+  ) {
     final placement = settings.dockPlacement;
 
     Widget buildPlacementButton(String value, String label, IconData icon) {
@@ -341,7 +349,11 @@ class DesktopSettingsPage extends StatelessWidget {
 
   // Storage
 
-  Widget _buildStorageSection(BuildContext context, AppColors colors, AppSettings settings) {
+  Widget _buildStorageSection(
+    BuildContext context,
+    AppColors colors,
+    AppSettings settings,
+  ) {
     return Column(
       spacing: 12,
       children: [

@@ -3,10 +3,13 @@ import 'dart:io' show Platform;
 
 import 'package:animations/animations.dart';
 import 'package:flutter/material.dart';
+import 'package:lottie/lottie.dart';
 import 'package:memno/mobile/components/home_search_tile.dart';
 import 'package:memno/mobile/components/navigation/home_custom_fab.dart';
 import 'package:memno/mobile/components/home_top_accent_box.dart';
 import 'package:memno/mobile/pages/settings_page.dart';
+import 'package:memno/logic/theme/app_settings.dart';
+import 'package:memno/mobile/components/haptic_app_bar.dart';
 import 'package:memno/mobile/pages/share_target_page.dart';
 import 'package:memno/mobile/components/show_toast.dart';
 import 'package:memno/mobile/components/sub_tile.dart';
@@ -177,11 +180,11 @@ class _HomePageState extends State<HomePage> {
     }
     switch (_filter) {
       case Filters.all:
-        return "Generate Code to view";
+        return "It's so empty here!\nPress the + button to generate a\nNew Code";
       case Filters.liked:
-        return "No liked codes";
+        return "No liked codes yet";
       case Filters.empty:
-        return "No empty codes";
+        return "No empty codes yet";
     }
   }
 
@@ -191,7 +194,7 @@ class _HomePageState extends State<HomePage> {
 
     return Scaffold(
       backgroundColor: colors.bgClr,
-      appBar: AppBar(
+      appBar: HapticAppBar(
         backgroundColor: colors.bgClr,
         foregroundColor: colors.fgClr,
         surfaceTintColor: colors.bgClr,
@@ -205,7 +208,10 @@ class _HomePageState extends State<HomePage> {
           openColor: Theme.of(context).scaffoldBackgroundColor,
           middleColor: Theme.of(context).scaffoldBackgroundColor,
           closedBuilder: (context, openContainer) => IconButton(
-            onPressed: openContainer,
+            onPressed: () {
+              Provider.of<AppSettings>(context, listen: false).triggerHaptic();
+              openContainer();
+            },
             icon: const Icon(Icons.menu_rounded),
           ),
         ),
@@ -227,21 +233,25 @@ class _HomePageState extends State<HomePage> {
                       filter: _filter,
                       customToggle: _customToggleButtons(context),
                     ),
-                    const SizedBox(height: 50),
-                    Center(
-                      child: Text(
-                        _emptyMsg(),
-                        style: TextStyle(
-                          color: colors.textClr,
-                          fontFamily: 'GoogleSans',
-                        ),
+                    const SizedBox(height: 80),
+                    LottieBuilder.asset(
+                      'assets/empty.lottie',
+                      height: MediaQuery.of(context).size.width / 3,
+                    ),
+                    Text(
+                      _emptyMsg(),
+                      style: TextStyle(
+                        color: colors.textClr,
+                        fontFamily: 'GoogleSans',
+                        height: 2,
                       ),
+                      textAlign: TextAlign.center,
                     ),
                     SizedBox(height: MediaQuery.of(context).size.height * 0.35),
                   ],
                 )
               : ListView.builder(
-                  padding: .only(
+                  padding: EdgeInsets.only(
                     bottom: MediaQuery.of(context).size.height * 0.40,
                   ),
                   itemCount: filteredList.length + 1,
@@ -284,8 +294,12 @@ class _HomePageState extends State<HomePage> {
             : CustomFAB(
                 key: const ValueKey('fabToggle'),
                 onSearch: () {
-                  switchSearchMode();
-                  clearState();
+                  if (context.read<CodeGen>().codeList.isEmpty) {
+                    showToastMsg(context, "No notes to search for");
+                  } else {
+                    switchSearchMode();
+                    clearState();
+                  }
                 },
               ),
       ),
@@ -304,6 +318,7 @@ class _HomePageState extends State<HomePage> {
       color: Colors.black,
       direction: Axis.horizontal,
       onPressed: (int index) {
+        Provider.of<AppSettings>(context, listen: false).triggerHaptic();
         setState(() {
           _filter = Filters.values[index];
         });

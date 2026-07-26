@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:hive/hive.dart';
 import 'package:memno/logic/database/toggles_data.dart';
 
@@ -12,6 +13,7 @@ class AppSettings extends ChangeNotifier {
   AppThemeMode _currentThemeMode = AppThemeMode.system;
   bool _saveImagesLocally = true;
   String _dockPlacement = 'left';
+  bool _enableHaptics = true;
 
   AppSettings() {
     init();
@@ -26,6 +28,7 @@ class AppSettings extends ChangeNotifier {
       _currentThemeMode = AppThemeMode.system;
       _saveImagesLocally = true;
       _dockPlacement = 'left';
+      _enableHaptics = true;
       await _togglesBox.put(
         0,
         TogglesData(
@@ -34,11 +37,13 @@ class AppSettings extends ChangeNotifier {
           themeMode: 0,
           saveImagesLocally: true,
           dockPlacement: 'left',
+          enableHaptics: true,
         ),
       );
     } else {
       _saveImagesLocally = togglesData.saveImagesLocally;
       _dockPlacement = togglesData.dockPlacement;
+      _enableHaptics = togglesData.enableHaptics;
 
       if (togglesData.themeMode != null) {
         _currentThemeMode = AppThemeMode.values[togglesData.themeMode!];
@@ -58,6 +63,23 @@ class AppSettings extends ChangeNotifier {
   AppThemeMode get themeMode => _currentThemeMode;
   bool get saveImagesLocally => _saveImagesLocally;
   String get dockPlacement => _dockPlacement;
+  bool get enableHaptics => _enableHaptics;
+
+  void triggerHaptic() {
+    if (_enableHaptics) {
+      HapticFeedback.lightImpact();
+    }
+  }
+
+  Future<void> setEnableHaptics(bool value) async {
+    _enableHaptics = value;
+    TogglesData? togglesData = _togglesBox.get(0);
+    if (togglesData != null) {
+      togglesData.enableHaptics = value;
+      await togglesData.save();
+    }
+    notifyListeners();
+  }
 
   Future<void> setThemeMode(AppThemeMode mode) async {
     _currentThemeMode = mode;

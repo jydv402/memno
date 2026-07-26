@@ -19,7 +19,7 @@ class CodeGen extends ChangeNotifier {
   /// to use the unique 6-digit code as the key.
   Future<void> init() async {
     _codeBox = await Hive.openBox<CodeData>('codeData');
-    
+
     // Migration: ensure all keys are the code itself
     try {
       final keys = List.from(_codeBox.keys);
@@ -33,7 +33,9 @@ class CodeGen extends ChangeNotifier {
         }
       }
       if (migrated) {
-        debugPrint('Migration completed: All Hive keys are now the unique 6-digit codes.');
+        debugPrint(
+          'Migration completed: All Hive keys are now the unique 6-digit codes.',
+        );
       }
     } catch (e, st) {
       debugPrint('CodeGen Migration error: $e\n$st');
@@ -50,7 +52,7 @@ class CodeGen extends ChangeNotifier {
   }
 
   /// Generates unique 6-digit note page code.
-  Future<void> generateCode() async {
+  Future<int> generateCode() async {
     var rnd = Random();
     int code;
     do {
@@ -62,6 +64,7 @@ class CodeGen extends ChangeNotifier {
       CodeData(code, [], DateTime.now().toString(), false, "Untitled"),
     );
     notifyListeners();
+    return code;
   }
 
   /// Deletes a specific note page code and its contents.

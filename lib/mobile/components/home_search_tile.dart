@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:memno/logic/theme/app_colors.dart';
+import 'package:memno/logic/theme/app_settings.dart';
 import 'package:provider/provider.dart';
 
 class SearchTile extends StatelessWidget {
@@ -63,7 +64,10 @@ class SearchTile extends StatelessWidget {
               shape: const CircleBorder(),
               padding: const EdgeInsets.all(25),
             ),
-            onPressed: onPressed,
+            onPressed: () {
+              Provider.of<AppSettings>(context, listen: false).triggerHaptic();
+              onPressed();
+            },
             child: Icon(Icons.close_rounded, color: colors.box),
           ),
         ],

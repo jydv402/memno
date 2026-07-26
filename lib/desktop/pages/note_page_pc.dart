@@ -350,24 +350,18 @@ class _DesktopNotePageState extends State<DesktopNotePage> {
   }
 
   Widget _buildEmptyState(AppColors colors) {
-    return Center(
+    return Padding(
+      padding: const EdgeInsets.only(left: 24, top: 40),
       child: Column(
-        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Icon(
-            Icons.note_add_outlined,
-            size: 64,
-            color: colors.textClr.withValues(alpha: 0.2),
-          ),
-          const SizedBox(height: 16),
           Text(
-            'No entries yet.\nAdd your first link or note.',
-            textAlign: TextAlign.center,
+            ">  Empty note page.\n>  Let's start with adding a new Link or Note.\n>  Add a space after Link to add a trailing Note.",
             style: TextStyle(
+              color: colors.textClr,
               fontFamily: 'GoogleSans',
               fontSize: 16,
-              color: colors.textClr.withValues(alpha: 0.5),
-              height: 1.5,
+              height: 2,
             ),
           ),
         ],

@@ -35,7 +35,8 @@ class InnerPageTile extends StatelessWidget {
   Widget build(BuildContext context) {
     final colors = Provider.of<AppColors>(context);
     final previewMap = Provider.of<PreviewMap>(context, listen: false);
-    final saveImagesLocally = Provider.of<AppSettings>(context, listen: false).saveImagesLocally;
+    final settings = Provider.of<AppSettings>(context, listen: false);
+    final saveImagesLocally = settings.saveImagesLocally;
     final firstLink = LinkUtils.extractFirstLink(value);
 
     return Container(
@@ -138,7 +139,10 @@ class InnerPageTile extends StatelessWidget {
                             ),
                             actions: [
                               TextButton(
-                                onPressed: () => Navigator.pop(dialogContext),
+                                onPressed: () {
+                                  settings.triggerHaptic();
+                                  Navigator.pop(dialogContext);
+                                },
                                 child: Text(
                                   "Cancel",
                                   style: TextStyle(
@@ -149,6 +153,7 @@ class InnerPageTile extends StatelessWidget {
                               ),
                               TextButton(
                                 onPressed: () {
+                                  settings.triggerHaptic();
                                   Navigator.pop(dialogContext);
                                   if (firstLink != null) {
                                     context
@@ -191,6 +196,7 @@ class InnerPageTile extends StatelessWidget {
                       padding: const EdgeInsets.fromLTRB(22, 4, 22, 0),
                       child: InkWell(
                         onTap: () {
+                          settings.triggerHaptic();
                           launchUrl(
                             Uri.parse(LinkUtils.normalizeUrl(firstLink)),
                             mode: LaunchMode.externalApplication,
@@ -230,7 +236,10 @@ class InnerPageTile extends StatelessWidget {
                     Selector<PreviewMap, LinkPreviewData?>(
                       selector: (context, pm) {
                         if (!pm.cache.containsKey(firstLink)) {
-                          pm.loadPreviewSync(firstLink, saveLocally: saveImagesLocally);
+                          pm.loadPreviewSync(
+                            firstLink,
+                            saveLocally: saveImagesLocally,
+                          );
                         }
                         return pm.cache[firstLink];
                       },
@@ -245,7 +254,8 @@ class InnerPageTile extends StatelessWidget {
                           sideBorderColor: Colors.transparent,
                           imageBuilder: (image) {
                             final isSquare =
-                                previewData?.image?.height == previewData?.image?.width;
+                                previewData?.image?.height ==
+                                previewData?.image?.width;
                             return Container(
                               decoration: BoxDecoration(
                                 borderRadius: isSquare
@@ -253,10 +263,12 @@ class InnerPageTile extends StatelessWidget {
                                     : BorderRadius.circular(30),
                                 image: DecorationImage(
                                   image:
-                                      previewMap.localImagePaths[firstLink] != null
+                                      previewMap.localImagePaths[firstLink] !=
+                                          null
                                       ? FileImage(
                                           File(
-                                            previewMap.localImagePaths[firstLink]!,
+                                            previewMap
+                                                .localImagePaths[firstLink]!,
                                           ),
                                         )
                                       : NetworkImage(image) as ImageProvider,
@@ -265,7 +277,12 @@ class InnerPageTile extends StatelessWidget {
                               ),
                             );
                           },
-                          outsidePadding: const EdgeInsets.fromLTRB(10, 10, 10, 18),
+                          outsidePadding: const EdgeInsets.fromLTRB(
+                            10,
+                            10,
+                            10,
+                            18,
+                          ),
                           enableAnimation: true,
 
                           // Style of the head text

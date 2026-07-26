@@ -152,7 +152,10 @@ class _NoteCardState extends State<NoteCard> {
         );
       }
       final previewMap = Provider.of<PreviewMap>(context, listen: false);
-      final saveImagesLocally = Provider.of<AppSettings>(context, listen: false).saveImagesLocally;
+      final saveImagesLocally = Provider.of<AppSettings>(
+        context,
+        listen: false,
+      ).saveImagesLocally;
       return Padding(
         padding: const EdgeInsets.only(bottom: 8),
         child: Column(

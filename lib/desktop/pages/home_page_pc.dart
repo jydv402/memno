@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:lottie/lottie.dart';
 import 'package:memno/desktop/components/desktop_notification.dart';
 import 'package:memno/desktop/components/file_icon_tile.dart';
 import 'package:memno/logic/functionality/code_gen.dart';
@@ -59,7 +60,8 @@ class _DesktopHomePageState extends State<DesktopHomePage> {
     final parsedDates = <int, DateTime>{};
     for (final code in codes) {
       final dateStr = codeGen.getDateForCode(code);
-      parsedDates[code] = DateTime.tryParse(dateStr) ?? DateTime.fromMillisecondsSinceEpoch(0);
+      parsedDates[code] =
+          DateTime.tryParse(dateStr) ?? DateTime.fromMillisecondsSinceEpoch(0);
     }
     codes.sort((a, b) => parsedDates[b]!.compareTo(parsedDates[a]!));
 
@@ -80,11 +82,11 @@ class _DesktopHomePageState extends State<DesktopHomePage> {
   String get _emptyMessage {
     switch (widget.filterIndex) {
       case 1:
-        return 'No liked notes';
+        return 'No liked codes yet';
       case 2:
-        return 'No empty notes';
+        return 'No empty codes yet';
       default:
-        return 'No notes yet';
+        return "It's so empty here!\nClick the + button to generate a\nNew Code";
     }
   }
 
@@ -169,13 +171,21 @@ class _DesktopHomePageState extends State<DesktopHomePage> {
         Expanded(
           child: codes.isEmpty
               ? Center(
-                  child: Text(
-                    _emptyMessage,
-                    style: TextStyle(
-                      fontFamily: 'GoogleSans',
-                      fontSize: 16,
-                      color: colors.textClr.withValues(alpha: 0.5),
-                    ),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      LottieBuilder.asset('assets/empty.lottie', height: 180),
+                      Text(
+                        _emptyMessage,
+                        style: TextStyle(
+                          fontFamily: 'GoogleSans',
+                          fontSize: 16,
+                          color: colors.textClr,
+                          height: 2,
+                        ),
+                        textAlign: TextAlign.center,
+                      ),
+                    ],
                   ),
                 )
               : GridView.builder(

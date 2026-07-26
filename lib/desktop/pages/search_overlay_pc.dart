@@ -99,7 +99,8 @@ class _DesktopSearchOverlayState extends State<DesktopSearchOverlay>
     final parsedDates = <int, DateTime>{};
     for (final code in filtered) {
       final dateStr = codeGen.getDateForCode(code);
-      parsedDates[code] = DateTime.tryParse(dateStr) ?? DateTime.fromMillisecondsSinceEpoch(0);
+      parsedDates[code] =
+          DateTime.tryParse(dateStr) ?? DateTime.fromMillisecondsSinceEpoch(0);
     }
     filtered.sort((a, b) => parsedDates[b]!.compareTo(parsedDates[a]!));
 

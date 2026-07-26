@@ -5,6 +5,7 @@ import 'package:memno/mobile/components/show_toast.dart';
 import 'package:memno/logic/functionality/code_gen.dart';
 import 'package:memno/logic/functionality/preview_map.dart';
 import 'package:memno/logic/theme/app_colors.dart';
+import 'package:memno/logic/theme/app_settings.dart';
 import 'package:provider/provider.dart';
 
 import 'package:memno/mobile/components/pill_button.dart';
@@ -72,7 +73,13 @@ class _SubTileStackState extends State<SubTileStack> {
                         borderRadius: BorderRadius.circular(radius),
                         child: InkWell(
                           borderRadius: BorderRadius.circular(radius),
-                          onTap: openContainer,
+                          onTap: () {
+                            Provider.of<AppSettings>(
+                              context,
+                              listen: false,
+                            ).triggerHaptic();
+                            openContainer();
+                          },
                           child: Column(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             crossAxisAlignment: CrossAxisAlignment.start,
@@ -94,7 +101,12 @@ class _SubTileStackState extends State<SubTileStack> {
                                         label: getFormattedDate(
                                           DateTime.parse(widget.date),
                                         ),
-                                        onPressed: () {},
+                                        onPressed: () {
+                                          Provider.of<AppSettings>(
+                                            context,
+                                            listen: false,
+                                          ).triggerHaptic();
+                                        },
                                       ),
                                       // Like Button
                                       PillButton(
@@ -109,6 +121,10 @@ class _SubTileStackState extends State<SubTileStack> {
                                             ? "Liked"
                                             : "Like",
                                         onPressed: () {
+                                          Provider.of<AppSettings>(
+                                            context,
+                                            listen: false,
+                                          ).triggerHaptic();
                                           context.read<CodeGen>().toggleLike(
                                             widget.code,
                                           );
@@ -130,6 +146,10 @@ class _SubTileStackState extends State<SubTileStack> {
                                         icon: Icons.delete_outline_rounded,
                                         label: "Delete",
                                         onPressed: () {
+                                          Provider.of<AppSettings>(
+                                            context,
+                                            listen: false,
+                                          ).triggerHaptic();
                                           setState(() {
                                             showDltConfirm = true;
                                           });
@@ -162,7 +182,13 @@ class _SubTileStackState extends State<SubTileStack> {
                                       radius: radius,
                                       length: length,
                                       code: widget.code,
-                                      onTap: openContainer,
+                                      onTap: () {
+                                        Provider.of<AppSettings>(
+                                          context,
+                                          listen: false,
+                                        ).triggerHaptic();
+                                        openContainer();
+                                      },
                                     ),
                                   ],
                                 ),
@@ -269,7 +295,10 @@ class ContainerButton extends StatelessWidget {
   Widget build(BuildContext context) {
     final colors = Provider.of<AppColors>(context);
     return InkWell(
-      onTap: onTap,
+      onTap: () {
+        Provider.of<AppSettings>(context, listen: false).triggerHaptic();
+        onTap();
+      },
       child: Container(
         width: 120,
         padding: const EdgeInsets.all(20),
@@ -352,7 +381,10 @@ class LengthIndicator extends StatelessWidget {
   Widget build(BuildContext context) {
     final colors = Provider.of<AppColors>(context);
     return InkWell(
-      onTap: onTap,
+      onTap: () {
+        Provider.of<AppSettings>(context, listen: false).triggerHaptic();
+        onTap();
+      },
       child: Container(
         width: 150,
         padding: const EdgeInsets.all(20),

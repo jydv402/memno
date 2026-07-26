@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:memno/mobile/components/settings_tile.dart';
 import 'package:memno/mobile/components/settings_title.dart';
+import 'package:memno/mobile/components/haptic_app_bar.dart';
 import 'package:memno/mobile/components/show_toast.dart';
 import 'package:memno/logic/functionality/check_update.dart';
 import 'package:memno/logic/functionality/import_export.dart';
@@ -21,10 +22,10 @@ class SettingsPage extends StatelessWidget {
     final settings = Provider.of<AppSettings>(context);
     return Scaffold(
       backgroundColor: colors.bgClr,
-      appBar: AppBar(
+      appBar: HapticAppBar(
         backgroundColor: colors.bgClr,
         foregroundColor: colors.fgClr,
-        automaticallyImplyLeading: !isEmbedded,
+        implyLeading: !isEmbedded,
       ),
       body: ListView(
         children: [
@@ -38,6 +39,14 @@ class SettingsPage extends StatelessWidget {
                 : settings.themeMode == AppThemeMode.light
                 ? Icons.light_mode_rounded
                 : Icons.dark_mode_rounded,
+          ),
+          // Haptic feedback toggle
+          SettingsTile(
+            title: "Haptic Feedback",
+            value: settings.enableHaptics,
+            onChanged: (val) async {
+              await settings.setEnableHaptics(val);
+            },
           ),
           // Settings for Data
           SettingsTitle(title: "Data", textClr: colors.textClr),

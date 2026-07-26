@@ -3,8 +3,10 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:memno/mobile/pages/inner_page.dart';
 import 'package:memno/mobile/components/show_toast.dart';
+import 'package:memno/mobile/components/haptic_app_bar.dart';
 import 'package:memno/logic/functionality/code_gen.dart';
 import 'package:memno/logic/theme/app_colors.dart';
+import 'package:memno/logic/theme/app_settings.dart';
 import 'package:provider/provider.dart';
 
 /// Page shown when the user shares text/link from another app.
@@ -57,7 +59,8 @@ class _ShareTargetPageState extends State<ShareTargetPage> {
     final parsedDates = <int, DateTime>{};
     for (final code in codes) {
       final dateStr = codeProvider.getDateForCode(code);
-      parsedDates[code] = DateTime.tryParse(dateStr) ?? DateTime.fromMillisecondsSinceEpoch(0);
+      parsedDates[code] =
+          DateTime.tryParse(dateStr) ?? DateTime.fromMillisecondsSinceEpoch(0);
     }
     codes.sort((a, b) => parsedDates[b]!.compareTo(parsedDates[a]!));
 
@@ -73,12 +76,13 @@ class _ShareTargetPageState extends State<ShareTargetPage> {
     );
   }
 
-  void _createNewAndSave() {
+  void _createNewAndSave() async {
+    Provider.of<AppSettings>(context, listen: false).triggerHaptic();
     if (_sharedTextController.text.isEmpty) return;
     final codeProvider = context.read<CodeGen>();
-    codeProvider.generateCode();
-    final newCode = codeProvider.codeList.last;
-    codeProvider.addLink(newCode, _sharedTextController.text);
+    final newCode = await codeProvider.generateCode();
+    await codeProvider.addLink(newCode, _sharedTextController.text);
+    if (!mounted) return;
     showToastMsg(context, "Saved to new code #$newCode");
 
     // Replace this page with InnerPage for the new code
@@ -101,7 +105,7 @@ class _ShareTargetPageState extends State<ShareTargetPage> {
 
     return Scaffold(
       backgroundColor: colors.bgClr,
-      appBar: AppBar(
+      appBar: HapticAppBar(
         backgroundColor: colors.bgClr,
         foregroundColor: colors.fgClr,
         surfaceTintColor: colors.bgClr,
@@ -327,7 +331,10 @@ class _CodePageTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return InkWell(
-      onTap: onTap,
+      onTap: () {
+        Provider.of<AppSettings>(context, listen: false).triggerHaptic();
+        onTap();
+      },
       child: Container(
         height: 100,
         margin: const EdgeInsets.fromLTRB(2, 4, 2, 4),
