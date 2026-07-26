@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:memno/logic/theme/app_colors.dart';
+import 'package:memno/logic/theme/app_settings.dart';
 import 'package:provider/provider.dart';
 
 class PillButton extends StatelessWidget {
@@ -23,6 +24,7 @@ class PillButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colors = Provider.of<AppColors>(context);
+    final settings = Provider.of<AppSettings>(context, listen: false);
     return ElevatedButton(
       style: ElevatedButton.styleFrom(
         backgroundColor: backgroundColor ?? colors.pill,
@@ -31,7 +33,10 @@ class PillButton extends StatelessWidget {
         padding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
         elevation: 0,
       ),
-      onPressed: onPressed,
+      onPressed: () {
+        settings.triggerHaptic();
+        onPressed();
+      },
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [

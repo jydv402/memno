@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:memno/logic/theme/app_colors.dart';
+import 'package:memno/logic/theme/app_settings.dart';
 import 'package:provider/provider.dart';
 
 class SettingsTile extends StatelessWidget {
@@ -26,6 +27,7 @@ class SettingsTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final settings = Provider.of<AppSettings>(context, listen: false);
     final colors = Provider.of<AppColors>(context);
 
     // If it's a switch tile, tapping the whole tile should toggle the switch
@@ -41,7 +43,12 @@ class SettingsTile extends StatelessWidget {
         borderRadius: BorderRadius.circular(50),
         clipBehavior: Clip.antiAlias,
         child: InkWell(
-          onTap: effectiveOnTap,
+          onTap: effectiveOnTap != null
+              ? () {
+                  settings.triggerHaptic();
+                  effectiveOnTap();
+                }
+              : null,
           child: Padding(
             padding: const EdgeInsets.fromLTRB(32, 16, 24, 16),
             child: Row(
@@ -79,7 +86,10 @@ class SettingsTile extends StatelessWidget {
                 if (value != null && onChanged != null)
                   Switch(
                     value: value!,
-                    onChanged: onChanged,
+                    onChanged: (val) {
+                      settings.triggerHaptic();
+                      onChanged!(val);
+                    },
                     trackColor: WidgetStateProperty.resolveWith<Color?>((
                       states,
                     ) {
@@ -127,7 +137,7 @@ class SettingsTile extends StatelessWidget {
                   trailing!
                 else if (trailingIcon != null)
                   Padding(
-                    padding: .only(right: 16),
+                    padding: const EdgeInsets.only(right: 16),
                     child: Icon(trailingIcon, color: colors.textClr),
                   ),
               ],

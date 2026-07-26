@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:memno/logic/theme/app_colors.dart';
+import 'package:memno/logic/theme/app_settings.dart';
 import 'package:provider/provider.dart';
 
 class InnerPageTopBar extends StatelessWidget {
@@ -46,7 +47,10 @@ class InnerPageTopBar extends StatelessWidget {
             right: 10,
             child: IconButton(
               tooltip: "Edit title",
-              onPressed: onPressed,
+              onPressed: () {
+                Provider.of<AppSettings>(context, listen: false).triggerHaptic();
+                onPressed?.call();
+              },
               icon: const Icon(Icons.mode_edit_outline_outlined),
               color: Colors.black,
             ),

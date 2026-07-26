@@ -4,6 +4,7 @@ import 'package:glassmorphism/glassmorphism.dart';
 import 'package:memno/logic/functionality/code_gen.dart';
 import 'package:memno/logic/theme/app_colors.dart';
 import 'package:memno/mobile/pages/inner_page.dart';
+import 'package:memno/logic/theme/app_settings.dart';
 import 'package:provider/provider.dart';
 
 class CustomFAB extends StatelessWidget {
@@ -65,6 +66,7 @@ class CustomFAB extends StatelessWidget {
                 fixedSize: Size(height - 20, height - 20),
               ),
               onPressed: () {
+                Provider.of<AppSettings>(context, listen: false).triggerHaptic();
                 context.read<CodeGen>().generateCode();
                 openContainer();
               },
@@ -78,7 +80,10 @@ class CustomFAB extends StatelessWidget {
                 shape: const CircleBorder(),
                 fixedSize: Size(height - 20, height - 20),
               ),
-              onPressed: onSearch,
+              onPressed: () {
+                Provider.of<AppSettings>(context, listen: false).triggerHaptic();
+                onSearch();
+              },
               child: const Icon(Icons.search_rounded, size: 30),
             ),
             const Spacer(),

@@ -3,8 +3,10 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:memno/mobile/pages/inner_page.dart';
 import 'package:memno/mobile/components/show_toast.dart';
+import 'package:memno/mobile/components/haptic_app_bar.dart';
 import 'package:memno/logic/functionality/code_gen.dart';
 import 'package:memno/logic/theme/app_colors.dart';
+import 'package:memno/logic/theme/app_settings.dart';
 import 'package:provider/provider.dart';
 
 /// Page shown when the user shares text/link from another app.
@@ -74,6 +76,7 @@ class _ShareTargetPageState extends State<ShareTargetPage> {
   }
 
   void _createNewAndSave() {
+    Provider.of<AppSettings>(context, listen: false).triggerHaptic();
     if (_sharedTextController.text.isEmpty) return;
     final codeProvider = context.read<CodeGen>();
     codeProvider.generateCode();
@@ -101,7 +104,7 @@ class _ShareTargetPageState extends State<ShareTargetPage> {
 
     return Scaffold(
       backgroundColor: colors.bgClr,
-      appBar: AppBar(
+      appBar: HapticAppBar(
         backgroundColor: colors.bgClr,
         foregroundColor: colors.fgClr,
         surfaceTintColor: colors.bgClr,
@@ -327,7 +330,10 @@ class _CodePageTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return InkWell(
-      onTap: onTap,
+      onTap: () {
+        Provider.of<AppSettings>(context, listen: false).triggerHaptic();
+        onTap();
+      },
       child: Container(
         height: 100,
         margin: const EdgeInsets.fromLTRB(2, 4, 2, 4),

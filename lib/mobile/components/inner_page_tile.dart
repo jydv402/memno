@@ -35,7 +35,8 @@ class InnerPageTile extends StatelessWidget {
   Widget build(BuildContext context) {
     final colors = Provider.of<AppColors>(context);
     final previewMap = Provider.of<PreviewMap>(context, listen: false);
-    final saveImagesLocally = Provider.of<AppSettings>(context, listen: false).saveImagesLocally;
+    final settings = Provider.of<AppSettings>(context, listen: false);
+    final saveImagesLocally = settings.saveImagesLocally;
     final firstLink = LinkUtils.extractFirstLink(value);
 
     return Container(
@@ -138,7 +139,10 @@ class InnerPageTile extends StatelessWidget {
                             ),
                             actions: [
                               TextButton(
-                                onPressed: () => Navigator.pop(dialogContext),
+                                onPressed: () {
+                                  settings.triggerHaptic();
+                                  Navigator.pop(dialogContext);
+                                },
                                 child: Text(
                                   "Cancel",
                                   style: TextStyle(
@@ -149,6 +153,7 @@ class InnerPageTile extends StatelessWidget {
                               ),
                               TextButton(
                                 onPressed: () {
+                                  settings.triggerHaptic();
                                   Navigator.pop(dialogContext);
                                   if (firstLink != null) {
                                     context
@@ -191,6 +196,7 @@ class InnerPageTile extends StatelessWidget {
                       padding: const EdgeInsets.fromLTRB(22, 4, 22, 0),
                       child: InkWell(
                         onTap: () {
+                          settings.triggerHaptic();
                           launchUrl(
                             Uri.parse(LinkUtils.normalizeUrl(firstLink)),
                             mode: LaunchMode.externalApplication,

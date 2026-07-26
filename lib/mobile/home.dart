@@ -8,6 +8,8 @@ import 'package:memno/mobile/components/home_search_tile.dart';
 import 'package:memno/mobile/components/navigation/home_custom_fab.dart';
 import 'package:memno/mobile/components/home_top_accent_box.dart';
 import 'package:memno/mobile/pages/settings_page.dart';
+import 'package:memno/logic/theme/app_settings.dart';
+import 'package:memno/mobile/components/haptic_app_bar.dart';
 import 'package:memno/mobile/pages/share_target_page.dart';
 import 'package:memno/mobile/components/show_toast.dart';
 import 'package:memno/mobile/components/sub_tile.dart';
@@ -192,7 +194,7 @@ class _HomePageState extends State<HomePage> {
 
     return Scaffold(
       backgroundColor: colors.bgClr,
-      appBar: AppBar(
+      appBar: HapticAppBar(
         backgroundColor: colors.bgClr,
         foregroundColor: colors.fgClr,
         surfaceTintColor: colors.bgClr,
@@ -206,7 +208,10 @@ class _HomePageState extends State<HomePage> {
           openColor: Theme.of(context).scaffoldBackgroundColor,
           middleColor: Theme.of(context).scaffoldBackgroundColor,
           closedBuilder: (context, openContainer) => IconButton(
-            onPressed: openContainer,
+            onPressed: () {
+              Provider.of<AppSettings>(context, listen: false).triggerHaptic();
+              openContainer();
+            },
             icon: const Icon(Icons.menu_rounded),
           ),
         ),
@@ -240,13 +245,13 @@ class _HomePageState extends State<HomePage> {
                         fontFamily: 'GoogleSans',
                         height: 2,
                       ),
-                      textAlign: .center,
+                      textAlign: TextAlign.center,
                     ),
                     SizedBox(height: MediaQuery.of(context).size.height * 0.35),
                   ],
                 )
               : ListView.builder(
-                  padding: .only(
+                  padding: EdgeInsets.only(
                     bottom: MediaQuery.of(context).size.height * 0.40,
                   ),
                   itemCount: filteredList.length + 1,
@@ -309,6 +314,7 @@ class _HomePageState extends State<HomePage> {
       color: Colors.black,
       direction: Axis.horizontal,
       onPressed: (int index) {
+        Provider.of<AppSettings>(context, listen: false).triggerHaptic();
         setState(() {
           _filter = Filters.values[index];
         });

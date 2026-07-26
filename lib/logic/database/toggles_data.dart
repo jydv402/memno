@@ -19,11 +19,15 @@ class TogglesData extends HiveObject {
   @HiveField(4, defaultValue: 'bottom')
   String dockPlacement;
 
+  @HiveField(5, defaultValue: true)
+  bool enableHaptics;
+
   TogglesData({
     this.darkMode = false,
     this.compactHeader = false,
     this.themeMode,
     this.saveImagesLocally = true,
     this.dockPlacement = 'left',
+    this.enableHaptics = true,
   });
 }

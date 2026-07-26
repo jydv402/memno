@@ -3,6 +3,7 @@ import 'package:memno/mobile/components/inner_page_tile.dart';
 import 'package:memno/mobile/components/navigation/morphing_fab.dart';
 import 'package:memno/mobile/components/inner_page_top_bar.dart';
 import 'package:memno/mobile/components/show_toast.dart';
+import 'package:memno/mobile/components/haptic_app_bar.dart';
 import 'package:memno/logic/functionality/code_gen.dart';
 import 'package:memno/logic/theme/app_colors.dart';
 import 'package:provider/provider.dart';
@@ -33,11 +34,11 @@ class _InnerPageState extends State<InnerPage>
 
     return Scaffold(
       backgroundColor: colors.bgClr,
-      appBar: AppBar(
+      appBar: HapticAppBar(
         backgroundColor: colors.bgClr,
         foregroundColor: colors.fgClr,
         surfaceTintColor: colors.bgClr,
-        automaticallyImplyLeading: !widget.isEmbedded,
+        implyLeading: !widget.isEmbedded,
       ),
       body: Consumer<CodeGen>(
         builder: (context, codeProvider, child) {
@@ -64,7 +65,7 @@ class _InnerPageState extends State<InnerPage>
                     ),
                     const SizedBox(height: 50),
                     Padding(
-                      padding: const .only(left: 24),
+                      padding: const EdgeInsets.only(left: 24),
                       child: Text(
                         ">  Empty note page.\n>  Let's start with adding a new Link or Note.\n>  Add a space after Link to add a trailing Note.",
                         style: TextStyle(
@@ -78,7 +79,7 @@ class _InnerPageState extends State<InnerPage>
                 )
               // Otherwise, show the list of links with previews
               : ListView.builder(
-                  padding: .only(
+                  padding: EdgeInsets.only(
                     bottom: MediaQuery.of(context).size.height * 0.30,
                   ),
                   itemCount: links.length + 1,

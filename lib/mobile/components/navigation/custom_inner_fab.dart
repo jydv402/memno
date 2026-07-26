@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:memno/logic/theme/app_colors.dart';
+import 'package:memno/logic/theme/app_settings.dart';
 import 'package:memno/mobile/components/pill_button.dart';
 import 'package:provider/provider.dart';
 
@@ -101,7 +102,10 @@ class CustomInnerFAB extends StatelessWidget {
                     children: [
                       const Spacer(),
                       IconButton(
-                        onPressed: onConfirm,
+                        onPressed: () {
+                          Provider.of<AppSettings>(context, listen: false).triggerHaptic();
+                          onConfirm();
+                        },
                         icon: Icon(
                           isEditMode == 0
                               ? Icons.add_rounded
@@ -111,7 +115,10 @@ class CustomInnerFAB extends StatelessWidget {
                       ),
                       const Spacer(),
                       IconButton(
-                        onPressed: onCancel,
+                        onPressed: () {
+                          Provider.of<AppSettings>(context, listen: false).triggerHaptic();
+                          onCancel();
+                        },
                         icon: const Icon(
                           Icons.close_rounded,
                           color: Colors.red,
