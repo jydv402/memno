@@ -3,6 +3,7 @@ import 'dart:io' show Platform;
 
 import 'package:animations/animations.dart';
 import 'package:flutter/material.dart';
+import 'package:lottie/lottie.dart';
 import 'package:memno/mobile/components/home_search_tile.dart';
 import 'package:memno/mobile/components/navigation/home_custom_fab.dart';
 import 'package:memno/mobile/components/home_top_accent_box.dart';
@@ -177,11 +178,11 @@ class _HomePageState extends State<HomePage> {
     }
     switch (_filter) {
       case Filters.all:
-        return "Generate Code to view";
+        return "It's so empty here!\nPress the + button to generate a\nNew Code";
       case Filters.liked:
-        return "No liked codes";
+        return "No liked codes yet";
       case Filters.empty:
-        return "No empty codes";
+        return "No empty codes yet";
     }
   }
 
@@ -227,15 +228,19 @@ class _HomePageState extends State<HomePage> {
                       filter: _filter,
                       customToggle: _customToggleButtons(context),
                     ),
-                    const SizedBox(height: 50),
-                    Center(
-                      child: Text(
-                        _emptyMsg(),
-                        style: TextStyle(
-                          color: colors.textClr,
-                          fontFamily: 'GoogleSans',
-                        ),
+                    const SizedBox(height: 80),
+                    LottieBuilder.asset(
+                      'assets/empty.lottie',
+                      height: MediaQuery.of(context).size.width / 3,
+                    ),
+                    Text(
+                      _emptyMsg(),
+                      style: TextStyle(
+                        color: colors.textClr,
+                        fontFamily: 'GoogleSans',
+                        height: 2,
                       ),
+                      textAlign: .center,
                     ),
                     SizedBox(height: MediaQuery.of(context).size.height * 0.35),
                   ],

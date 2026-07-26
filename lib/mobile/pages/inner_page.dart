@@ -24,7 +24,7 @@ class _InnerPageState extends State<InnerPage>
 
   int _isEditMode = 0; // 0: add, 1: edit, 2: edit title, 3: delete
   int _editIndex = -1; // Index of the item being edited/deleted
-  bool _isFabExpanded = false;
+  bool _isFabExpanded = true;
 
   @override
   Widget build(BuildContext context) {
@@ -63,12 +63,14 @@ class _InnerPageState extends State<InnerPage>
                       },
                     ),
                     const SizedBox(height: 50),
-                    Center(
+                    Padding(
+                      padding: const .only(left: 24),
                       child: Text(
-                        "It's so empty here...",
+                        ">  Empty note page.\n>  Let's start with adding a new Link or Note.\n>  Add a space after Link to add a trailing Note.",
                         style: TextStyle(
                           color: colors.textClr,
                           fontFamily: 'GoogleSans',
+                          height: 2,
                         ),
                       ),
                     ),

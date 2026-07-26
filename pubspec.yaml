@@ -52,6 +52,7 @@ dependencies:
   glassmorphism: ^3.0.0
   animations: ^2.1.1
   delightful_toast: ^1.1.0
+  lottie: ^3.5.1
 
   # Chat & Text Utilities
   flutter_chat_types: ^3.6.2
@@ -99,6 +100,7 @@ flutter:
     - assets/memno_512.png
     - assets/memno_light.png
     - assets/memno_dark.png
+    - assets/empty.lottie
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware
