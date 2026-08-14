@@ -19,6 +19,7 @@ import 'package:memno/logic/theme/app_colors.dart';
 import 'package:provider/provider.dart';
 import 'package:receive_sharing_intent/receive_sharing_intent.dart';
 import 'package:memno/logic/functionality/check_update.dart';
+import 'package:update_checker_bottom_sheet/update_checker_bottom_sheet.dart';
 
 enum Filters { all, liked, empty }
 
@@ -47,7 +48,7 @@ class _HomePageState extends State<HomePage> {
 
   void _checkForUpdates() async {
     if (mounted) {
-      await checkAppUpdate(context, false);
+      await checkAppUpdate(context, false, UpdateCheckerStyle.bottomSheet);
     }
   }
 

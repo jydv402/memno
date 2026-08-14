@@ -1,6 +1,4 @@
-import 'dart:io' show Platform;
 import 'package:flutter/material.dart';
-import 'package:memno/mobile/components/show_toast.dart';
 import 'package:memno/logic/theme/app_colors.dart';
 import 'package:provider/provider.dart';
 import 'package:update_checker_bottom_sheet/update_checker_bottom_sheet.dart';
@@ -87,14 +85,11 @@ class AppUpdateTheme {
 }
 
 /// Checks and triggers the update checker flow.
-Future<void> checkAppUpdate(BuildContext context, bool showIfUpToDate) async {
-  if (!Platform.isAndroid) {
-    if (showIfUpToDate) {
-      showToastMsg(context, "Updates are only supported on Android");
-    }
-    return;
-  }
-
+Future<void> checkAppUpdate(
+  BuildContext context,
+  bool showIfUpToDate,
+  UpdateCheckerStyle updateCheckerStyle,
+) async {
   final colors = Provider.of<AppColors>(context, listen: false);
 
   UpdateChecker.theme = colors.isDarkMode
@@ -105,5 +100,6 @@ Future<void> checkAppUpdate(BuildContext context, bool showIfUpToDate) async {
     context,
     githubRepo: "jydv402/memno",
     showIfUpToDate: showIfUpToDate,
+    style: updateCheckerStyle,
   );
 }

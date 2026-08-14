@@ -10,6 +10,7 @@ import 'package:memno/logic/functionality/preview_map.dart';
 import 'package:memno/logic/theme/app_colors.dart';
 import 'package:memno/logic/theme/app_settings.dart';
 import 'package:provider/provider.dart';
+import 'package:update_checker_bottom_sheet/update_checker_bottom_sheet.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class SettingsPage extends StatelessWidget {
@@ -69,7 +70,11 @@ class SettingsPage extends StatelessWidget {
           SettingsTile(
             title: "Check for updates",
             onTap: () async {
-              await checkAppUpdate(context, true);
+              await checkAppUpdate(
+                context,
+                true,
+                UpdateCheckerStyle.bottomSheet,
+              );
             },
             trailingIcon: Icons.file_download_outlined,
           ),
