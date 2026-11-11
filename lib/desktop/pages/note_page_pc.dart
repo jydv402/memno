@@ -182,7 +182,7 @@ class _DesktopNotePageState extends State<DesktopNotePage> {
               'Delete',
               style: TextStyle(
                 fontFamily: 'GoogleSans',
-                color: Colors.red.shade400,
+                color: colors.dangerClr,
               ),
             ),
           ),
@@ -249,9 +249,9 @@ class _DesktopNotePageState extends State<DesktopNotePage> {
                   EditMode.editTitle => 'Edit title...',
                 },
                 confirmColor: switch (_editMode) {
-                  EditMode.add => const Color(0xFF4CAF50),
-                  EditMode.editEntry => const Color(0xFF2196F3),
-                  EditMode.editTitle => const Color(0xFFFF9800),
+                  EditMode.add => colors.successClr,
+                  EditMode.editEntry => colors.infoClr,
+                  EditMode.editTitle => colors.warningClr,
                 },
                 onConfirm: _confirmInput,
                 onCancel: _cancelInput,
@@ -388,7 +388,7 @@ class _NoteTopBar extends StatelessWidget {
                       : Icons.favorite_border_rounded,
                   size: 20,
                 ),
-                color: isLiked ? Colors.red : Colors.black54,
+                color: isLiked ? colors.likeClr : Colors.black54,
                 onPressed: onToggleLike,
                 tooltip: isLiked ? 'Unlike' : 'Like',
               );
@@ -536,7 +536,7 @@ class _NoteInputBar extends StatelessWidget {
 
               // Cancel button
               IconButton(
-                icon: Icon(Icons.close_rounded, color: Colors.red.shade400),
+                icon: Icon(Icons.close_rounded, color: colors.dangerClr),
                 onPressed: onCancel,
                 tooltip: 'Cancel (Esc)',
               ),

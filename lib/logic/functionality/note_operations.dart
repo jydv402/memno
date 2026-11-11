@@ -53,3 +53,23 @@ bool isLinkReferenced(CodeGen codeGen, String link) {
   }
   return false;
 }
+
+/// Deletes every note page together with every cached preview — the wipe-all
+/// counterpart of [deleteNoteWithPreviews]. Nothing survives, so no reference
+/// check is needed.
+Future<void> clearAllWithPreviews(
+  CodeGen codeGen,
+  PreviewMap previewMap,
+) async {
+  final allLinks = <String>{};
+  for (final code in codeGen.codeList) {
+    for (final entry in codeGen.getLinksForCode(code)) {
+      final link = LinkUtils.extractFirstLink(entry);
+      if (link != null) allLinks.add(link);
+    }
+  }
+  await codeGen.clearAll();
+  for (final link in allLinks) {
+    await previewMap.deletePreviewForLink(link);
+  }
+}

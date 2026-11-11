@@ -74,7 +74,7 @@ class _FileIconTileState extends State<FileIconTile> {
                     ? Icons.favorite_border_rounded
                     : Icons.favorite_rounded,
                 label: widget.isLiked ? 'Unlike Note' : 'Like Note',
-                color: widget.isLiked ? colors.textClr : Colors.red,
+                color: widget.isLiked ? colors.textClr : colors.likeClr,
               ),
             ),
           ),
@@ -86,7 +86,7 @@ class _FileIconTileState extends State<FileIconTile> {
               child: _ContextMenuItem(
                 icon: Icons.delete_outline_rounded,
                 label: 'Delete Note',
-                color: Colors.redAccent,
+                color: colors.dangerClr,
               ),
             ),
           ),
@@ -192,10 +192,14 @@ class _DocumentArea extends StatelessWidget {
 
           // Heart icon overlay (top-right) if liked
           if (tile.isLiked)
-            const Positioned(
+            Positioned(
               top: 8,
               right: 8,
-              child: Icon(Icons.favorite_rounded, size: 16, color: Colors.red),
+              child: Icon(
+                Icons.favorite_rounded,
+                size: 16,
+                color: colors.likeClr,
+              ),
             ),
 
           // Entry count badge (bottom-right)

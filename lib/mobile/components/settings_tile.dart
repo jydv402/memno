@@ -115,9 +115,9 @@ class SettingsTile extends StatelessWidget {
                     }),
                     thumbIcon: WidgetStateProperty.resolveWith<Icon?>((states) {
                       if (states.contains(WidgetState.selected)) {
-                        return const Icon(
+                        return Icon(
                           Icons.check_rounded,
-                          color: Color(0xFFdafc08),
+                          color: colors.accnt,
                           size: 16,
                         );
                       }

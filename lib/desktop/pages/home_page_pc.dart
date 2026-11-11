@@ -197,7 +197,7 @@ class _DesktopHomePageState extends State<DesktopHomePage> {
                 );
               },
               style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.redAccent,
+                backgroundColor: colors.dangerClr,
                 foregroundColor: Colors.white,
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(8),

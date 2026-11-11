@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:memno/desktop/components/desktop_notification.dart';
 import 'package:memno/logic/functionality/code_gen.dart';
 import 'package:memno/logic/functionality/import_export.dart';
+import 'package:memno/logic/functionality/note_operations.dart';
 import 'package:memno/logic/functionality/preview_map.dart';
 import 'package:memno/logic/theme/app_colors.dart';
 import 'package:memno/logic/theme/app_settings.dart';
@@ -385,7 +386,7 @@ class _ClearAllCard extends StatelessWidget {
           ElevatedButton(
             onPressed: () => Navigator.of(ctx).pop(true),
             style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.redAccent,
+              backgroundColor: colors.dangerClr,
               foregroundColor: Colors.white,
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(8),
@@ -405,7 +406,8 @@ class _ClearAllCard extends StatelessWidget {
 
     if (confirmed != true || !context.mounted) return;
     final codeGen = context.read<CodeGen>();
-    await codeGen.clearAll();
+    final previewMap = context.read<PreviewMap>();
+    await clearAllWithPreviews(codeGen, previewMap);
     if (context.mounted) {
       showDesktopNotification(context, 'All codes and links cleared');
     }

@@ -126,9 +126,9 @@ class CustomInnerFAB extends StatelessWidget {
                           ).triggerHaptic();
                           onCancel();
                         },
-                        icon: const Icon(
+                        icon: Icon(
                           Icons.close_rounded,
-                          color: Colors.red,
+                          color: colors.dangerClr,
                         ),
                       ),
                       const Spacer(),

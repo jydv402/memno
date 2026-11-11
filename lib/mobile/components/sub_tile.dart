@@ -117,7 +117,7 @@ class _SubTileStackState extends State<SubTileStack> {
                                             ? Icons.favorite_rounded
                                             : Icons.favorite_border_rounded,
                                         iconColor: widget.isLiked
-                                            ? Colors.red
+                                            ? colors.likeClr
                                             : colors.textClr,
                                         label: widget.isLiked
                                             ? "Liked"

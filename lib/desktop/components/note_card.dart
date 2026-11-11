@@ -192,12 +192,12 @@ class _NoteCardState extends State<NoteCard> {
                   LinkUtils.openExternalUrl(link.value!);
                 }
               },
-              linkStyle: const TextStyle(
-                color: Color(0xFF4A90D9),
+              linkStyle: TextStyle(
+                color: colors.linkClr,
                 fontFamily: 'GoogleSans',
                 fontSize: 13,
                 decoration: TextDecoration.underline,
-                decorationColor: Color(0xFF4A90D9),
+                decorationColor: colors.linkClr,
               ),
               textStyle: TextStyle(
                 color: colors.textClr,
@@ -349,7 +349,7 @@ class _ActionPillState extends State<_ActionPill> {
   @override
   Widget build(BuildContext context) {
     final fgColor = widget.isDestructive
-        ? Colors.red.shade400
+        ? widget.colors.dangerClr
         : widget.colors.textClr;
 
     return MouseRegion(

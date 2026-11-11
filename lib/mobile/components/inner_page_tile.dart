@@ -231,7 +231,10 @@ class _TileActionBar extends StatelessWidget {
             },
             child: Text(
               "Delete",
-              style: TextStyle(fontFamily: 'GoogleSans', color: Colors.red),
+              style: TextStyle(
+                fontFamily: 'GoogleSans',
+                color: colors.dangerClr,
+              ),
             ),
           ),
         ],
@@ -275,11 +278,11 @@ class _LinkContent extends StatelessWidget {
             child: Text(
               firstLink,
               style: TextStyle(
-                color: Colors.blue[300],
+                color: colors.linkClr,
                 fontFamily: 'GoogleSans',
                 fontSize: 16,
                 decoration: TextDecoration.underline,
-                decorationColor: Colors.blue[300],
+                decorationColor: colors.linkClr,
               ),
               maxLines: 1,
               overflow: TextOverflow.ellipsis,

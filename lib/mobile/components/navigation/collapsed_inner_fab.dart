@@ -24,8 +24,8 @@ class CollapsedInnerFAB extends StatelessWidget {
         begin: Alignment.topLeft,
         end: Alignment.bottomRight,
         colors: [
-          const Color(0xFFffffff).withValues(alpha: 0.1),
-          const Color(0xFFFFFFFF).withValues(alpha: 0.05),
+          Colors.white.withValues(alpha: 0.1),
+          Colors.white.withValues(alpha: 0.05),
         ],
         stops: const [0.1, 1],
       ),
@@ -33,8 +33,8 @@ class CollapsedInnerFAB extends StatelessWidget {
         begin: Alignment.topLeft,
         end: Alignment.bottomRight,
         colors: [
-          const Color(0xFFffffff).withValues(alpha: 0.5),
-          const Color((0xFFFFFFFF)).withValues(alpha: 0.5),
+          Colors.white.withValues(alpha: 0.5),
+          Colors.white.withValues(alpha: 0.5),
         ],
       ),
       child: Center(

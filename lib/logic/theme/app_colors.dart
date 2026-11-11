@@ -67,6 +67,12 @@ class AppColors extends ChangeNotifier with WidgetsBindingObserver {
   Color get thumbClr => isDarkMode ? _dark.thumbClr : _light.thumbClr;
   Color get switchTrackOutlineClr =>
       isDarkMode ? _dark.switchTrackOutlineClr : _light.switchTrackOutlineClr;
+  Color get likeClr => isDarkMode ? _dark.likeClr : _light.likeClr;
+  Color get dangerClr => isDarkMode ? _dark.dangerClr : _light.dangerClr;
+  Color get linkClr => isDarkMode ? _dark.linkClr : _light.linkClr;
+  Color get successClr => isDarkMode ? _dark.successClr : _light.successClr;
+  Color get infoClr => isDarkMode ? _dark.infoClr : _light.infoClr;
+  Color get warningClr => isDarkMode ? _dark.warningClr : _light.warningClr;
 }
 
 class LightColors {
@@ -84,6 +90,24 @@ class LightColors {
   final Color toastText = Colors.white;
   final Color thumbClr = Colors.black54;
   final Color switchTrackOutlineClr = Colors.black54;
+
+  /// Heart/favorite red.
+  final Color likeClr = Colors.red;
+
+  /// Destructive-action red (delete buttons, confirm dialogs).
+  final Color dangerClr = Colors.redAccent;
+
+  /// Hyperlink blue used by link previews and link text.
+  final Color linkClr = const Color(0xFF4A90D9);
+
+  /// Confirm-button green for the add-entry mode.
+  final Color successClr = const Color(0xFF4CAF50);
+
+  /// Confirm-button blue for the edit-entry mode.
+  final Color infoClr = const Color(0xFF2196F3);
+
+  /// Confirm-button orange for the edit-title mode.
+  final Color warningClr = const Color(0xFFFF9800);
 }
 
 class DarkColors {
@@ -101,4 +125,22 @@ class DarkColors {
   final Color toastText = Colors.black;
   final Color thumbClr = Colors.white;
   final Color switchTrackOutlineClr = Colors.transparent;
+
+  /// Heart/favorite red.
+  final Color likeClr = Colors.red;
+
+  /// Destructive-action red (delete buttons, confirm dialogs).
+  final Color dangerClr = Colors.redAccent;
+
+  /// Hyperlink blue used by link previews and link text.
+  final Color linkClr = const Color(0xFF4A90D9);
+
+  /// Confirm-button green for the add-entry mode.
+  final Color successClr = const Color(0xFF4CAF50);
+
+  /// Confirm-button blue for the edit-entry mode.
+  final Color infoClr = const Color(0xFF2196F3);
+
+  /// Confirm-button orange for the edit-title mode.
+  final Color warningClr = const Color(0xFFFF9800);
 }
