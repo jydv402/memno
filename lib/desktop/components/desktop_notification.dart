@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:memno/logic/theme/app_colors.dart';
 import 'package:provider/provider.dart';
 
-/// Shows a Windows 11-style desktop notification that slides in from the right
+/// Shows a Windows 11-style desktop notification that slides in from the left
 /// edge, auto-dismisses after 3 seconds, and smoothly fades out.
 ///
 /// Usage:

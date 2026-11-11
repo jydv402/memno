@@ -248,35 +248,22 @@ class _DesktopShellState extends State<DesktopShell> {
               crossAxisAlignment: CrossAxisAlignment.start,
               mainAxisSize: MainAxisSize.min,
               children: [
-                _buildShortcutGroupHeader('Global Navigation', colors),
+                _ShortcutGroupHeader(title: 'Global Navigation'),
                 const SizedBox(height: 8),
-                _buildShortcutRow('Ctrl + N', 'Create new code page', colors),
-                _buildShortcutRow('Ctrl + F', 'Open Spotlight search', colors),
-                _buildShortcutRow('Ctrl + ,', 'Open settings page', colors),
-                _buildShortcutRow('Ctrl + 1', 'Filter by "All Notes"', colors),
-                _buildShortcutRow(
-                  'Ctrl + 2',
-                  'Filter by "Liked Notes"',
-                  colors,
-                ),
-                _buildShortcutRow(
-                  'Ctrl + 3',
-                  'Filter by "Empty Notes"',
-                  colors,
-                ),
-                _buildShortcutRow('Escape', 'Go back / Close note', colors),
+                const _ShortcutRow('Ctrl + N', 'Create new code page'),
+                const _ShortcutRow('Ctrl + F', 'Open Spotlight search'),
+                const _ShortcutRow('Ctrl + ,', 'Open settings page'),
+                const _ShortcutRow('Ctrl + 1', 'Filter by "All Notes"'),
+                const _ShortcutRow('Ctrl + 2', 'Filter by "Liked Notes"'),
+                const _ShortcutRow('Ctrl + 3', 'Filter by "Empty Notes"'),
+                const _ShortcutRow('Escape', 'Go back / Close note'),
                 const SizedBox(height: 20),
-                _buildShortcutGroupHeader(
-                  'Note Editor (When editing a note)',
-                  colors,
+                _ShortcutGroupHeader(
+                  title: 'Note Editor (When editing a note)',
                 ),
                 const SizedBox(height: 8),
-                _buildShortcutRow(
-                  'Ctrl + Enter',
-                  'Save / Confirm entry',
-                  colors,
-                ),
-                _buildShortcutRow('Escape', 'Cancel editing', colors),
+                const _ShortcutRow('Ctrl + Enter', 'Save / Confirm entry'),
+                const _ShortcutRow('Escape', 'Cancel editing'),
               ],
             ),
           ),
@@ -302,8 +289,17 @@ class _DesktopShellState extends State<DesktopShell> {
       ),
     );
   }
+}
 
-  Column _buildShortcutGroupHeader(String title, AppColors colors) {
+/// Accent-colored group header inside the keyboard-shortcuts dialog.
+class _ShortcutGroupHeader extends StatelessWidget {
+  const _ShortcutGroupHeader({required this.title});
+
+  final String title;
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = Provider.of<AppColors>(context);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -320,8 +316,20 @@ class _DesktopShellState extends State<DesktopShell> {
       ],
     );
   }
+}
 
-  Padding _buildShortcutRow(String keys, String description, AppColors colors) {
+/// One keyboard-shortcut row: pill-style key badges on the left, description
+/// on the right.
+class _ShortcutRow extends StatelessWidget {
+  const _ShortcutRow(this.keys, this.description);
+
+  final String keys;
+  final String description;
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = Provider.of<AppColors>(context);
+    final parts = keys.split(' + ');
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 6.0),
       child: Row(
@@ -330,47 +338,21 @@ class _DesktopShellState extends State<DesktopShell> {
           Expanded(
             flex: 2,
             child: Row(
-              children: keys.split(' + ').map((key) {
-                final isLast = key == keys.split(' + ').last;
-                return Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 8,
-                        vertical: 4,
-                      ),
-                      decoration: BoxDecoration(
-                        color: colors.pill.withValues(alpha: 0.3),
-                        borderRadius: BorderRadius.circular(6),
-                        border: Border.all(
-                          color: colors.pill.withValues(alpha: 0.6),
-                          width: 1,
-                        ),
-                      ),
-                      child: Text(
-                        key,
-                        style: TextStyle(
-                          fontFamily: 'GoogleSans',
-                          fontWeight: FontWeight.bold,
-                          fontSize: 12,
-                          color: colors.textClr,
-                        ),
+              children: [
+                for (var i = 0; i < parts.length; i++) ...[
+                  _KeyBadge(keyLabel: parts[i]),
+                  if (i != parts.length - 1)
+                    Text(
+                      ' + ',
+                      style: TextStyle(
+                        fontFamily: 'GoogleSans',
+                        fontWeight: FontWeight.bold,
+                        fontSize: 12,
+                        color: colors.textClr.withValues(alpha: 0.6),
                       ),
                     ),
-                    if (!isLast)
-                      Text(
-                        ' + ',
-                        style: TextStyle(
-                          fontFamily: 'GoogleSans',
-                          fontWeight: FontWeight.bold,
-                          fontSize: 12,
-                          color: colors.textClr.withValues(alpha: 0.6),
-                        ),
-                      ),
-                  ],
-                );
-              }).toList(),
+                ],
+              ],
             ),
           ),
           Expanded(
@@ -385,6 +367,35 @@ class _DesktopShellState extends State<DesktopShell> {
             ),
           ),
         ],
+      ),
+    );
+  }
+}
+
+/// A single key rendered as a small bordered pill.
+class _KeyBadge extends StatelessWidget {
+  const _KeyBadge({required this.keyLabel});
+
+  final String keyLabel;
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = Provider.of<AppColors>(context);
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+      decoration: BoxDecoration(
+        color: colors.pill.withValues(alpha: 0.3),
+        borderRadius: BorderRadius.circular(6),
+        border: Border.all(color: colors.pill.withValues(alpha: 0.6), width: 1),
+      ),
+      child: Text(
+        keyLabel,
+        style: TextStyle(
+          fontFamily: 'GoogleSans',
+          fontWeight: FontWeight.bold,
+          fontSize: 12,
+          color: colors.textClr,
+        ),
       ),
     );
   }

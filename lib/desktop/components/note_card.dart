@@ -56,6 +56,35 @@ class NoteCard extends StatefulWidget {
 class _NoteCardState extends State<NoteCard> {
   bool _isHovered = false;
 
+  /// First valid URL inside [NoteCard.content], or null for plain text.
+  String? _firstLink;
+
+  @override
+  void initState() {
+    super.initState();
+    _syncPreview();
+  }
+
+  @override
+  void didUpdateWidget(covariant NoteCard oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.content != widget.content) {
+      _syncPreview();
+    }
+  }
+
+  /// Ensures the cached preview for this card's link is loaded into the
+  /// in-memory cache. Runs once per content change from the widget lifecycle —
+  /// never inside build() or a Selector, which must stay pure.
+  void _syncPreview() {
+    _firstLink = LinkUtils.extractFirstLink(widget.content);
+    final firstLink = _firstLink;
+    if (firstLink == null) return;
+    final previewMap = context.read<PreviewMap>();
+    final saveImagesLocally = context.read<AppSettings>().saveImagesLocally;
+    previewMap.loadPreviewSync(firstLink, saveLocally: saveImagesLocally);
+  }
+
   @override
   Widget build(BuildContext context) {
     final colors = Provider.of<AppColors>(context);
@@ -129,7 +158,7 @@ class _NoteCardState extends State<NoteCard> {
 
   Widget _buildContent(AppColors colors) {
     if (widget.isUrl) {
-      final firstLink = LinkUtils.extractFirstLink(widget.content);
+      final firstLink = _firstLink;
       if (firstLink == null) {
         return Padding(
           padding: const EdgeInsets.only(bottom: 8),
@@ -180,12 +209,7 @@ class _NoteCardState extends State<NoteCard> {
             const SizedBox(height: 8),
             // Show the link preview (rebuild isolated)
             Selector<PreviewMap, LinkPreviewData?>(
-              selector: (context, pm) {
-                if (!pm.cache.containsKey(firstLink)) {
-                  pm.loadPreviewSync(firstLink, saveLocally: saveImagesLocally);
-                }
-                return pm.cache[firstLink];
-              },
+              selector: (context, pm) => pm.cache[firstLink],
               builder: (context, previewData, child) {
                 return LinkPreview(
                   requestTimeout: const Duration(seconds: 10),

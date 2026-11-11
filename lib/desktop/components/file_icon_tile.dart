@@ -69,27 +69,12 @@ class _FileIconTileState extends State<FileIconTile> {
             value: 'like',
             child: MouseRegion(
               cursor: SystemMouseCursors.click,
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Icon(
-                    widget.isLiked
-                        ? Icons.favorite_border_rounded
-                        : Icons.favorite_rounded,
-                    color: widget.isLiked ? colors.textClr : Colors.red,
-                    size: 18,
-                  ),
-                  const SizedBox(width: 8),
-                  Text(
-                    widget.isLiked ? 'Unlike Note' : 'Like Note',
-                    style: TextStyle(
-                      fontFamily: 'GoogleSans',
-                      fontSize: 14,
-                      fontWeight: FontWeight.w600,
-                      color: colors.textClr,
-                    ),
-                  ),
-                ],
+              child: _ContextMenuItem(
+                icon: widget.isLiked
+                    ? Icons.favorite_border_rounded
+                    : Icons.favorite_rounded,
+                label: widget.isLiked ? 'Unlike Note' : 'Like Note',
+                color: widget.isLiked ? colors.textClr : Colors.red,
               ),
             ),
           ),
@@ -98,25 +83,10 @@ class _FileIconTileState extends State<FileIconTile> {
             value: 'delete',
             child: MouseRegion(
               cursor: SystemMouseCursors.click,
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  const Icon(
-                    Icons.delete_outline_rounded,
-                    color: Colors.redAccent,
-                    size: 18,
-                  ),
-                  const SizedBox(width: 8),
-                  Text(
-                    'Delete Note',
-                    style: TextStyle(
-                      fontFamily: 'GoogleSans',
-                      fontSize: 14,
-                      fontWeight: FontWeight.w600,
-                      color: Colors.redAccent,
-                    ),
-                  ),
-                ],
+              child: _ContextMenuItem(
+                icon: Icons.delete_outline_rounded,
+                label: 'Delete Note',
+                color: Colors.redAccent,
               ),
             ),
           ),
@@ -173,9 +143,9 @@ class _FileIconTileState extends State<FileIconTile> {
             child: Column(
               children: [
                 // Document icon area
-                Expanded(child: _buildDocumentArea(colors)),
+                Expanded(child: _DocumentArea(tile: widget)),
                 // Title area
-                _buildTitleArea(colors),
+                _TitleArea(tile: widget),
               ],
             ),
           ),
@@ -183,8 +153,18 @@ class _FileIconTileState extends State<FileIconTile> {
       ),
     );
   }
+}
 
-  Widget _buildDocumentArea(AppColors colors) {
+/// The document-icon half of a [FileIconTile]: code text, like overlay, and
+/// entry-count badge.
+class _DocumentArea extends StatelessWidget {
+  const _DocumentArea({required this.tile});
+
+  final FileIconTile tile;
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = Provider.of<AppColors>(context);
     return Container(
       width: double.infinity,
       decoration: BoxDecoration(
@@ -199,7 +179,7 @@ class _FileIconTileState extends State<FileIconTile> {
           // Centered code text
           Center(
             child: Text(
-              '#${widget.code}',
+              '#${tile.code}',
               style: TextStyle(
                 fontFamily: 'GoogleSans',
                 fontSize: 18,
@@ -211,7 +191,7 @@ class _FileIconTileState extends State<FileIconTile> {
           ),
 
           // Heart icon overlay (top-right) if liked
-          if (widget.isLiked)
+          if (tile.isLiked)
             const Positioned(
               top: 8,
               right: 8,
@@ -229,7 +209,7 @@ class _FileIconTileState extends State<FileIconTile> {
                 borderRadius: BorderRadius.circular(8),
               ),
               child: Text(
-                '${widget.entryCount}',
+                '${tile.entryCount}',
                 style: TextStyle(
                   fontFamily: 'GoogleSans',
                   fontSize: 11,
@@ -243,8 +223,17 @@ class _FileIconTileState extends State<FileIconTile> {
       ),
     );
   }
+}
 
-  Widget _buildTitleArea(AppColors colors) {
+/// The title strip below the document area of a [FileIconTile].
+class _TitleArea extends StatelessWidget {
+  const _TitleArea({required this.tile});
+
+  final FileIconTile tile;
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = Provider.of<AppColors>(context);
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
@@ -256,7 +245,7 @@ class _FileIconTileState extends State<FileIconTile> {
         ),
       ),
       child: Text(
-        widget.title,
+        tile.title,
         maxLines: 2,
         overflow: TextOverflow.ellipsis,
         style: TextStyle(
@@ -267,6 +256,40 @@ class _FileIconTileState extends State<FileIconTile> {
           height: 1.3,
         ),
       ),
+    );
+  }
+}
+
+/// Icon + label row used inside the right-click context menu.
+class _ContextMenuItem extends StatelessWidget {
+  const _ContextMenuItem({
+    required this.icon,
+    required this.label,
+    required this.color,
+  });
+
+  final IconData icon;
+  final String label;
+  final Color color;
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = Provider.of<AppColors>(context);
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Icon(icon, color: color, size: 18),
+        const SizedBox(width: 8),
+        Text(
+          label,
+          style: TextStyle(
+            fontFamily: 'GoogleSans',
+            fontSize: 14,
+            fontWeight: FontWeight.w600,
+            color: colors.textClr,
+          ),
+        ),
+      ],
     );
   }
 }

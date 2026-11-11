@@ -96,64 +96,12 @@ class _DesktopHomePageState extends State<DesktopHomePage> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         //  Header Bar
-        Padding(
-          padding: const EdgeInsets.fromLTRB(24, 28, 24, 8),
-          child: Row(
-            children: [
-              Text(
-                _filterTitle,
-                style: TextStyle(
-                  fontFamily: 'GoogleSans',
-                  fontWeight: FontWeight.bold,
-                  fontSize: 28,
-                  color: colors.textClr,
-                ),
-              ),
-              const SizedBox(width: 12),
-              Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 10,
-                  vertical: 4,
-                ),
-                decoration: BoxDecoration(
-                  color: colors.pill.withValues(alpha: 0.5),
-                  borderRadius: BorderRadius.circular(20),
-                ),
-                child: Text(
-                  '${codes.length}',
-                  style: TextStyle(
-                    fontFamily: 'GoogleSans',
-                    fontSize: 13,
-                    fontWeight: FontWeight.bold,
-                    color: colors.textClr,
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ),
+        _HomeHeader(title: _filterTitle, count: codes.length),
 
         //  Grid / Empty State
         Expanded(
           child: codes.isEmpty
-              ? Center(
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      LottieBuilder.asset('assets/empty.lottie', height: 180),
-                      Text(
-                        _emptyMessage,
-                        style: TextStyle(
-                          fontFamily: 'GoogleSans',
-                          fontSize: 16,
-                          color: colors.textClr,
-                          height: 2,
-                        ),
-                        textAlign: TextAlign.center,
-                      ),
-                    ],
-                  ),
-                )
+              ? _EmptyState(message: _emptyMessage)
               : GridView.builder(
                   padding: const EdgeInsets.all(24),
                   gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
@@ -271,6 +219,83 @@ class _DesktopHomePageState extends State<DesktopHomePage> {
 }
 
 // Pulsing Highlight Wrapper
+
+/// Home-page header row: filter title with a rounded count badge.
+class _HomeHeader extends StatelessWidget {
+  const _HomeHeader({required this.title, required this.count});
+
+  final String title;
+  final int count;
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = Provider.of<AppColors>(context);
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(24, 28, 24, 8),
+      child: Row(
+        children: [
+          Text(
+            title,
+            style: TextStyle(
+              fontFamily: 'GoogleSans',
+              fontWeight: FontWeight.bold,
+              fontSize: 28,
+              color: colors.textClr,
+            ),
+          ),
+          const SizedBox(width: 12),
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+            decoration: BoxDecoration(
+              color: colors.pill.withValues(alpha: 0.5),
+              borderRadius: BorderRadius.circular(20),
+            ),
+            child: Text(
+              '$count',
+              style: TextStyle(
+                fontFamily: 'GoogleSans',
+                fontSize: 13,
+                fontWeight: FontWeight.bold,
+                color: colors.textClr,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+/// Centered empty-state with the lottie animation and a filter-specific
+/// message.
+class _EmptyState extends StatelessWidget {
+  const _EmptyState({required this.message});
+
+  final String message;
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = Provider.of<AppColors>(context);
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          LottieBuilder.asset('assets/empty.lottie', height: 180),
+          Text(
+            message,
+            style: TextStyle(
+              fontFamily: 'GoogleSans',
+              fontSize: 16,
+              color: colors.textClr,
+              height: 2,
+            ),
+            textAlign: TextAlign.center,
+          ),
+        ],
+      ),
+    );
+  }
+}
 
 /// Wraps a child with a pulsing border animation when [isHighlighted] is true.
 class _MaybeHighlighted extends StatefulWidget {

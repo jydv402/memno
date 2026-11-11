@@ -41,7 +41,6 @@ class _HomePageState extends State<HomePage> {
   @override
   void initState() {
     super.initState();
-    clearState();
     _initShareIntent();
     WidgetsBinding.instance.addPostFrameCallback((_) => _checkForUpdates());
   }
@@ -104,7 +103,8 @@ class _HomePageState extends State<HomePage> {
     });
   }
 
-  void clearState() {
+  /// Clears the search query and collapses back to the FAB.
+  void _resetSearch() {
     setState(() {
       _searchController.clear();
       _searchedCode = '';
@@ -255,7 +255,7 @@ class _HomePageState extends State<HomePage> {
                 onSearch: _onSearch,
                 onPressed: () {
                   switchSearchMode();
-                  clearState();
+                  _resetSearch();
                 },
               )
             : CustomFAB(
@@ -265,7 +265,7 @@ class _HomePageState extends State<HomePage> {
                     showToastMsg(context, "No notes to search for");
                   } else {
                     switchSearchMode();
-                    clearState();
+                    _resetSearch();
                   }
                 },
               ),
