@@ -1,4 +1,5 @@
 import 'package:any_link_preview/any_link_preview.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 /// Provides utility helpers for link extraction and validation.
 class LinkUtils {
@@ -38,5 +39,16 @@ class LinkUtils {
       return 'https://$trimmedURL';
     }
     return trimmedURL;
+  }
+
+  /// Opens [url] in the platform's external browser app after normalizing its
+  /// scheme. Does nothing when [url] contains no valid link or cannot be
+  /// parsed as a URI.
+  static Future<void> openExternalUrl(String url) async {
+    final link = extractFirstLink(url);
+    if (link == null) return;
+    final uri = Uri.tryParse(normalizeUrl(link));
+    if (uri == null) return;
+    await launchUrl(uri, mode: LaunchMode.externalApplication);
   }
 }

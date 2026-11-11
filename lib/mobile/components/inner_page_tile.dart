@@ -6,6 +6,7 @@ import 'package:flutter_chat_core/flutter_chat_core.dart';
 import 'package:flutter_link_previewer/flutter_link_previewer.dart';
 import 'package:memno/logic/functionality/code_gen.dart';
 import 'package:memno/logic/functionality/link_utils.dart';
+import 'package:memno/logic/functionality/note_operations.dart';
 import 'package:memno/logic/functionality/preview_map.dart';
 import 'package:memno/logic/theme/app_colors.dart';
 import 'package:memno/logic/theme/app_settings.dart';
@@ -13,7 +14,6 @@ import 'package:memno/mobile/components/pill_button.dart';
 import 'package:memno/mobile/components/show_toast.dart';
 import 'package:provider/provider.dart';
 import 'package:share_plus/share_plus.dart';
-import 'package:url_launcher/url_launcher.dart';
 
 class InnerPageTile extends StatelessWidget {
   final int code;
@@ -79,10 +79,7 @@ class InnerPageTile extends StatelessWidget {
                         label: "Open Link",
                         icon: Icons.public,
                         onPressed: () {
-                          launchUrl(
-                            Uri.parse(LinkUtils.normalizeUrl(firstLink)),
-                            mode: LaunchMode.externalApplication,
-                          );
+                          LinkUtils.openExternalUrl(firstLink);
                         },
                       ),
 
@@ -155,12 +152,9 @@ class InnerPageTile extends StatelessWidget {
                                 onPressed: () {
                                   settings.triggerHaptic();
                                   Navigator.pop(dialogContext);
-                                  if (firstLink != null) {
-                                    context
-                                        .read<PreviewMap>()
-                                        .deletePreviewForLink(firstLink);
-                                  }
-                                  context.read<CodeGen>().deleteLink(
+                                  deleteEntryWithPreviews(
+                                    context.read<CodeGen>(),
+                                    context.read<PreviewMap>(),
                                     code,
                                     index - 1,
                                   );
@@ -197,10 +191,7 @@ class InnerPageTile extends StatelessWidget {
                       child: InkWell(
                         onTap: () {
                           settings.triggerHaptic();
-                          launchUrl(
-                            Uri.parse(LinkUtils.normalizeUrl(firstLink)),
-                            mode: LaunchMode.externalApplication,
-                          );
+                          LinkUtils.openExternalUrl(firstLink);
                         },
                         child: Text(
                           firstLink,

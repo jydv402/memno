@@ -7,6 +7,7 @@ import 'package:memno/desktop/pages/search_overlay_pc.dart';
 import 'package:memno/desktop/pages/settings_page_pc.dart';
 import 'package:memno/desktop/components/desktop_dock.dart';
 import 'package:memno/logic/functionality/code_gen.dart';
+import 'package:memno/logic/functionality/note_list.dart';
 import 'package:memno/logic/theme/app_colors.dart';
 import 'package:provider/provider.dart';
 
@@ -213,7 +214,7 @@ class _DesktopShellState extends State<DesktopShell> {
     // Home grid (All / Liked / Empty)
     return DesktopHomePage(
       key: ValueKey(_selectedDestination),
-      filterIndex: _selectedDestination,
+      filter: NoteFilter.values[_selectedDestination],
       onCodeSelected: _openNote,
       highlightedCode: _highlightedCode,
     );

@@ -1,9 +1,10 @@
-import 'dart:async';
 import 'dart:ui';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:memno/logic/functionality/code_gen.dart';
+import 'package:memno/logic/functionality/debouncer.dart';
+import 'package:memno/logic/functionality/note_list.dart';
 import 'package:memno/logic/theme/app_colors.dart';
 import 'package:provider/provider.dart';
 
@@ -31,7 +32,7 @@ class _DesktopSearchOverlayState extends State<DesktopSearchOverlay>
     with SingleTickerProviderStateMixin {
   final TextEditingController _searchController = TextEditingController();
   final FocusNode _searchFocusNode = FocusNode();
-  Timer? _debounceTimer;
+  final Debouncer _debouncer = Debouncer(const Duration(milliseconds: 300));
 
   List<int> _results = [];
   int _highlightedIndex = -1;
@@ -62,7 +63,7 @@ class _DesktopSearchOverlayState extends State<DesktopSearchOverlay>
 
   @override
   void dispose() {
-    _debounceTimer?.cancel();
+    _debouncer.cancel();
     _searchController.dispose();
     _searchFocusNode.dispose();
     _slideController.dispose();
@@ -72,10 +73,7 @@ class _DesktopSearchOverlayState extends State<DesktopSearchOverlay>
   // Search Logic
 
   void _onSearchChanged(String query) {
-    _debounceTimer?.cancel();
-    _debounceTimer = Timer(const Duration(milliseconds: 300), () {
-      _performSearch(query);
-    });
+    _debouncer(() => _performSearch(query));
   }
 
   void _performSearch(String query) {
@@ -88,21 +86,7 @@ class _DesktopSearchOverlayState extends State<DesktopSearchOverlay>
       return;
     }
 
-    final queryLower = query.toLowerCase();
-    final filtered = codeGen.codeList.where((code) {
-      final codeString = code.toString();
-      final heading = codeGen.getHeadForCode(code).toLowerCase();
-      return codeString.contains(queryLower) || heading.contains(queryLower);
-    }).toList();
-
-    // Sort by date, most recent first (Schwartzian transform)
-    final parsedDates = <int, DateTime>{};
-    for (final code in filtered) {
-      final dateStr = codeGen.getDateForCode(code);
-      parsedDates[code] =
-          DateTime.tryParse(dateStr) ?? DateTime.fromMillisecondsSinceEpoch(0);
-    }
-    filtered.sort((a, b) => parsedDates[b]!.compareTo(parsedDates[a]!));
+    final filtered = filterAndSortNotes(codeGen, query: query);
 
     setState(() {
       _results = filtered;

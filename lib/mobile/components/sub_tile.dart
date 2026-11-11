@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:memno/mobile/pages/inner_page.dart';
 import 'package:memno/mobile/components/show_toast.dart';
 import 'package:memno/logic/functionality/code_gen.dart';
+import 'package:memno/logic/functionality/date_utils.dart';
+import 'package:memno/logic/functionality/note_operations.dart';
 import 'package:memno/logic/functionality/preview_map.dart';
 import 'package:memno/logic/theme/app_colors.dart';
 import 'package:memno/logic/theme/app_settings.dart';
@@ -98,7 +100,7 @@ class _SubTileStackState extends State<SubTileStack> {
                                       // Date Display
                                       PillButton(
                                         icon: Icons.calendar_month_outlined,
-                                        label: getFormattedDate(
+                                        label: formatNoteDate(
                                           DateTime.parse(widget.date),
                                         ),
                                         onPressed: () {
@@ -204,13 +206,11 @@ class _SubTileStackState extends State<SubTileStack> {
                         onProceed: () {
                           final codeProvider = context.read<CodeGen>();
                           final previewMap = context.read<PreviewMap>();
-                          final linksToDelete = codeProvider.getLinksForCode(
+                          deleteNoteWithPreviews(
+                            codeProvider,
+                            previewMap,
                             widget.code,
                           );
-                          for (final link in linksToDelete) {
-                            previewMap.deletePreviewForLink(link);
-                          }
-                          codeProvider.clearList(widget.code);
                           setState(() {
                             showDltConfirm = false;
                           });
@@ -408,30 +408,4 @@ class LengthIndicator extends StatelessWidget {
       ),
     );
   }
-}
-
-const List months = [
-  "Jan",
-  "Feb",
-  "Mar",
-  "Apr",
-  "May",
-  "Jun",
-  "Jul",
-  "Aug",
-  "Sep",
-  "Oct",
-  "Nov",
-  "Dec",
-];
-
-String getFormattedDate(DateTime date) {
-  final minute = date.minute.toString().padLeft(2, '0');
-  final suffix = date.hour >= 12 ? 'pm' : 'am';
-  final hour12 = date.hour == 0
-      ? 12
-      : date.hour > 12
-      ? date.hour - 12
-      : date.hour;
-  return "${date.day} ${months[date.month - 1]} ${date.year}, $hour12:$minute $suffix";
 }

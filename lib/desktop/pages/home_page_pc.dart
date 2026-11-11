@@ -3,6 +3,8 @@ import 'package:lottie/lottie.dart';
 import 'package:memno/desktop/components/desktop_notification.dart';
 import 'package:memno/desktop/components/file_icon_tile.dart';
 import 'package:memno/logic/functionality/code_gen.dart';
+import 'package:memno/logic/functionality/note_list.dart';
+import 'package:memno/logic/functionality/note_operations.dart';
 import 'package:memno/logic/functionality/preview_map.dart';
 import 'package:memno/logic/theme/app_colors.dart';
 import 'package:provider/provider.dart';
@@ -14,11 +16,11 @@ import 'package:provider/provider.dart';
 ///
 /// File-explorer-style grid view for the desktop home page.
 ///
-/// Accepts a [filterIndex] indicating the current category filter, renders a header
+/// Accepts a [filter] indicating the current category filter, renders a header
 /// with the filter name and count badge, and displays note pages as grid tiles.
 class DesktopHomePage extends StatefulWidget {
-  /// Current filter index corresponding to All Notes, Liked Notes, or Empty Notes.
-  final int filterIndex;
+  /// Current category filter (All Notes, Liked Notes, or Empty Notes).
+  final NoteFilter filter;
 
   /// Callback when a file icon is tapped, passing the note code.
   final ValueChanged<int>? onCodeSelected;
@@ -28,7 +30,7 @@ class DesktopHomePage extends StatefulWidget {
 
   const DesktopHomePage({
     super.key,
-    required this.filterIndex,
+    required this.filter,
     this.onCodeSelected,
     this.highlightedCode,
   });
@@ -41,51 +43,27 @@ class _DesktopHomePageState extends State<DesktopHomePage> {
   // Filtering and Sorting
 
   List<int> _filteredCodes(CodeGen codeGen) {
-    List<int> codes;
-
-    switch (widget.filterIndex) {
-      case 1:
-        codes = codeGen.codeList
-            .where((c) => codeGen.getLikeForCode(c))
-            .toList();
-      case 2:
-        codes = codeGen.codeList
-            .where((c) => codeGen.getLinkListLength(c) == 0)
-            .toList();
-      default:
-        codes = List<int>.from(codeGen.codeList);
-    }
-
-    // Sort by date, most recent first (Schwartzian transform)
-    final parsedDates = <int, DateTime>{};
-    for (final code in codes) {
-      final dateStr = codeGen.getDateForCode(code);
-      parsedDates[code] =
-          DateTime.tryParse(dateStr) ?? DateTime.fromMillisecondsSinceEpoch(0);
-    }
-    codes.sort((a, b) => parsedDates[b]!.compareTo(parsedDates[a]!));
-
-    return codes;
+    return filterAndSortNotes(codeGen, filter: widget.filter);
   }
 
   String get _filterTitle {
-    switch (widget.filterIndex) {
-      case 1:
+    switch (widget.filter) {
+      case NoteFilter.liked:
         return 'Liked Notes';
-      case 2:
+      case NoteFilter.empty:
         return 'Empty Notes';
-      default:
+      case NoteFilter.all:
         return 'All Notes';
     }
   }
 
   String get _emptyMessage {
-    switch (widget.filterIndex) {
-      case 1:
+    switch (widget.filter) {
+      case NoteFilter.liked:
         return 'No liked codes yet';
-      case 2:
+      case NoteFilter.empty:
         return 'No empty codes yet';
-      default:
+      case NoteFilter.all:
         return "It's so empty here!\nClick the + button to generate a\nNew Code";
     }
   }
@@ -109,7 +87,7 @@ class _DesktopHomePageState extends State<DesktopHomePage> {
           switchInCurve: Curves.easeOut,
           switchOutCurve: Curves.easeIn,
           child: _buildContent(
-            key: ValueKey(widget.filterIndex),
+            key: ValueKey(widget.filter),
             colors: colors,
             codeGen: codeGen,
             codes: codes,
@@ -275,11 +253,7 @@ class _DesktopHomePageState extends State<DesktopHomePage> {
 
                 // Perform deletion including cleaning up previews
                 final previewMap = context.read<PreviewMap>();
-                final linksToDelete = codeGen.getLinksForCode(code);
-                for (final link in linksToDelete) {
-                  previewMap.deletePreviewForLink(link);
-                }
-                codeGen.clearList(code);
+                deleteNoteWithPreviews(codeGen, previewMap, code);
 
                 showDesktopNotification(
                   context,

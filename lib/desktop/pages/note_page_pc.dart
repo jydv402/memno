@@ -3,12 +3,13 @@ import 'package:flutter/services.dart';
 import 'package:memno/desktop/components/desktop_notification.dart';
 import 'package:memno/desktop/components/note_card.dart';
 import 'package:memno/logic/functionality/code_gen.dart';
+import 'package:memno/logic/functionality/edit_mode.dart';
 import 'package:memno/logic/functionality/link_utils.dart';
+import 'package:memno/logic/functionality/note_operations.dart';
 import 'package:memno/logic/functionality/preview_map.dart';
 import 'package:memno/logic/theme/app_colors.dart';
 import 'package:provider/provider.dart';
 import 'package:share_plus/share_plus.dart';
-import 'package:url_launcher/url_launcher.dart';
 
 /// Implements the desktop note detail page.
 /// Displays a single note page's content, listing individual text entries and link cards
@@ -39,7 +40,7 @@ class _DesktopNotePageState extends State<DesktopNotePage> {
   final FocusNode _inputFocusNode = FocusNode();
 
   /// Current input editing mode (add new entry, edit existing entry, or rename title).
-  int _editMode = 0;
+  EditMode _editMode = EditMode.add;
 
   /// Index of the entry being edited, applicable when editing an existing entry.
   int _editIndex = -1;
@@ -58,7 +59,7 @@ class _DesktopNotePageState extends State<DesktopNotePage> {
 
   void _startAddEntry() {
     setState(() {
-      _editMode = 0;
+      _editMode = EditMode.add;
       _editIndex = -1;
       _inputController.clear();
       _showInputBar = true;
@@ -68,7 +69,7 @@ class _DesktopNotePageState extends State<DesktopNotePage> {
 
   void _startEditEntry(int index, String currentText) {
     setState(() {
-      _editMode = 1;
+      _editMode = EditMode.editEntry;
       _editIndex = index;
       _inputController.text = currentText;
       _showInputBar = true;
@@ -78,7 +79,7 @@ class _DesktopNotePageState extends State<DesktopNotePage> {
 
   void _startEditTitle(String currentTitle) {
     setState(() {
-      _editMode = 2;
+      _editMode = EditMode.editTitle;
       _editIndex = -1;
       _inputController.text = currentTitle;
       _showInputBar = true;
@@ -93,15 +94,15 @@ class _DesktopNotePageState extends State<DesktopNotePage> {
     final codeProvider = context.read<CodeGen>();
 
     switch (_editMode) {
-      case 0:
+      case EditMode.add:
         // Add new entry
         codeProvider.addLink(widget.code, text);
         showDesktopNotification(context, 'Entry added');
-      case 1:
+      case EditMode.editEntry:
         // Edit existing entry
         codeProvider.editLink(widget.code, _editIndex, text);
         showDesktopNotification(context, 'Entry updated');
-      case 2:
+      case EditMode.editTitle:
         // Edit title
         codeProvider.addHead(widget.code, text);
         showDesktopNotification(context, 'Title updated');
@@ -110,7 +111,7 @@ class _DesktopNotePageState extends State<DesktopNotePage> {
     setState(() {
       _showInputBar = false;
       _inputController.clear();
-      _editMode = 0;
+      _editMode = EditMode.add;
       _editIndex = -1;
     });
   }
@@ -119,7 +120,7 @@ class _DesktopNotePageState extends State<DesktopNotePage> {
     setState(() {
       _showInputBar = false;
       _inputController.clear();
-      _editMode = 0;
+      _editMode = EditMode.add;
       _editIndex = -1;
     });
   }
@@ -133,7 +134,7 @@ class _DesktopNotePageState extends State<DesktopNotePage> {
     SharePlus.instance.share(ShareParams(text: content));
   }
 
-  void _deleteEntry(int index, String content) {
+  void _deleteEntry(int index) {
     final colors = Provider.of<AppColors>(context, listen: false);
 
     showDialog(
@@ -169,11 +170,12 @@ class _DesktopNotePageState extends State<DesktopNotePage> {
               Navigator.pop(ctx);
               final codeProvider = context.read<CodeGen>();
               final previewMap = context.read<PreviewMap>();
-              codeProvider.deleteLink(widget.code, index);
-              final firstLink = LinkUtils.extractFirstLink(content);
-              if (firstLink != null) {
-                previewMap.deletePreviewForLink(firstLink);
-              }
+              deleteEntryWithPreviews(
+                codeProvider,
+                previewMap,
+                widget.code,
+                index,
+              );
               showDesktopNotification(context, 'Entry deleted');
             },
             child: Text(
@@ -190,14 +192,7 @@ class _DesktopNotePageState extends State<DesktopNotePage> {
   }
 
   void _openUrl(String url) {
-    final firstLink = LinkUtils.extractFirstLink(url);
-    if (firstLink != null) {
-      final normalized = LinkUtils.normalizeUrl(firstLink);
-      final uri = Uri.tryParse(normalized);
-      if (uri != null) {
-        launchUrl(uri, mode: LaunchMode.externalApplication);
-      }
-    }
+    LinkUtils.openExternalUrl(url);
   }
 
   bool _isUrl(String text) {
@@ -395,7 +390,7 @@ class _DesktopNotePageState extends State<DesktopNotePage> {
                   onEdit: () => _startEditEntry(index, content),
                   onCopy: () => _copyEntry(content),
                   onShare: () => _shareEntry(content),
-                  onDelete: () => _deleteEntry(index, content),
+                  onDelete: () => _deleteEntry(index),
                   onTapUrl: isUrl ? () => _openUrl(content) : null,
                 ),
               );
@@ -415,22 +410,18 @@ class _DesktopNotePageState extends State<DesktopNotePage> {
     Color confirmColor;
 
     switch (_editMode) {
-      case 0:
+      case EditMode.add:
         hintText = 'Add a link or note...';
         confirmIcon = Icons.check_rounded;
         confirmColor = const Color(0xFF4CAF50);
-      case 1:
+      case EditMode.editEntry:
         hintText = 'Edit entry...';
         confirmIcon = Icons.check_rounded;
         confirmColor = const Color(0xFF2196F3);
-      case 2:
+      case EditMode.editTitle:
         hintText = 'Edit title...';
         confirmIcon = Icons.check_rounded;
         confirmColor = const Color(0xFFFF9800);
-      default:
-        hintText = 'Type here...';
-        confirmIcon = Icons.check_rounded;
-        confirmColor = const Color(0xFF4CAF50);
     }
 
     return Positioned(

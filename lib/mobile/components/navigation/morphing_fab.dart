@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:memno/logic/functionality/edit_mode.dart';
 import 'package:memno/mobile/components/navigation/collapsed_inner_fab.dart';
 import 'package:memno/mobile/components/navigation/custom_inner_fab.dart';
 
@@ -9,7 +10,7 @@ class MorphingFAB extends StatelessWidget {
   final VoidCallback onConfirm;
   final VoidCallback onCancel;
   final TextEditingController controller;
-  final int isEditMode;
+  final EditMode isEditMode;
   final FocusNode fabFocus;
   final bool isEmbedded;
 

@@ -1,10 +1,10 @@
-import 'dart:async';
-
 import 'package:flutter/material.dart';
 import 'package:memno/mobile/pages/inner_page.dart';
 import 'package:memno/mobile/components/show_toast.dart';
 import 'package:memno/mobile/components/haptic_app_bar.dart';
 import 'package:memno/logic/functionality/code_gen.dart';
+import 'package:memno/logic/functionality/debouncer.dart';
+import 'package:memno/logic/functionality/note_list.dart';
 import 'package:memno/logic/theme/app_colors.dart';
 import 'package:memno/logic/theme/app_settings.dart';
 import 'package:provider/provider.dart';
@@ -24,7 +24,7 @@ class _ShareTargetPageState extends State<ShareTargetPage> {
   final TextEditingController _searchController = TextEditingController();
   late final TextEditingController _sharedTextController;
   String _searchQuery = '';
-  Timer? _debounceTimer;
+  final Debouncer _debouncer = Debouncer(const Duration(milliseconds: 300));
 
   @override
   void initState() {
@@ -33,10 +33,7 @@ class _ShareTargetPageState extends State<ShareTargetPage> {
   }
 
   void _onSearch(String query) {
-    if (_debounceTimer?.isActive ?? false) {
-      _debounceTimer?.cancel();
-    }
-    _debounceTimer = Timer(const Duration(milliseconds: 300), () {
+    _debouncer(() {
       setState(() {
         _searchQuery = query;
       });
@@ -44,27 +41,7 @@ class _ShareTargetPageState extends State<ShareTargetPage> {
   }
 
   List<int> _filteredCodes(CodeGen codeProvider) {
-    List<int> codes = List.from(codeProvider.codeList);
-
-    if (_searchQuery.isNotEmpty) {
-      codes = codes.where((code) {
-        final codeString = code.toString();
-        final headString = codeProvider.getHeadForCode(code).toLowerCase();
-        final query = _searchQuery.toLowerCase();
-        return codeString.contains(query) || headString.contains(query);
-      }).toList();
-    }
-
-    // Sort by date, most recent first (Schwartzian transform)
-    final parsedDates = <int, DateTime>{};
-    for (final code in codes) {
-      final dateStr = codeProvider.getDateForCode(code);
-      parsedDates[code] =
-          DateTime.tryParse(dateStr) ?? DateTime.fromMillisecondsSinceEpoch(0);
-    }
-    codes.sort((a, b) => parsedDates[b]!.compareTo(parsedDates[a]!));
-
-    return codes;
+    return filterAndSortNotes(codeProvider, query: _searchQuery);
   }
 
   void _saveToCode(int code) {
@@ -93,7 +70,7 @@ class _ShareTargetPageState extends State<ShareTargetPage> {
 
   @override
   void dispose() {
-    _debounceTimer?.cancel();
+    _debouncer.cancel();
     _searchController.dispose();
     _sharedTextController.dispose();
     super.dispose();
