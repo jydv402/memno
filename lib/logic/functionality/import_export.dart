@@ -63,7 +63,7 @@ class ImportExport {
 
       // Retrieves save destination and writes file
       // Writes the file
-      String? result;
+      Uri? result;
       if (!kIsWeb &&
           (Platform.isWindows || Platform.isMacOS || Platform.isLinux)) {
         result = await FilePicker.saveFile(
@@ -74,7 +74,7 @@ class ImportExport {
           bytes: bytes,
         );
         if (result != null) {
-          final file = File(result);
+          final file = File(result.toFilePath());
           await file.writeAsBytes(bytes);
         }
       } else {

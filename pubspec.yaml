@@ -43,19 +43,17 @@ dependencies:
 
   # System & Platform Integration
   url_launcher: ^6.3.0
-  file_picker: ^12.0.0-beta.1
+  file_picker: ^13.3.3
   receive_sharing_intent: ^1.9.0
   share_plus: ^13.1.0
 
   # UI, Design & Animations
-  cupertino_icons: ^1.0.6
-  glassmorphism: ^3.0.0
-  animations: ^2.1.1
+  glassmorphism: ^4.0.0
+  animations: ^3.0.0
   delightful_toast: ^1.1.0
   lottie: ^3.5.1
 
   # Chat & Text Utilities
-  flutter_chat_types: ^3.6.2
   flutter_chat_core: ^2.9.0
   linkfy_text: ^1.1.6
   flutter_link_previewer: ^4.2.0
@@ -68,8 +66,8 @@ dependencies:
   path: any
 
   # App Lifecycle, Setup & Updates
-  flutter_native_splash: ^2.4.1
-  update_checker_bottom_sheet: ^0.0.6
+  update_checker_bottom_sheet: ^0.0.7
+
 dev_dependencies:
   # Testing & Code Quality
   flutter_test:
@@ -82,6 +80,9 @@ dev_dependencies:
 
   # Build Assets & Config
   flutter_launcher_icons: ^0.14.3
+
+  # Splash screen generation (build-time CLI tool, no runtime imports)
+  flutter_native_splash: ^2.4.1
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec

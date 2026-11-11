@@ -1,19 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:memno/logic/theme/app_colors.dart';
-import 'package:memno/mobile/home.dart';
 
 class TopAccentBox extends StatelessWidget {
   const TopAccentBox({
     super.key,
     required this.colors,
     required this.length,
-    required this.filter,
     required this.customToggle,
   });
 
   final AppColors colors;
   final int length;
-  final Filters filter;
   final Widget customToggle;
 
   @override

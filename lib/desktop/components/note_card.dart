@@ -9,7 +9,6 @@ import 'package:memno/logic/functionality/preview_map.dart';
 import 'package:memno/logic/theme/app_colors.dart';
 import 'package:memno/logic/theme/app_settings.dart';
 import 'package:provider/provider.dart';
-import 'package:url_launcher/url_launcher.dart';
 
 /// A card widget for displaying a single note entry or link in the desktop
 /// masonry grid layout.
@@ -27,7 +26,6 @@ class NoteCard extends StatefulWidget {
     required this.onCopy,
     required this.onShare,
     required this.onDelete,
-    this.onTapUrl,
   });
 
   /// 1-based index of this entry within the note page.
@@ -51,16 +49,41 @@ class NoteCard extends StatefulWidget {
   /// Called when the user taps the Delete action.
   final VoidCallback onDelete;
 
-  /// Called when the user taps a URL content. Only relevant when [isUrl] is
-  /// true.
-  final VoidCallback? onTapUrl;
-
   @override
   State<NoteCard> createState() => _NoteCardState();
 }
 
 class _NoteCardState extends State<NoteCard> {
   bool _isHovered = false;
+
+  /// First valid URL inside [NoteCard.content], or null for plain text.
+  String? _firstLink;
+
+  @override
+  void initState() {
+    super.initState();
+    _syncPreview();
+  }
+
+  @override
+  void didUpdateWidget(covariant NoteCard oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.content != widget.content) {
+      _syncPreview();
+    }
+  }
+
+  /// Ensures the cached preview for this card's link is loaded into the
+  /// in-memory cache. Runs once per content change from the widget lifecycle —
+  /// never inside build() or a Selector, which must stay pure.
+  void _syncPreview() {
+    _firstLink = LinkUtils.extractFirstLink(widget.content);
+    final firstLink = _firstLink;
+    if (firstLink == null) return;
+    final previewMap = context.read<PreviewMap>();
+    final saveImagesLocally = context.read<AppSettings>().saveImagesLocally;
+    previewMap.loadPreviewSync(firstLink, saveLocally: saveImagesLocally);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -135,7 +158,7 @@ class _NoteCardState extends State<NoteCard> {
 
   Widget _buildContent(AppColors colors) {
     if (widget.isUrl) {
-      final firstLink = LinkUtils.extractFirstLink(widget.content);
+      final firstLink = _firstLink;
       if (firstLink == null) {
         return Padding(
           padding: const EdgeInsets.only(bottom: 8),
@@ -166,19 +189,15 @@ class _NoteCardState extends State<NoteCard> {
               widget.content,
               onTap: (link) {
                 if (link.value != null) {
-                  final normalized = LinkUtils.normalizeUrl(link.value!);
-                  final uri = Uri.tryParse(normalized);
-                  if (uri != null) {
-                    launchUrl(uri, mode: LaunchMode.externalApplication);
-                  }
+                  LinkUtils.openExternalUrl(link.value!);
                 }
               },
-              linkStyle: const TextStyle(
-                color: Color(0xFF4A90D9),
+              linkStyle: TextStyle(
+                color: colors.linkClr,
                 fontFamily: 'GoogleSans',
                 fontSize: 13,
                 decoration: TextDecoration.underline,
-                decorationColor: Color(0xFF4A90D9),
+                decorationColor: colors.linkClr,
               ),
               textStyle: TextStyle(
                 color: colors.textClr,
@@ -190,12 +209,7 @@ class _NoteCardState extends State<NoteCard> {
             const SizedBox(height: 8),
             // Show the link preview (rebuild isolated)
             Selector<PreviewMap, LinkPreviewData?>(
-              selector: (context, pm) {
-                if (!pm.cache.containsKey(firstLink)) {
-                  pm.loadPreviewSync(firstLink, saveLocally: saveImagesLocally);
-                }
-                return pm.cache[firstLink];
-              },
+              selector: (context, pm) => pm.cache[firstLink],
               builder: (context, previewData, child) {
                 return LinkPreview(
                   requestTimeout: const Duration(seconds: 10),
@@ -335,7 +349,7 @@ class _ActionPillState extends State<_ActionPill> {
   @override
   Widget build(BuildContext context) {
     final fgColor = widget.isDestructive
-        ? Colors.red.shade400
+        ? widget.colors.dangerClr
         : widget.colors.textClr;
 
     return MouseRegion(

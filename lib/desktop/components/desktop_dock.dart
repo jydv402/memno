@@ -84,14 +84,8 @@ class _DesktopDockState extends State<DesktopDock> {
     _startHideTimer();
   }
 
-  @override
-  Widget build(BuildContext context) {
-    final colors = Provider.of<AppColors>(context);
-    final String placement = Provider.of<AppSettings>(context).dockPlacement;
-
-    final isHorizontal = placement == 'bottom' || placement == 'top';
-
-    final items = [
+  List<_DockItem> _buildItems() {
+    return [
       _DockItem(
         icon: widget.selectedIndex == 0 ? Icons.folder : Icons.folder_outlined,
         label: 'All Notes',
@@ -129,54 +123,33 @@ class _DesktopDockState extends State<DesktopDock> {
         onTap: widget.onNewPage,
       ),
     ];
+  }
 
-    // Build the dock body items
-    final List<Widget> children = [];
+  @override
+  Widget build(BuildContext context) {
+    final colors = Provider.of<AppColors>(context);
+    final String placement = Provider.of<AppSettings>(context).dockPlacement;
+    final isHorizontal = placement == 'bottom' || placement == 'top';
+
+    final items = _buildItems();
+    final children = <Widget>[];
     for (int i = 0; i < items.length; i++) {
       if (i == 4) {
         // Divider before actions
-        children.add(
-          isHorizontal
-              ? Container(
-                  width: 1,
-                  height: 28,
-                  color: colors.textClr.withValues(alpha: 0.2),
-                  margin: const EdgeInsets.symmetric(horizontal: 8),
-                )
-              : Container(
-                  height: 1,
-                  width: 28,
-                  color: colors.textClr.withValues(alpha: 0.2),
-                  margin: const EdgeInsets.symmetric(vertical: 8),
-                ),
-        );
+        children.add(_DockDivider(isHorizontal: isHorizontal));
       }
 
       final item = items[i];
       final isSelected = !item.isAction && widget.selectedIndex == item.index;
 
-      final button = Tooltip(
-        message: item.label,
-        preferBelow: placement == 'top',
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-        margin: const EdgeInsets.all(8),
-        decoration: BoxDecoration(
-          color: colors.toastBg,
-          borderRadius: BorderRadius.circular(8),
-        ),
-        textStyle: TextStyle(
-          fontFamily: 'GoogleSans',
-          color: colors.toastText,
-          fontSize: 12,
-          fontWeight: FontWeight.w600,
-        ),
-        child: Material(
-          color: isSelected
-              ? colors.accnt
-              : colors.pill.withValues(alpha: 0.25),
-          shape: const CircleBorder(),
-          clipBehavior: Clip.antiAlias,
-          child: InkWell(
+      children.add(
+        Padding(
+          padding: const EdgeInsets.all(4.0),
+          child: _DockButton(
+            icon: item.icon,
+            label: item.label,
+            tooltipBelow: placement == 'top',
+            isSelected: isSelected,
             onTap: () {
               if (item.isAction) {
                 item.onTap?.call();
@@ -184,24 +157,9 @@ class _DesktopDockState extends State<DesktopDock> {
                 widget.onDestinationChanged(item.index!);
               }
             },
-            hoverColor: colors.textClr.withValues(alpha: 0.15),
-            child: SizedBox(
-              width: 48,
-              height: 48,
-              child: Center(
-                child: Icon(
-                  item.icon,
-                  color: isSelected ? Colors.black : colors.textClr,
-                  size: 22,
-                ),
-              ),
-            ),
           ),
         ),
       );
-
-      // Add the button with padding to the children list
-      children.add(Padding(padding: const EdgeInsets.all(4.0), child: button));
     }
 
     final dockBody = MouseRegion(
@@ -265,23 +223,7 @@ class _DesktopDockState extends State<DesktopDock> {
                       )
                     : KeyedSubtree(
                         key: const ValueKey('collapsed_pill'),
-                        child: isHorizontal
-                            ? Container(
-                                width: 40,
-                                height: 4,
-                                decoration: BoxDecoration(
-                                  color: colors.textClr.withValues(alpha: 0.5),
-                                  borderRadius: BorderRadius.circular(2),
-                                ),
-                              )
-                            : Container(
-                                width: 4,
-                                height: 40,
-                                decoration: BoxDecoration(
-                                  color: colors.textClr.withValues(alpha: 0.5),
-                                  borderRadius: BorderRadius.circular(2),
-                                ),
-                              ),
+                        child: _CollapsedPill(isHorizontal: isHorizontal),
                       ),
               ),
             ),
@@ -321,21 +263,133 @@ class _DesktopDockState extends State<DesktopDock> {
           right: right,
           top: top,
           bottom: bottom,
-          child: isHorizontal
-              ? Align(
-                  alignment: placement == 'bottom'
-                      ? Alignment.bottomCenter
-                      : Alignment.topCenter,
-                  child: dockBody,
-                )
-              : Align(
-                  alignment: placement == 'left'
-                      ? Alignment.centerLeft
-                      : Alignment.centerRight,
-                  child: dockBody,
-                ),
+          child: Align(
+            alignment: switch (placement) {
+              'bottom' => Alignment.bottomCenter,
+              'top' => Alignment.topCenter,
+              'left' => Alignment.centerLeft,
+              _ => Alignment.centerRight,
+            },
+            child: dockBody,
+          ),
         ),
       ],
     );
+  }
+}
+
+/// Circle dock button with a tooltip.
+class _DockButton extends StatelessWidget {
+  const _DockButton({
+    required this.icon,
+    required this.label,
+    required this.tooltipBelow,
+    required this.isSelected,
+    required this.onTap,
+  });
+
+  final IconData icon;
+  final String label;
+  final bool tooltipBelow;
+  final bool isSelected;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = Provider.of<AppColors>(context);
+    return Tooltip(
+      message: label,
+      preferBelow: tooltipBelow,
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+      margin: const EdgeInsets.all(8),
+      decoration: BoxDecoration(
+        color: colors.toastBg,
+        borderRadius: BorderRadius.circular(8),
+      ),
+      textStyle: TextStyle(
+        fontFamily: 'GoogleSans',
+        color: colors.toastText,
+        fontSize: 12,
+        fontWeight: FontWeight.w600,
+      ),
+      child: Material(
+        color: isSelected ? colors.accnt : colors.pill.withValues(alpha: 0.25),
+        shape: const CircleBorder(),
+        clipBehavior: Clip.antiAlias,
+        child: InkWell(
+          onTap: onTap,
+          hoverColor: colors.textClr.withValues(alpha: 0.15),
+          child: SizedBox(
+            width: 48,
+            height: 48,
+            child: Center(
+              child: Icon(
+                icon,
+                color: isSelected ? Colors.black : colors.textClr,
+                size: 22,
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+/// Divider drawn before the action items (Search / New Page).
+class _DockDivider extends StatelessWidget {
+  const _DockDivider({required this.isHorizontal});
+
+  final bool isHorizontal;
+
+  @override
+  Widget build(BuildContext context) {
+    final color = Provider.of<AppColors>(
+      context,
+    ).textClr.withValues(alpha: 0.2);
+    return isHorizontal
+        ? Container(
+            width: 1,
+            height: 28,
+            color: color,
+            margin: const EdgeInsets.symmetric(horizontal: 8),
+          )
+        : Container(
+            height: 1,
+            width: 28,
+            color: color,
+            margin: const EdgeInsets.symmetric(vertical: 8),
+          );
+  }
+}
+
+/// The thin pill shown when the dock is collapsed.
+class _CollapsedPill extends StatelessWidget {
+  const _CollapsedPill({required this.isHorizontal});
+
+  final bool isHorizontal;
+
+  @override
+  Widget build(BuildContext context) {
+    final color = Provider.of<AppColors>(
+      context,
+    ).textClr.withValues(alpha: 0.5);
+    return isHorizontal
+        ? Container(
+            width: 40,
+            height: 4,
+            decoration: BoxDecoration(
+              color: color,
+              borderRadius: BorderRadius.circular(2),
+            ),
+          )
+        : Container(
+            width: 4,
+            height: 40,
+            decoration: BoxDecoration(
+              color: color,
+              borderRadius: BorderRadius.circular(2),
+            ),
+          );
   }
 }

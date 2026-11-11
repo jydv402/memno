@@ -1,9 +1,10 @@
-import 'dart:async';
 import 'dart:ui';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:memno/logic/functionality/code_gen.dart';
+import 'package:memno/logic/functionality/debouncer.dart';
+import 'package:memno/logic/functionality/note_list.dart';
 import 'package:memno/logic/theme/app_colors.dart';
 import 'package:provider/provider.dart';
 
@@ -31,7 +32,7 @@ class _DesktopSearchOverlayState extends State<DesktopSearchOverlay>
     with SingleTickerProviderStateMixin {
   final TextEditingController _searchController = TextEditingController();
   final FocusNode _searchFocusNode = FocusNode();
-  Timer? _debounceTimer;
+  final Debouncer _debouncer = Debouncer(const Duration(milliseconds: 300));
 
   List<int> _results = [];
   int _highlightedIndex = -1;
@@ -62,7 +63,7 @@ class _DesktopSearchOverlayState extends State<DesktopSearchOverlay>
 
   @override
   void dispose() {
-    _debounceTimer?.cancel();
+    _debouncer.cancel();
     _searchController.dispose();
     _searchFocusNode.dispose();
     _slideController.dispose();
@@ -72,10 +73,7 @@ class _DesktopSearchOverlayState extends State<DesktopSearchOverlay>
   // Search Logic
 
   void _onSearchChanged(String query) {
-    _debounceTimer?.cancel();
-    _debounceTimer = Timer(const Duration(milliseconds: 300), () {
-      _performSearch(query);
-    });
+    _debouncer(() => _performSearch(query));
   }
 
   void _performSearch(String query) {
@@ -88,21 +86,7 @@ class _DesktopSearchOverlayState extends State<DesktopSearchOverlay>
       return;
     }
 
-    final queryLower = query.toLowerCase();
-    final filtered = codeGen.codeList.where((code) {
-      final codeString = code.toString();
-      final heading = codeGen.getHeadForCode(code).toLowerCase();
-      return codeString.contains(queryLower) || heading.contains(queryLower);
-    }).toList();
-
-    // Sort by date, most recent first (Schwartzian transform)
-    final parsedDates = <int, DateTime>{};
-    for (final code in filtered) {
-      final dateStr = codeGen.getDateForCode(code);
-      parsedDates[code] =
-          DateTime.tryParse(dateStr) ?? DateTime.fromMillisecondsSinceEpoch(0);
-    }
-    filtered.sort((a, b) => parsedDates[b]!.compareTo(parsedDates[a]!));
+    final filtered = filterAndSortNotes(codeGen, query: query);
 
     setState(() {
       _results = filtered;
@@ -166,8 +150,6 @@ class _DesktopSearchOverlayState extends State<DesktopSearchOverlay>
 
   @override
   Widget build(BuildContext context) {
-    final colors = Provider.of<AppColors>(context);
-
     return Material(
       color: Colors.transparent,
       child: Focus(
@@ -199,10 +181,20 @@ class _DesktopSearchOverlayState extends State<DesktopSearchOverlay>
                       mainAxisSize: MainAxisSize.min,
                       children: [
                         // Results panel (above search bar)
-                        if (_results.isNotEmpty) _buildResultsPanel(colors),
+                        if (_results.isNotEmpty)
+                          _ResultsPanel(
+                            results: _results,
+                            highlightedIndex: _highlightedIndex,
+                            onSelect: _selectResult,
+                          ),
 
                         // Search bar
-                        _buildSearchBar(colors),
+                        _SearchBarField(
+                          controller: _searchController,
+                          focusNode: _searchFocusNode,
+                          onQueryChanged: _onSearchChanged,
+                          onQueryCleared: () => _performSearch(''),
+                        ),
                       ],
                     ),
                   ),
@@ -214,10 +206,56 @@ class _DesktopSearchOverlayState extends State<DesktopSearchOverlay>
       ),
     );
   }
+}
 
-  // Search Bar Widget
+/// Bottom-anchored spotlight search bar with a clear (×) button that appears
+/// while the query is non-empty.
+class _SearchBarField extends StatefulWidget {
+  const _SearchBarField({
+    required this.controller,
+    required this.focusNode,
+    required this.onQueryChanged,
+    required this.onQueryCleared,
+  });
 
-  Widget _buildSearchBar(AppColors colors) {
+  final TextEditingController controller;
+  final FocusNode focusNode;
+  final ValueChanged<String> onQueryChanged;
+  final VoidCallback onQueryCleared;
+
+  @override
+  State<_SearchBarField> createState() => _SearchBarFieldState();
+}
+
+class _SearchBarFieldState extends State<_SearchBarField> {
+  @override
+  void initState() {
+    super.initState();
+    widget.controller.addListener(_onControllerChanged);
+  }
+
+  @override
+  void didUpdateWidget(covariant _SearchBarField oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.controller != widget.controller) {
+      oldWidget.controller.removeListener(_onControllerChanged);
+      widget.controller.addListener(_onControllerChanged);
+    }
+  }
+
+  @override
+  void dispose() {
+    widget.controller.removeListener(_onControllerChanged);
+    super.dispose();
+  }
+
+  void _onControllerChanged() {
+    setState(() {});
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = Provider.of<AppColors>(context);
     return Container(
       height: 56,
       decoration: BoxDecoration(
@@ -236,9 +274,9 @@ class _DesktopSearchOverlayState extends State<DesktopSearchOverlay>
           const SizedBox(width: 12),
           Expanded(
             child: TextField(
-              controller: _searchController,
-              focusNode: _searchFocusNode,
-              onChanged: _onSearchChanged,
+              controller: widget.controller,
+              focusNode: widget.focusNode,
+              onChanged: widget.onQueryChanged,
               style: TextStyle(
                 fontFamily: 'GoogleSans',
                 fontSize: 16,
@@ -257,25 +295,38 @@ class _DesktopSearchOverlayState extends State<DesktopSearchOverlay>
               ),
             ),
           ),
-          if (_searchController.text.isNotEmpty)
+          if (widget.controller.text.isNotEmpty)
             IconButton(
               icon: Icon(Icons.close_rounded, color: colors.iconClr, size: 20),
               padding: EdgeInsets.zero,
               constraints: const BoxConstraints(),
               onPressed: () {
-                _searchController.clear();
-                _performSearch('');
+                widget.controller.clear();
+                widget.onQueryCleared();
               },
             ),
         ],
       ),
     );
   }
+}
 
-  // Results Panel Widget
+/// Scrollable panel of matching note pages shown above the search bar.
+class _ResultsPanel extends StatelessWidget {
+  const _ResultsPanel({
+    required this.results,
+    required this.highlightedIndex,
+    required this.onSelect,
+  });
 
-  Widget _buildResultsPanel(AppColors colors) {
-    final codeGen = context.read<CodeGen>();
+  final List<int> results;
+  final int highlightedIndex;
+  final ValueChanged<int> onSelect;
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = Provider.of<AppColors>(context);
+    final codeGen = Provider.of<CodeGen>(context, listen: false);
 
     return Container(
       constraints: const BoxConstraints(maxHeight: 400),
@@ -290,13 +341,13 @@ class _DesktopSearchOverlayState extends State<DesktopSearchOverlay>
         child: ListView.builder(
           shrinkWrap: true,
           padding: const EdgeInsets.symmetric(vertical: 8),
-          itemCount: _results.length,
+          itemCount: results.length,
           itemBuilder: (context, index) {
-            final code = _results[index];
+            final code = results[index];
             final heading = codeGen.getHeadForCode(code);
             final entryCount = codeGen.getLinkListLength(code);
             final isLiked = codeGen.getLikeForCode(code);
-            final isHighlighted = index == _highlightedIndex;
+            final isHighlighted = index == highlightedIndex;
 
             return Material(
               color: isHighlighted
@@ -335,7 +386,7 @@ class _DesktopSearchOverlayState extends State<DesktopSearchOverlay>
                       )
                     : null,
                 hoverColor: colors.pill.withValues(alpha: 0.3),
-                onTap: () => _selectResult(code),
+                onTap: () => onSelect(code),
               ),
             );
           },

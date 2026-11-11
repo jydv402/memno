@@ -4,23 +4,24 @@ import 'dart:io' show Platform;
 import 'package:animations/animations.dart';
 import 'package:flutter/material.dart';
 import 'package:lottie/lottie.dart';
-import 'package:memno/mobile/components/home_search_tile.dart';
-import 'package:memno/mobile/components/navigation/home_custom_fab.dart';
-import 'package:memno/mobile/components/home_top_accent_box.dart';
-import 'package:memno/mobile/pages/settings_page.dart';
+import 'package:memno/logic/functionality/check_update.dart';
+import 'package:memno/logic/functionality/code_gen.dart';
+import 'package:memno/logic/functionality/debouncer.dart';
+import 'package:memno/logic/functionality/note_list.dart';
+import 'package:memno/logic/theme/app_colors.dart';
 import 'package:memno/logic/theme/app_settings.dart';
+import 'package:memno/main.dart';
 import 'package:memno/mobile/components/haptic_app_bar.dart';
-import 'package:memno/mobile/pages/share_target_page.dart';
+import 'package:memno/mobile/components/home_search_tile.dart';
+import 'package:memno/mobile/components/home_top_accent_box.dart';
+import 'package:memno/mobile/components/navigation/home_custom_fab.dart';
 import 'package:memno/mobile/components/show_toast.dart';
 import 'package:memno/mobile/components/sub_tile.dart';
-import 'package:memno/logic/functionality/code_gen.dart';
-import 'package:memno/main.dart';
-import 'package:memno/logic/theme/app_colors.dart';
+import 'package:memno/mobile/pages/settings_page.dart';
+import 'package:memno/mobile/pages/share_target_page.dart';
 import 'package:provider/provider.dart';
 import 'package:receive_sharing_intent/receive_sharing_intent.dart';
-import 'package:memno/logic/functionality/check_update.dart';
-
-enum Filters { all, liked, empty }
+import 'package:update_checker_bottom_sheet/update_checker_bottom_sheet.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -30,24 +31,23 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  Filters _filter = Filters.all;
+  NoteFilter _filter = NoteFilter.all;
   final TextEditingController _searchController = TextEditingController();
   String _searchedCode = '';
   bool isSearchBarVisible = false;
-  Timer? _debounceTimer;
+  final Debouncer _debouncer = Debouncer(const Duration(milliseconds: 300));
   StreamSubscription? _shareSubscription;
 
   @override
   void initState() {
     super.initState();
-    clearState();
     _initShareIntent();
     WidgetsBinding.instance.addPostFrameCallback((_) => _checkForUpdates());
   }
 
   void _checkForUpdates() async {
     if (mounted) {
-      await checkAppUpdate(context, false);
+      await checkAppUpdate(context, false, UpdateCheckerStyle.bottomSheet);
     }
   }
 
@@ -92,7 +92,7 @@ class _HomePageState extends State<HomePage> {
   @override
   void dispose() {
     _shareSubscription?.cancel();
-    _debounceTimer?.cancel();
+    _debouncer.cancel();
     _searchController.dispose();
     super.dispose();
   }
@@ -103,7 +103,8 @@ class _HomePageState extends State<HomePage> {
     });
   }
 
-  void clearState() {
+  /// Clears the search query and collapses back to the FAB.
+  void _resetSearch() {
     setState(() {
       _searchController.clear();
       _searchedCode = '';
@@ -111,50 +112,18 @@ class _HomePageState extends State<HomePage> {
   }
 
   List<int> listFilter(CodeGen codeProvider) {
-    List<int> filteredList;
-    switch (_filter) {
-      case Filters.all:
-        filteredList = codeProvider.codeList;
-      case Filters.liked:
-        filteredList = codeProvider.codeList
-            .where((element) => codeProvider.getLikeForCode(element))
-            .toList();
-      case Filters.empty:
-        filteredList = codeProvider.codeList
-            .where((element) => codeProvider.getLinkListLength(element) == 0)
-            .toList();
-    }
-
-    if (_searchedCode.isNotEmpty) {
-      filteredList = filteredList.where((code) {
-        final codeString = code.toString();
-        final headString = codeProvider.getHeadForCode(code).toLowerCase();
-        final searchCodeLwr = _searchedCode.toLowerCase();
-        return codeString.contains(searchCodeLwr) ||
-            headString.contains(searchCodeLwr);
-      }).toList();
-    }
-    // Sort based on the date using Schwartzian transform (cache parses)
-    final parsedDates = <int, DateTime>{};
-    for (final code in filteredList) {
-      final dateStr = codeProvider.getDateForCode(code);
-      parsedDates[code] =
-          DateTime.tryParse(dateStr) ?? DateTime.fromMillisecondsSinceEpoch(0);
-    }
-    filteredList.sort((a, b) => parsedDates[b]!.compareTo(parsedDates[a]!));
-
-    return filteredList;
+    return filterAndSortNotes(
+      codeProvider,
+      filter: _filter,
+      query: _searchedCode,
+    );
   }
 
   /// Search function
   ///
-  /// Uses a debounce timer to prevent too many UI rebuilds
-  /// Current debounce time is 300ms
+  /// Debounced to prevent too many UI rebuilds.
   void _onSearch(String searchQuery) {
-    if (_debounceTimer?.isActive ?? false) {
-      _debounceTimer?.cancel();
-    }
-    _debounceTimer = Timer(const Duration(milliseconds: 300), () {
+    _debouncer(() {
       setState(() {
         _searchedCode = searchQuery;
       });
@@ -179,11 +148,11 @@ class _HomePageState extends State<HomePage> {
       return "No results found for \"$_searchedCode\"";
     }
     switch (_filter) {
-      case Filters.all:
+      case NoteFilter.all:
         return "It's so empty here!\nPress the + button to generate a\nNew Code";
-      case Filters.liked:
+      case NoteFilter.liked:
         return "No liked codes yet";
-      case Filters.empty:
+      case NoteFilter.empty:
         return "No empty codes yet";
     }
   }
@@ -230,7 +199,6 @@ class _HomePageState extends State<HomePage> {
                     TopAccentBox(
                       colors: colors,
                       length: filteredList.length,
-                      filter: _filter,
                       customToggle: _customToggleButtons(context),
                     ),
                     const SizedBox(height: 80),
@@ -260,7 +228,6 @@ class _HomePageState extends State<HomePage> {
                       return TopAccentBox(
                         colors: colors,
                         length: filteredList.length,
-                        filter: _filter,
                         customToggle: _customToggleButtons(context),
                       );
                     } else {
@@ -288,7 +255,7 @@ class _HomePageState extends State<HomePage> {
                 onSearch: _onSearch,
                 onPressed: () {
                   switchSearchMode();
-                  clearState();
+                  _resetSearch();
                 },
               )
             : CustomFAB(
@@ -298,7 +265,7 @@ class _HomePageState extends State<HomePage> {
                     showToastMsg(context, "No notes to search for");
                   } else {
                     switchSearchMode();
-                    clearState();
+                    _resetSearch();
                   }
                 },
               ),
@@ -320,11 +287,11 @@ class _HomePageState extends State<HomePage> {
       onPressed: (int index) {
         Provider.of<AppSettings>(context, listen: false).triggerHaptic();
         setState(() {
-          _filter = Filters.values[index];
+          _filter = NoteFilter.values[index];
         });
       },
       borderRadius: BorderRadius.circular(50),
-      isSelected: Filters.values.map((e) => e == _filter).toList(),
+      isSelected: NoteFilter.values.map((e) => e == _filter).toList(),
       children: [
         Padding(
           padding: EdgeInsets.symmetric(

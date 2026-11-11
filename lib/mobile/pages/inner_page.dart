@@ -5,6 +5,7 @@ import 'package:memno/mobile/components/inner_page_top_bar.dart';
 import 'package:memno/mobile/components/show_toast.dart';
 import 'package:memno/mobile/components/haptic_app_bar.dart';
 import 'package:memno/logic/functionality/code_gen.dart';
+import 'package:memno/logic/functionality/edit_mode.dart';
 import 'package:memno/logic/theme/app_colors.dart';
 import 'package:provider/provider.dart';
 
@@ -23,9 +24,23 @@ class _InnerPageState extends State<InnerPage>
   final TextEditingController _linkController = TextEditingController();
   final FocusNode _fabFocus = FocusNode();
 
-  int _isEditMode = 0; // 0: add, 1: edit, 2: edit title, 3: delete
-  int _editIndex = -1; // Index of the item being edited/deleted
+  EditMode _editMode = EditMode.add;
+  int _editIndex = -1; // Index of the item being edited
   bool _isFabExpanded = true;
+
+  /// Switches the FAB into [mode] with [initialText] pre-filled, then focuses
+  /// the input once the morph animation has started.
+  void _startInput(EditMode mode, String initialText) {
+    setState(() {
+      _editMode = mode;
+      _linkController.text = initialText;
+      _isFabExpanded = true;
+    });
+    Future.delayed(const Duration(milliseconds: 300), () {
+      if (!mounted) return;
+      FocusScope.of(context).requestFocus(_fabFocus);
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -52,15 +67,7 @@ class _InnerPageState extends State<InnerPage>
                     InnerPageTopBar(
                       head: head,
                       onPressed: () {
-                        setState(() {
-                          _isEditMode = 2;
-                          _linkController.text = head;
-                          _isFabExpanded = true;
-                        });
-                        Future.delayed(const Duration(milliseconds: 300), () {
-                          if (!context.mounted) return;
-                          FocusScope.of(context).requestFocus(_fabFocus);
-                        });
+                        _startInput(EditMode.editTitle, head);
                       },
                     ),
                     const SizedBox(height: 50),
@@ -89,15 +96,7 @@ class _InnerPageState extends State<InnerPage>
                       return InnerPageTopBar(
                         head: head,
                         onPressed: () {
-                          setState(() {
-                            _isEditMode = 2;
-                            _linkController.text = head;
-                            _isFabExpanded = true;
-                          });
-                          Future.delayed(const Duration(milliseconds: 300), () {
-                            if (!context.mounted) return;
-                            FocusScope.of(context).requestFocus(_fabFocus);
-                          });
+                          _startInput(EditMode.editTitle, head);
                         },
                       );
                     } else {
@@ -107,17 +106,7 @@ class _InnerPageState extends State<InnerPage>
                         value: links[index - 1],
                         isEmbedded: widget.isEmbedded,
                         onEdit: () {
-                          setState(() {
-                            _isEditMode = 1;
-                            _editIndex = index - 1;
-                            _linkController.text = links[index - 1];
-                            _isFabExpanded = true;
-                          });
-                          Future.delayed(const Duration(milliseconds: 300), () {
-                            if (context.mounted) {
-                              FocusScope.of(context).requestFocus(_fabFocus);
-                            }
-                          });
+                          _startInput(EditMode.editEntry, links[index - 1]);
                         },
                       );
                     }
@@ -140,26 +129,27 @@ class _InnerPageState extends State<InnerPage>
         },
         onConfirm: () {
           if (_linkController.text.isNotEmpty) {
-            if (_isEditMode == 1) {
-              // Edit existing link
-              codeProvider.editLink(
-                widget.code,
-                _editIndex,
-                _linkController.text,
-              );
-              showToastMsg(context, "Entry edited!");
-            } else if (_isEditMode == 2) {
-              // Edit title
-              codeProvider.addHead(widget.code, _linkController.text);
-              showToastMsg(context, "New title added!");
-            } else {
-              // Add new link
-              codeProvider.addLink(widget.code, _linkController.text);
-              showToastMsg(context, "New entry added!");
+            switch (_editMode) {
+              case EditMode.editEntry:
+                // Edit existing link
+                codeProvider.editLink(
+                  widget.code,
+                  _editIndex,
+                  _linkController.text,
+                );
+                showToastMsg(context, "Entry edited!");
+              case EditMode.editTitle:
+                // Edit title
+                codeProvider.addHead(widget.code, _linkController.text);
+                showToastMsg(context, "New title added!");
+              case EditMode.add:
+                // Add new link
+                codeProvider.addLink(widget.code, _linkController.text);
+                showToastMsg(context, "New entry added!");
             }
           }
           setState(() {
-            _isEditMode = 0;
+            _editMode = EditMode.add;
             _editIndex = -1;
           });
           _linkController.clear();
@@ -170,14 +160,14 @@ class _InnerPageState extends State<InnerPage>
             showToastMsg(context, "Action cancelled!");
           }
           setState(() {
-            _isEditMode = 0;
+            _editMode = EditMode.add;
             _editIndex = -1;
           });
           _linkController.clear();
           FocusScope.of(context).unfocus();
         },
         controller: _linkController,
-        isEditMode: _isEditMode,
+        isEditMode: _editMode,
         fabFocus: _fabFocus,
         isEmbedded: widget.isEmbedded,
       ),

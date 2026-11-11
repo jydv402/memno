@@ -3,12 +3,13 @@ import 'package:flutter/services.dart';
 import 'package:memno/desktop/components/desktop_notification.dart';
 import 'package:memno/desktop/components/note_card.dart';
 import 'package:memno/logic/functionality/code_gen.dart';
+import 'package:memno/logic/functionality/edit_mode.dart';
 import 'package:memno/logic/functionality/link_utils.dart';
+import 'package:memno/logic/functionality/note_operations.dart';
 import 'package:memno/logic/functionality/preview_map.dart';
 import 'package:memno/logic/theme/app_colors.dart';
 import 'package:provider/provider.dart';
 import 'package:share_plus/share_plus.dart';
-import 'package:url_launcher/url_launcher.dart';
 
 /// Implements the desktop note detail page.
 /// Displays a single note page's content, listing individual text entries and link cards
@@ -39,7 +40,7 @@ class _DesktopNotePageState extends State<DesktopNotePage> {
   final FocusNode _inputFocusNode = FocusNode();
 
   /// Current input editing mode (add new entry, edit existing entry, or rename title).
-  int _editMode = 0;
+  EditMode _editMode = EditMode.add;
 
   /// Index of the entry being edited, applicable when editing an existing entry.
   int _editIndex = -1;
@@ -58,7 +59,7 @@ class _DesktopNotePageState extends State<DesktopNotePage> {
 
   void _startAddEntry() {
     setState(() {
-      _editMode = 0;
+      _editMode = EditMode.add;
       _editIndex = -1;
       _inputController.clear();
       _showInputBar = true;
@@ -68,7 +69,7 @@ class _DesktopNotePageState extends State<DesktopNotePage> {
 
   void _startEditEntry(int index, String currentText) {
     setState(() {
-      _editMode = 1;
+      _editMode = EditMode.editEntry;
       _editIndex = index;
       _inputController.text = currentText;
       _showInputBar = true;
@@ -78,7 +79,7 @@ class _DesktopNotePageState extends State<DesktopNotePage> {
 
   void _startEditTitle(String currentTitle) {
     setState(() {
-      _editMode = 2;
+      _editMode = EditMode.editTitle;
       _editIndex = -1;
       _inputController.text = currentTitle;
       _showInputBar = true;
@@ -93,15 +94,15 @@ class _DesktopNotePageState extends State<DesktopNotePage> {
     final codeProvider = context.read<CodeGen>();
 
     switch (_editMode) {
-      case 0:
+      case EditMode.add:
         // Add new entry
         codeProvider.addLink(widget.code, text);
         showDesktopNotification(context, 'Entry added');
-      case 1:
+      case EditMode.editEntry:
         // Edit existing entry
         codeProvider.editLink(widget.code, _editIndex, text);
         showDesktopNotification(context, 'Entry updated');
-      case 2:
+      case EditMode.editTitle:
         // Edit title
         codeProvider.addHead(widget.code, text);
         showDesktopNotification(context, 'Title updated');
@@ -110,7 +111,7 @@ class _DesktopNotePageState extends State<DesktopNotePage> {
     setState(() {
       _showInputBar = false;
       _inputController.clear();
-      _editMode = 0;
+      _editMode = EditMode.add;
       _editIndex = -1;
     });
   }
@@ -119,7 +120,7 @@ class _DesktopNotePageState extends State<DesktopNotePage> {
     setState(() {
       _showInputBar = false;
       _inputController.clear();
-      _editMode = 0;
+      _editMode = EditMode.add;
       _editIndex = -1;
     });
   }
@@ -133,7 +134,7 @@ class _DesktopNotePageState extends State<DesktopNotePage> {
     SharePlus.instance.share(ShareParams(text: content));
   }
 
-  void _deleteEntry(int index, String content) {
+  void _deleteEntry(int index) {
     final colors = Provider.of<AppColors>(context, listen: false);
 
     showDialog(
@@ -169,35 +170,25 @@ class _DesktopNotePageState extends State<DesktopNotePage> {
               Navigator.pop(ctx);
               final codeProvider = context.read<CodeGen>();
               final previewMap = context.read<PreviewMap>();
-              codeProvider.deleteLink(widget.code, index);
-              final firstLink = LinkUtils.extractFirstLink(content);
-              if (firstLink != null) {
-                previewMap.deletePreviewForLink(firstLink);
-              }
+              deleteEntryWithPreviews(
+                codeProvider,
+                previewMap,
+                widget.code,
+                index,
+              );
               showDesktopNotification(context, 'Entry deleted');
             },
             child: Text(
               'Delete',
               style: TextStyle(
                 fontFamily: 'GoogleSans',
-                color: Colors.red.shade400,
+                color: colors.dangerClr,
               ),
             ),
           ),
         ],
       ),
     );
-  }
-
-  void _openUrl(String url) {
-    final firstLink = LinkUtils.extractFirstLink(url);
-    if (firstLink != null) {
-      final normalized = LinkUtils.normalizeUrl(firstLink);
-      final uri = Uri.tryParse(normalized);
-      if (uri != null) {
-        launchUrl(uri, mode: LaunchMode.externalApplication);
-      }
-    }
   }
 
   bool _isUrl(String text) {
@@ -210,8 +201,8 @@ class _DesktopNotePageState extends State<DesktopNotePage> {
   Widget build(BuildContext context) {
     final colors = Provider.of<AppColors>(context);
 
-    return Consumer2<CodeGen, PreviewMap>(
-      builder: (context, codeProvider, previewMap, _) {
+    return Consumer<CodeGen>(
+      builder: (context, codeProvider, _) {
         final links = codeProvider.getLinksForCode(widget.code);
         final title = codeProvider.getHeadForCode(widget.code);
 
@@ -220,12 +211,25 @@ class _DesktopNotePageState extends State<DesktopNotePage> {
             Column(
               children: [
                 //  Top Bar
-                _buildTopBar(colors, title),
+                _NoteTopBar(
+                  title: title,
+                  code: widget.code,
+                  onBack: widget.onBack,
+                  onEditTitle: () => _startEditTitle(title),
+                  onToggleLike: () {
+                    final wasLiked = codeProvider.getLikeForCode(widget.code);
+                    codeProvider.toggleLike(widget.code);
+                    showDesktopNotification(
+                      context,
+                      wasLiked ? 'Removed from liked' : 'Added to liked',
+                    );
+                  },
+                ),
 
                 //  Content Grid
                 Expanded(
                   child: links.isEmpty
-                      ? _buildEmptyState(colors)
+                      ? const _EmptyNoteState()
                       : _buildGrid(colors, links),
                 ),
 
@@ -235,7 +239,23 @@ class _DesktopNotePageState extends State<DesktopNotePage> {
             ),
 
             //  Floating Input Bar
-            if (_showInputBar) _buildInputBar(colors),
+            if (_showInputBar)
+              _NoteInputBar(
+                controller: _inputController,
+                focusNode: _inputFocusNode,
+                hintText: switch (_editMode) {
+                  EditMode.add => 'Add a link or note...',
+                  EditMode.editEntry => 'Edit entry...',
+                  EditMode.editTitle => 'Edit title...',
+                },
+                confirmColor: switch (_editMode) {
+                  EditMode.add => colors.successClr,
+                  EditMode.editEntry => colors.infoClr,
+                  EditMode.editTitle => colors.warningClr,
+                },
+                onConfirm: _confirmInput,
+                onCancel: _cancelInput,
+              ),
 
             //  FAB to add entry (when input bar is hidden)
             if (!_showInputBar)
@@ -252,120 +272,6 @@ class _DesktopNotePageState extends State<DesktopNotePage> {
           ],
         );
       },
-    );
-  }
-
-  Widget _buildTopBar(AppColors colors, String title) {
-    return Container(
-      width: double.infinity,
-      margin: const EdgeInsets.fromLTRB(24, 20, 24, 8),
-      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
-      decoration: BoxDecoration(
-        color: colors.accnt,
-        borderRadius: BorderRadius.circular(20),
-      ),
-      child: Row(
-        children: [
-          // Back button
-          IconButton(
-            icon: const Icon(Icons.arrow_back_rounded),
-            color: Colors.black,
-            onPressed: widget.onBack,
-            tooltip: 'Back to grid',
-          ),
-          const SizedBox(width: 12),
-
-          // Title
-          Expanded(
-            child: GestureDetector(
-              onDoubleTap: () => _startEditTitle(title),
-              child: Text(
-                title.isNotEmpty ? title : 'Untitled Note',
-                style: const TextStyle(
-                  fontFamily: 'GoogleSans',
-                  fontWeight: FontWeight.w700,
-                  fontSize: 28,
-                  color: Colors.black,
-                ),
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-              ),
-            ),
-          ),
-
-          // Edit title button
-          IconButton(
-            icon: const Icon(Icons.edit_rounded, size: 20),
-            color: Colors.black54,
-            onPressed: () => _startEditTitle(title),
-            tooltip: 'Edit title',
-          ),
-
-          // Like button
-          Consumer<CodeGen>(
-            builder: (context, codeProvider, _) {
-              final isLiked = codeProvider.getLikeForCode(widget.code);
-              return IconButton(
-                icon: Icon(
-                  isLiked
-                      ? Icons.favorite_rounded
-                      : Icons.favorite_border_rounded,
-                  size: 20,
-                ),
-                color: isLiked ? Colors.red : Colors.black54,
-                onPressed: () {
-                  codeProvider.toggleLike(widget.code);
-                  showDesktopNotification(
-                    context,
-                    isLiked ? 'Removed from liked' : 'Added to liked',
-                  );
-                },
-                tooltip: isLiked ? 'Unlike' : 'Like',
-              );
-            },
-          ),
-
-          const SizedBox(width: 4),
-
-          // Code badge
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-            decoration: BoxDecoration(
-              color: Colors.black.withValues(alpha: 0.1),
-              borderRadius: BorderRadius.circular(20),
-            ),
-            child: Text(
-              '#${widget.code}',
-              style: const TextStyle(
-                fontFamily: 'GoogleSans',
-                fontWeight: FontWeight.w600,
-                fontSize: 14,
-                color: Colors.black87,
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildEmptyState(AppColors colors) {
-    return Padding(
-      padding: const EdgeInsets.only(left: 24, top: 40),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            ">  Empty note page.\n>  Let's start with adding a new Link or Note.\n>  Add a space after Link to add a trailing Note.",
-            style: TextStyle(
-              color: colors.textClr,
-              fontFamily: 'GoogleSans',
-              fontSize: 16,
-              height: 2,
-            ),
-          ),
-        ],
-      ),
     );
   }
 
@@ -395,8 +301,7 @@ class _DesktopNotePageState extends State<DesktopNotePage> {
                   onEdit: () => _startEditEntry(index, content),
                   onCopy: () => _copyEntry(content),
                   onShare: () => _shareEntry(content),
-                  onDelete: () => _deleteEntry(index, content),
-                  onTapUrl: isUrl ? () => _openUrl(content) : null,
+                  onDelete: () => _deleteEntry(index),
                 ),
               );
             }),
@@ -405,33 +310,164 @@ class _DesktopNotePageState extends State<DesktopNotePage> {
       },
     );
   }
+}
 
-  Widget _buildInputBar(AppColors colors) {
+/// Top bar of the desktop note page: back button, double-tap-to-edit title,
+/// like toggle, and the note code badge.
+class _NoteTopBar extends StatelessWidget {
+  const _NoteTopBar({
+    required this.title,
+    required this.code,
+    required this.onBack,
+    required this.onEditTitle,
+    required this.onToggleLike,
+  });
+
+  final String title;
+  final int code;
+  final VoidCallback onBack;
+  final VoidCallback onEditTitle;
+  final VoidCallback onToggleLike;
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = Provider.of<AppColors>(context);
+    return Container(
+      width: double.infinity,
+      margin: const EdgeInsets.fromLTRB(24, 20, 24, 8),
+      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+      decoration: BoxDecoration(
+        color: colors.accnt,
+        borderRadius: BorderRadius.circular(20),
+      ),
+      child: Row(
+        children: [
+          // Back button
+          IconButton(
+            icon: const Icon(Icons.arrow_back_rounded),
+            color: Colors.black,
+            onPressed: onBack,
+            tooltip: 'Back to grid',
+          ),
+          const SizedBox(width: 12),
+
+          // Title
+          Expanded(
+            child: GestureDetector(
+              onDoubleTap: onEditTitle,
+              child: Text(
+                title.isNotEmpty ? title : 'Untitled Note',
+                style: const TextStyle(
+                  fontFamily: 'GoogleSans',
+                  fontWeight: FontWeight.w700,
+                  fontSize: 28,
+                  color: Colors.black,
+                ),
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+              ),
+            ),
+          ),
+
+          // Edit title button
+          IconButton(
+            icon: const Icon(Icons.edit_rounded, size: 20),
+            color: Colors.black54,
+            onPressed: onEditTitle,
+            tooltip: 'Edit title',
+          ),
+
+          // Like button
+          Consumer<CodeGen>(
+            builder: (context, codeProvider, _) {
+              final isLiked = codeProvider.getLikeForCode(code);
+              return IconButton(
+                icon: Icon(
+                  isLiked
+                      ? Icons.favorite_rounded
+                      : Icons.favorite_border_rounded,
+                  size: 20,
+                ),
+                color: isLiked ? colors.likeClr : Colors.black54,
+                onPressed: onToggleLike,
+                tooltip: isLiked ? 'Unlike' : 'Like',
+              );
+            },
+          ),
+
+          const SizedBox(width: 4),
+
+          // Code badge
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+            decoration: BoxDecoration(
+              color: Colors.black.withValues(alpha: 0.1),
+              borderRadius: BorderRadius.circular(20),
+            ),
+            child: Text(
+              '#$code',
+              style: const TextStyle(
+                fontFamily: 'GoogleSans',
+                fontWeight: FontWeight.w600,
+                fontSize: 14,
+                color: Colors.black87,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+/// Empty-state text shown when a note page has no entries yet.
+class _EmptyNoteState extends StatelessWidget {
+  const _EmptyNoteState();
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = Provider.of<AppColors>(context);
+    return Padding(
+      padding: const EdgeInsets.only(left: 24, top: 40),
+      child: Text(
+        ">  Empty note page.\n>  Let's start with adding a new Link or Note.\n>  Add a space after Link to add a trailing Note.",
+        style: TextStyle(
+          color: colors.textClr,
+          fontFamily: 'GoogleSans',
+          fontSize: 16,
+          height: 2,
+        ),
+      ),
+    );
+  }
+}
+
+/// Floating bottom input bar for adding/editing entries or the title.
+///
+/// The parent owns the [EditMode] switch and passes the resulting hint text
+/// and confirm-button color; this widget only handles layout and shortcuts.
+class _NoteInputBar extends StatelessWidget {
+  const _NoteInputBar({
+    required this.controller,
+    required this.focusNode,
+    required this.hintText,
+    required this.confirmColor,
+    required this.onConfirm,
+    required this.onCancel,
+  });
+
+  final TextEditingController controller;
+  final FocusNode focusNode;
+  final String hintText;
+  final Color confirmColor;
+  final VoidCallback onConfirm;
+  final VoidCallback onCancel;
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = Provider.of<AppColors>(context);
     final screenWidth = MediaQuery.of(context).size.width;
     final barWidth = (screenWidth - 100).clamp(300.0, 600.0);
-
-    String hintText;
-    IconData confirmIcon;
-    Color confirmColor;
-
-    switch (_editMode) {
-      case 0:
-        hintText = 'Add a link or note...';
-        confirmIcon = Icons.check_rounded;
-        confirmColor = const Color(0xFF4CAF50);
-      case 1:
-        hintText = 'Edit entry...';
-        confirmIcon = Icons.check_rounded;
-        confirmColor = const Color(0xFF2196F3);
-      case 2:
-        hintText = 'Edit title...';
-        confirmIcon = Icons.check_rounded;
-        confirmColor = const Color(0xFFFF9800);
-      default:
-        hintText = 'Type here...';
-        confirmIcon = Icons.check_rounded;
-        confirmColor = const Color(0xFF4CAF50);
-    }
 
     return Positioned(
       bottom: 24,
@@ -462,13 +498,12 @@ class _DesktopNotePageState extends State<DesktopNotePage> {
                     const SingleActivator(
                       LogicalKeyboardKey.enter,
                       control: true,
-                    ): _confirmInput,
-                    const SingleActivator(LogicalKeyboardKey.escape):
-                        _cancelInput,
+                    ): onConfirm,
+                    const SingleActivator(LogicalKeyboardKey.escape): onCancel,
                   },
                   child: TextField(
-                    controller: _inputController,
-                    focusNode: _inputFocusNode,
+                    controller: controller,
+                    focusNode: focusNode,
                     maxLines: null,
                     style: TextStyle(
                       fontFamily: 'GoogleSans',
@@ -494,15 +529,15 @@ class _DesktopNotePageState extends State<DesktopNotePage> {
 
               // Confirm button
               IconButton(
-                icon: Icon(confirmIcon, color: confirmColor),
-                onPressed: _confirmInput,
+                icon: Icon(Icons.check_rounded, color: confirmColor),
+                onPressed: onConfirm,
                 tooltip: 'Confirm (Ctrl+Enter)',
               ),
 
               // Cancel button
               IconButton(
-                icon: Icon(Icons.close_rounded, color: Colors.red.shade400),
-                onPressed: _cancelInput,
+                icon: Icon(Icons.close_rounded, color: colors.dangerClr),
+                onPressed: onCancel,
                 tooltip: 'Cancel (Esc)',
               ),
             ],

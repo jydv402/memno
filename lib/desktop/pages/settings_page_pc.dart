@@ -2,17 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:memno/desktop/components/desktop_notification.dart';
 import 'package:memno/logic/functionality/code_gen.dart';
 import 'package:memno/logic/functionality/import_export.dart';
+import 'package:memno/logic/functionality/note_operations.dart';
 import 'package:memno/logic/functionality/preview_map.dart';
 import 'package:memno/logic/theme/app_colors.dart';
 import 'package:memno/logic/theme/app_settings.dart';
 import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
 
-/// Implements the settings page interface customized for the desktop platform.
-/// Uses a responsive two-column layout with section titles on the left and controls on the right.
-/// Configuration options include theme cycling, dock layout/placement, data backup/restore,
-/// local preview storage configuration, cache management, and application info.
-///
 /// Desktop-optimized settings page with a two-column layout.
 ///
 /// Left column shows section headers; right column contains the controls.
@@ -23,7 +19,6 @@ class DesktopSettingsPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colors = Provider.of<AppColors>(context);
-    final settings = Provider.of<AppSettings>(context);
 
     return Scaffold(
       backgroundColor: colors.bgClr,
@@ -47,49 +42,28 @@ class DesktopSettingsPage extends StatelessWidget {
                 ),
                 const SizedBox(height: 32),
 
-                //  Appearance
-                _buildSection(
-                  colors: colors,
+                const _Section(
                   sectionTitle: 'Appearance',
-                  child: _buildAppearanceSection(context, colors, settings),
+                  child: _AppearanceCard(),
                 ),
-
                 const SizedBox(height: 24),
 
-                // Dock Layout
-                _buildSection(
-                  colors: colors,
+                const _Section(
                   sectionTitle: 'Dock Layout',
-                  child: _buildDockLayoutSection(context, colors, settings),
+                  child: _DockPlacementCard(),
                 ),
-
                 const SizedBox(height: 24),
 
-                //  Data
-                _buildSection(
-                  colors: colors,
-                  sectionTitle: 'Data',
-                  child: _buildDataSection(context, colors),
-                ),
-
+                const _Section(sectionTitle: 'Data', child: _DataCard()),
                 const SizedBox(height: 24),
 
-                //  Storage
-                _buildSection(
-                  colors: colors,
+                const _Section(
                   sectionTitle: 'Storage',
-                  child: _buildStorageSection(context, colors, settings),
+                  child: _StorageSection(),
                 ),
-
                 const SizedBox(height: 24),
 
-                //  About
-                _buildSection(
-                  colors: colors,
-                  sectionTitle: 'About',
-                  child: _buildAboutSection(context, colors),
-                ),
-
+                const _Section(sectionTitle: 'About', child: _AboutCard()),
                 const SizedBox(height: 60),
               ],
             ),
@@ -98,18 +72,21 @@ class DesktopSettingsPage extends StatelessWidget {
       ),
     );
   }
+}
 
-  // Section Wrapper (two-column row)
+/// Two-column settings row: section title on the left, controls on the right.
+class _Section extends StatelessWidget {
+  const _Section({required this.sectionTitle, required this.child});
 
-  Widget _buildSection({
-    required AppColors colors,
-    required String sectionTitle,
-    required Widget child,
-  }) {
+  final String sectionTitle;
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = Provider.of<AppColors>(context);
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        // Left column — section title
         SizedBox(
           width: 200,
           child: Padding(
@@ -125,16 +102,21 @@ class DesktopSettingsPage extends StatelessWidget {
             ),
           ),
         ),
-
-        // Right column — controls
         Expanded(child: child),
       ],
     );
   }
+}
 
-  // Rounded Card Container
+/// Rounded card container used for every settings control group.
+class _SettingsCard extends StatelessWidget {
+  const _SettingsCard({required this.child});
 
-  Widget _settingsCard(AppColors colors, {required Widget child}) {
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = Provider.of<AppColors>(context);
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.all(20),
@@ -145,20 +127,93 @@ class DesktopSettingsPage extends StatelessWidget {
       child: child,
     );
   }
+}
 
-  // Appearance
+/// Icon + label outlined button with the settings page's shared style.
+class _SettingsButton extends StatelessWidget {
+  const _SettingsButton({
+    required this.icon,
+    required this.label,
+    required this.onPressed,
+    this.selected = false,
+    this.verticalPadding = 12,
+  });
 
-  Widget _buildAppearanceSection(
-    BuildContext context,
-    AppColors colors,
-    AppSettings settings,
-  ) {
-    final themeMode = settings.themeMode;
+  final IconData icon;
+  final String label;
+  final VoidCallback? onPressed;
 
-    IconData modeIcon;
-    String modeLabel;
+  /// Whether the button is in its selected (accent) state.
+  final bool selected;
+  final double verticalPadding;
 
-    switch (themeMode) {
+  @override
+  Widget build(BuildContext context) {
+    final colors = Provider.of<AppColors>(context);
+    return OutlinedButton.icon(
+      onPressed: onPressed,
+      icon: Icon(icon, size: 18),
+      label: Text(
+        label,
+        style: const TextStyle(
+          fontFamily: 'GoogleSans',
+          fontWeight: FontWeight.bold,
+          fontSize: 14,
+        ),
+      ),
+      style: OutlinedButton.styleFrom(
+        foregroundColor: selected ? Colors.black : colors.textClr,
+        backgroundColor: selected ? colors.accnt : Colors.transparent,
+        side: BorderSide(color: selected ? colors.accnt : colors.pill),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        padding: EdgeInsets.symmetric(
+          horizontal: 16,
+          vertical: verticalPadding,
+        ),
+      ),
+    );
+  }
+}
+
+/// Row with a title on the left and a control on the right.
+class _TitleControlRow extends StatelessWidget {
+  const _TitleControlRow({required this.title, required this.control});
+
+  final String title;
+  final Widget control;
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = Provider.of<AppColors>(context);
+    return Row(
+      children: [
+        Expanded(
+          child: Text(
+            title,
+            style: TextStyle(
+              fontFamily: 'GoogleSans',
+              fontSize: 16,
+              color: colors.textClr,
+            ),
+          ),
+        ),
+        control,
+      ],
+    );
+  }
+}
+
+/// Theme cycle card: shows the current mode and cycles on tap.
+class _AppearanceCard extends StatelessWidget {
+  const _AppearanceCard();
+
+  @override
+  Widget build(BuildContext context) {
+    final settings = Provider.of<AppSettings>(context);
+
+    final IconData modeIcon;
+    final String modeLabel;
+    switch (settings.themeMode) {
       case AppThemeMode.system:
         modeIcon = Icons.brightness_auto_rounded;
         modeLabel = 'System';
@@ -170,85 +225,30 @@ class DesktopSettingsPage extends StatelessWidget {
         modeLabel = 'Dark';
     }
 
-    return _settingsCard(
-      colors,
-      child: Row(
-        children: [
-          Expanded(
-            child: Text(
-              'Theme',
-              style: TextStyle(
-                fontFamily: 'GoogleSans',
-                fontSize: 16,
-                color: colors.textClr,
-              ),
-            ),
-          ),
-          OutlinedButton.icon(
-            onPressed: () => settings.cycleThemeMode(),
-            icon: Icon(modeIcon, size: 18),
-            label: Text(
-              modeLabel,
-              style: const TextStyle(
-                fontFamily: 'GoogleSans',
-                fontWeight: FontWeight.bold,
-                fontSize: 14,
-              ),
-            ),
-            style: OutlinedButton.styleFrom(
-              foregroundColor: colors.textClr,
-              side: BorderSide(color: colors.pill),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(12),
-              ),
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-            ),
-          ),
-        ],
+    return _SettingsCard(
+      child: _TitleControlRow(
+        title: 'Theme',
+        control: _SettingsButton(
+          icon: modeIcon,
+          label: modeLabel,
+          onPressed: settings.cycleThemeMode,
+        ),
       ),
     );
   }
+}
 
-  // Dock Layout
+/// Dock placement card: bottom / top / left / right choice buttons.
+class _DockPlacementCard extends StatelessWidget {
+  const _DockPlacementCard();
 
-  Widget _buildDockLayoutSection(
-    BuildContext context,
-    AppColors colors,
-    AppSettings settings,
-  ) {
+  @override
+  Widget build(BuildContext context) {
+    final colors = Provider.of<AppColors>(context);
+    final settings = Provider.of<AppSettings>(context);
     final placement = settings.dockPlacement;
 
-    Widget buildPlacementButton(String value, String label, IconData icon) {
-      final isSelected = placement == value;
-      return OutlinedButton.icon(
-        onPressed: () => settings.setDockPlacement(value),
-        icon: Icon(
-          icon,
-          size: 18,
-          color: isSelected ? Colors.black : colors.textClr,
-        ),
-        label: Text(
-          label,
-          style: TextStyle(
-            fontFamily: 'GoogleSans',
-            fontWeight: FontWeight.bold,
-            fontSize: 14,
-            color: isSelected ? Colors.black : colors.textClr,
-          ),
-        ),
-        style: OutlinedButton.styleFrom(
-          backgroundColor: isSelected ? colors.accnt : Colors.transparent,
-          side: BorderSide(color: isSelected ? colors.accnt : colors.pill),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12),
-          ),
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-        ),
-      );
-    }
-
-    return _settingsCard(
-      colors,
+    return _SettingsCard(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -265,17 +265,29 @@ class DesktopSettingsPage extends StatelessWidget {
             spacing: 12,
             runSpacing: 12,
             children: [
-              buildPlacementButton(
-                'bottom',
-                'Bottom',
-                Icons.border_bottom_rounded,
+              _SettingsButton(
+                icon: Icons.border_bottom_rounded,
+                label: 'Bottom',
+                selected: placement == 'bottom',
+                onPressed: () => settings.setDockPlacement('bottom'),
               ),
-              buildPlacementButton('top', 'Top', Icons.border_top_rounded),
-              buildPlacementButton('left', 'Left', Icons.border_left_rounded),
-              buildPlacementButton(
-                'right',
-                'Right',
-                Icons.border_right_rounded,
+              _SettingsButton(
+                icon: Icons.border_top_rounded,
+                label: 'Top',
+                selected: placement == 'top',
+                onPressed: () => settings.setDockPlacement('top'),
+              ),
+              _SettingsButton(
+                icon: Icons.border_left_rounded,
+                label: 'Left',
+                selected: placement == 'left',
+                onPressed: () => settings.setDockPlacement('left'),
+              ),
+              _SettingsButton(
+                icon: Icons.border_right_rounded,
+                label: 'Right',
+                selected: placement == 'right',
+                onPressed: () => settings.setDockPlacement('right'),
               ),
             ],
           ),
@@ -283,276 +295,259 @@ class DesktopSettingsPage extends StatelessWidget {
       ),
     );
   }
+}
 
-  // Data
+/// Export / import JSON backup card.
+class _DataCard extends StatelessWidget {
+  const _DataCard();
 
-  Widget _buildDataSection(BuildContext context, AppColors colors) {
-    return _settingsCard(
-      colors,
+  @override
+  Widget build(BuildContext context) {
+    return _SettingsCard(
       child: Row(
         children: [
           Expanded(
-            child: OutlinedButton.icon(
+            child: _SettingsButton(
+              icon: Icons.arrow_upward_rounded,
+              label: 'Export to JSON',
+              verticalPadding: 14,
               onPressed: () => ImportExport().exportToJSON(context),
-              icon: const Icon(Icons.arrow_upward_rounded, size: 18),
-              label: const Text(
-                'Export to JSON',
-                style: TextStyle(
-                  fontFamily: 'GoogleSans',
-                  fontWeight: FontWeight.bold,
-                  fontSize: 14,
-                ),
-              ),
-              style: OutlinedButton.styleFrom(
-                foregroundColor: colors.textClr,
-                side: BorderSide(color: colors.pill),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 16,
-                  vertical: 14,
-                ),
-              ),
             ),
           ),
           const SizedBox(width: 12),
           Expanded(
-            child: OutlinedButton.icon(
+            child: _SettingsButton(
+              icon: Icons.arrow_downward_rounded,
+              label: 'Import from JSON',
+              verticalPadding: 14,
               onPressed: () => ImportExport().importFromJSON(context),
-              icon: const Icon(Icons.arrow_downward_rounded, size: 18),
-              label: const Text(
-                'Import from JSON',
-                style: TextStyle(
-                  fontFamily: 'GoogleSans',
-                  fontWeight: FontWeight.bold,
-                  fontSize: 14,
-                ),
-              ),
-              style: OutlinedButton.styleFrom(
-                foregroundColor: colors.textClr,
-                side: BorderSide(color: colors.pill),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 16,
-                  vertical: 14,
-                ),
-              ),
             ),
           ),
         ],
       ),
     );
   }
+}
 
-  // Storage
+/// The three storage cards: clear-all, save-previews switch, preview cache.
+class _StorageSection extends StatelessWidget {
+  const _StorageSection();
 
-  Widget _buildStorageSection(
-    BuildContext context,
-    AppColors colors,
-    AppSettings settings,
-  ) {
-    return Column(
+  @override
+  Widget build(BuildContext context) {
+    return const Column(
       spacing: 12,
-      children: [
-        _settingsCard(
-          colors,
-          child: Row(
-            children: [
-              Expanded(
-                child: Text(
-                  'Clear All Codes & Links',
-                  style: TextStyle(
-                    fontFamily: 'GoogleSans',
-                    fontSize: 16,
-                    color: colors.textClr,
-                  ),
-                ),
-              ),
-              OutlinedButton.icon(
-                onPressed: () async {
-                  final codeGen = Provider.of<CodeGen>(context, listen: false);
-                  await codeGen.clearAll();
-                  if (context.mounted) {
-                    showDesktopNotification(
-                      context,
-                      'All codes and links cleared',
-                    );
-                  }
-                },
-                icon: const Icon(Icons.delete_sweep_rounded, size: 18),
-                label: const Text(
-                  'Clear',
-                  style: TextStyle(
-                    fontFamily: 'GoogleSans',
-                    fontWeight: FontWeight.bold,
-                    fontSize: 14,
-                  ),
-                ),
-                style: OutlinedButton.styleFrom(
-                  foregroundColor: colors.textClr,
-                  side: BorderSide(color: colors.pill),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 16,
-                    vertical: 12,
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ),
-        _settingsCard(
-          colors,
-          child: Row(
-            children: [
-              Expanded(
-                child: Text(
-                  'Save Previews Locally',
-                  style: TextStyle(
-                    fontFamily: 'GoogleSans',
-                    fontSize: 16,
-                    color: colors.textClr,
-                  ),
-                ),
-              ),
-              Switch(
-                value: settings.saveImagesLocally,
-                onChanged: (val) async {
-                  await settings.setSaveImagesLocally(val);
-                },
-                activeThumbColor: colors.accnt,
-                activeTrackColor: colors.accnt.withValues(alpha: 0.3),
-                inactiveThumbColor: colors.thumbClr,
-                trackOutlineColor: WidgetStateProperty.all(
-                  colors.switchTrackOutlineClr,
-                ),
-              ),
-            ],
-          ),
-        ),
-
-        // Clear Preview Cache
-        Consumer<PreviewMap>(
-          builder: (context, previewMap, _) {
-            return FutureBuilder<double>(
-              future: previewMap.getTotalCacheSizeMB(),
-              builder: (context, snapshot) {
-                final size = snapshot.data ?? 0.0;
-                return _settingsCard(
-                  colors,
-                  child: Row(
-                    children: [
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              'Preview Cache',
-                              style: TextStyle(
-                                fontFamily: 'GoogleSans',
-                                fontSize: 16,
-                                color: colors.textClr,
-                              ),
-                            ),
-                            const SizedBox(height: 4),
-                            Text(
-                              'Used: ${size.toStringAsFixed(2)} MB',
-                              style: TextStyle(
-                                fontFamily: 'GoogleSans',
-                                fontSize: 13,
-                                color: colors.textClr.withValues(alpha: 0.6),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                      OutlinedButton.icon(
-                        onPressed: () async {
-                          await previewMap.clearImageCache();
-                          if (context.mounted) {
-                            showDesktopNotification(
-                              context,
-                              'Preview cache cleared',
-                            );
-                          }
-                        },
-                        icon: const Icon(Icons.delete_sweep_rounded, size: 18),
-                        label: const Text(
-                          'Clear',
-                          style: TextStyle(
-                            fontFamily: 'GoogleSans',
-                            fontWeight: FontWeight.bold,
-                            fontSize: 14,
-                          ),
-                        ),
-                        style: OutlinedButton.styleFrom(
-                          foregroundColor: colors.textClr,
-                          side: BorderSide(color: colors.pill),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 16,
-                            vertical: 12,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                );
-              },
-            );
-          },
-        ),
-      ],
+      children: [_ClearAllCard(), _SavePreviewsCard(), _PreviewCacheCard()],
     );
   }
+}
 
-  // About
+/// Clear-all card: wipes the entire database after an explicit confirmation.
+class _ClearAllCard extends StatelessWidget {
+  const _ClearAllCard();
 
-  Widget _buildAboutSection(BuildContext context, AppColors colors) {
-    return _settingsCard(
-      colors,
-      child: Row(
-        children: [
-          Expanded(
+  Future<void> _confirmAndClear(BuildContext context) async {
+    final colors = Provider.of<AppColors>(context, listen: false);
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        backgroundColor: colors.box,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(16),
+          side: BorderSide(color: colors.pill.withValues(alpha: 0.3)),
+        ),
+        title: Text(
+          'Clear All Codes & Links',
+          style: TextStyle(
+            fontFamily: 'GoogleSans',
+            fontWeight: FontWeight.bold,
+            color: colors.textClr,
+          ),
+        ),
+        content: Text(
+          'This permanently deletes every note page, entry, and link. '
+          'This cannot be undone.',
+          style: TextStyle(
+            fontFamily: 'GoogleSans',
+            color: colors.textClr.withValues(alpha: 0.8),
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(ctx).pop(false),
             child: Text(
-              'Find Memno on GitHub',
+              'Cancel',
               style: TextStyle(
                 fontFamily: 'GoogleSans',
-                fontSize: 16,
-                color: colors.textClr,
+                color: colors.textClr.withValues(alpha: 0.6),
               ),
             ),
           ),
-          OutlinedButton.icon(
-            onPressed: () {
-              launchUrl(Uri.parse('https://github.com/jydv402/memno'));
-            },
-            icon: const Icon(Icons.arrow_outward_rounded, size: 18),
-            label: const Text(
-              'Open',
+          ElevatedButton(
+            onPressed: () => Navigator.of(ctx).pop(true),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: colors.dangerClr,
+              foregroundColor: Colors.white,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(8),
+              ),
+            ),
+            child: const Text(
+              'Delete',
               style: TextStyle(
                 fontFamily: 'GoogleSans',
                 fontWeight: FontWeight.bold,
-                fontSize: 14,
               ),
-            ),
-            style: OutlinedButton.styleFrom(
-              foregroundColor: colors.textClr,
-              side: BorderSide(color: colors.pill),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(12),
-              ),
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
             ),
           ),
         ],
+      ),
+    );
+
+    if (confirmed != true || !context.mounted) return;
+    final codeGen = context.read<CodeGen>();
+    final previewMap = context.read<PreviewMap>();
+    await clearAllWithPreviews(codeGen, previewMap);
+    if (context.mounted) {
+      showDesktopNotification(context, 'All codes and links cleared');
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return _SettingsCard(
+      child: _TitleControlRow(
+        title: 'Clear All Codes & Links',
+        control: _SettingsButton(
+          icon: Icons.delete_sweep_rounded,
+          label: 'Clear',
+          onPressed: () => _confirmAndClear(context),
+        ),
+      ),
+    );
+  }
+}
+
+/// Save-previews-locally switch card.
+class _SavePreviewsCard extends StatelessWidget {
+  const _SavePreviewsCard();
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = Provider.of<AppColors>(context);
+    final settings = Provider.of<AppSettings>(context);
+    return _SettingsCard(
+      child: _TitleControlRow(
+        title: 'Save Previews Locally',
+        control: Switch(
+          value: settings.saveImagesLocally,
+          onChanged: settings.setSaveImagesLocally,
+          activeThumbColor: colors.accnt,
+          activeTrackColor: colors.accnt.withValues(alpha: 0.3),
+          inactiveThumbColor: colors.thumbClr,
+          trackOutlineColor: WidgetStateProperty.all(
+            colors.switchTrackOutlineClr,
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+/// Preview-cache card: shows the used size and clears the cache.
+///
+/// The size future is owned by this State and refreshed whenever
+/// [PreviewMap] notifies — it is never re-created inside build().
+class _PreviewCacheCard extends StatefulWidget {
+  const _PreviewCacheCard();
+
+  @override
+  State<_PreviewCacheCard> createState() => _PreviewCacheCardState();
+}
+
+class _PreviewCacheCardState extends State<_PreviewCacheCard> {
+  Future<double>? _sizeFuture;
+  PreviewMap? _watchedPreviewMap;
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    final previewMap = Provider.of<PreviewMap>(context);
+    if (!identical(previewMap, _watchedPreviewMap)) {
+      _watchedPreviewMap = previewMap;
+      _sizeFuture = previewMap.getTotalCacheSizeMB();
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = Provider.of<AppColors>(context);
+    return FutureBuilder<double>(
+      future: _sizeFuture,
+      builder: (context, snapshot) {
+        final size = snapshot.data ?? 0.0;
+        return _SettingsCard(
+          child: Row(
+            children: [
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'Preview Cache',
+                      style: TextStyle(
+                        fontFamily: 'GoogleSans',
+                        fontSize: 16,
+                        color: colors.textClr,
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      'Used: ${size.toStringAsFixed(2)} MB',
+                      style: TextStyle(
+                        fontFamily: 'GoogleSans',
+                        fontSize: 13,
+                        color: colors.textClr.withValues(alpha: 0.6),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              _SettingsButton(
+                icon: Icons.delete_sweep_rounded,
+                label: 'Clear',
+                onPressed: () async {
+                  final previewMap = context.read<PreviewMap>();
+                  await previewMap.clearImageCache();
+                  if (context.mounted) {
+                    showDesktopNotification(context, 'Preview cache cleared');
+                  }
+                },
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+}
+
+/// GitHub link card.
+class _AboutCard extends StatelessWidget {
+  const _AboutCard();
+
+  @override
+  Widget build(BuildContext context) {
+    return _SettingsCard(
+      child: _TitleControlRow(
+        title: 'Find Memno on GitHub',
+        control: _SettingsButton(
+          icon: Icons.arrow_outward_rounded,
+          label: 'Open',
+          onPressed: () {
+            launchUrl(Uri.parse('https://github.com/jydv402/memno'));
+          },
+        ),
       ),
     );
   }

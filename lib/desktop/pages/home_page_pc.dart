@@ -3,6 +3,8 @@ import 'package:lottie/lottie.dart';
 import 'package:memno/desktop/components/desktop_notification.dart';
 import 'package:memno/desktop/components/file_icon_tile.dart';
 import 'package:memno/logic/functionality/code_gen.dart';
+import 'package:memno/logic/functionality/note_list.dart';
+import 'package:memno/logic/functionality/note_operations.dart';
 import 'package:memno/logic/functionality/preview_map.dart';
 import 'package:memno/logic/theme/app_colors.dart';
 import 'package:provider/provider.dart';
@@ -14,11 +16,11 @@ import 'package:provider/provider.dart';
 ///
 /// File-explorer-style grid view for the desktop home page.
 ///
-/// Accepts a [filterIndex] indicating the current category filter, renders a header
+/// Accepts a [filter] indicating the current category filter, renders a header
 /// with the filter name and count badge, and displays note pages as grid tiles.
 class DesktopHomePage extends StatefulWidget {
-  /// Current filter index corresponding to All Notes, Liked Notes, or Empty Notes.
-  final int filterIndex;
+  /// Current category filter (All Notes, Liked Notes, or Empty Notes).
+  final NoteFilter filter;
 
   /// Callback when a file icon is tapped, passing the note code.
   final ValueChanged<int>? onCodeSelected;
@@ -28,7 +30,7 @@ class DesktopHomePage extends StatefulWidget {
 
   const DesktopHomePage({
     super.key,
-    required this.filterIndex,
+    required this.filter,
     this.onCodeSelected,
     this.highlightedCode,
   });
@@ -41,51 +43,27 @@ class _DesktopHomePageState extends State<DesktopHomePage> {
   // Filtering and Sorting
 
   List<int> _filteredCodes(CodeGen codeGen) {
-    List<int> codes;
-
-    switch (widget.filterIndex) {
-      case 1:
-        codes = codeGen.codeList
-            .where((c) => codeGen.getLikeForCode(c))
-            .toList();
-      case 2:
-        codes = codeGen.codeList
-            .where((c) => codeGen.getLinkListLength(c) == 0)
-            .toList();
-      default:
-        codes = List<int>.from(codeGen.codeList);
-    }
-
-    // Sort by date, most recent first (Schwartzian transform)
-    final parsedDates = <int, DateTime>{};
-    for (final code in codes) {
-      final dateStr = codeGen.getDateForCode(code);
-      parsedDates[code] =
-          DateTime.tryParse(dateStr) ?? DateTime.fromMillisecondsSinceEpoch(0);
-    }
-    codes.sort((a, b) => parsedDates[b]!.compareTo(parsedDates[a]!));
-
-    return codes;
+    return filterAndSortNotes(codeGen, filter: widget.filter);
   }
 
   String get _filterTitle {
-    switch (widget.filterIndex) {
-      case 1:
+    switch (widget.filter) {
+      case NoteFilter.liked:
         return 'Liked Notes';
-      case 2:
+      case NoteFilter.empty:
         return 'Empty Notes';
-      default:
+      case NoteFilter.all:
         return 'All Notes';
     }
   }
 
   String get _emptyMessage {
-    switch (widget.filterIndex) {
-      case 1:
+    switch (widget.filter) {
+      case NoteFilter.liked:
         return 'No liked codes yet';
-      case 2:
+      case NoteFilter.empty:
         return 'No empty codes yet';
-      default:
+      case NoteFilter.all:
         return "It's so empty here!\nClick the + button to generate a\nNew Code";
     }
   }
@@ -104,90 +82,26 @@ class _DesktopHomePageState extends State<DesktopHomePage> {
 
         final codes = _filteredCodes(codeGen);
 
-        return AnimatedSwitcher(
-          duration: const Duration(milliseconds: 250),
-          switchInCurve: Curves.easeOut,
-          switchOutCurve: Curves.easeIn,
-          child: _buildContent(
-            key: ValueKey(widget.filterIndex),
-            colors: colors,
-            codeGen: codeGen,
-            codes: codes,
-          ),
-        );
+        return _buildContent(colors: colors, codeGen: codeGen, codes: codes);
       },
     );
   }
 
   Widget _buildContent({
-    required Key key,
     required AppColors colors,
     required CodeGen codeGen,
     required List<int> codes,
   }) {
     return Column(
-      key: key,
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         //  Header Bar
-        Padding(
-          padding: const EdgeInsets.fromLTRB(24, 28, 24, 8),
-          child: Row(
-            children: [
-              Text(
-                _filterTitle,
-                style: TextStyle(
-                  fontFamily: 'GoogleSans',
-                  fontWeight: FontWeight.bold,
-                  fontSize: 28,
-                  color: colors.textClr,
-                ),
-              ),
-              const SizedBox(width: 12),
-              Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 10,
-                  vertical: 4,
-                ),
-                decoration: BoxDecoration(
-                  color: colors.pill.withValues(alpha: 0.5),
-                  borderRadius: BorderRadius.circular(20),
-                ),
-                child: Text(
-                  '${codes.length}',
-                  style: TextStyle(
-                    fontFamily: 'GoogleSans',
-                    fontSize: 13,
-                    fontWeight: FontWeight.bold,
-                    color: colors.textClr,
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ),
+        _HomeHeader(title: _filterTitle, count: codes.length),
 
         //  Grid / Empty State
         Expanded(
           child: codes.isEmpty
-              ? Center(
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      LottieBuilder.asset('assets/empty.lottie', height: 180),
-                      Text(
-                        _emptyMessage,
-                        style: TextStyle(
-                          fontFamily: 'GoogleSans',
-                          fontSize: 16,
-                          color: colors.textClr,
-                          height: 2,
-                        ),
-                        textAlign: TextAlign.center,
-                      ),
-                    ],
-                  ),
-                )
+              ? _EmptyState(message: _emptyMessage)
               : GridView.builder(
                   padding: const EdgeInsets.all(24),
                   gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
@@ -275,11 +189,7 @@ class _DesktopHomePageState extends State<DesktopHomePage> {
 
                 // Perform deletion including cleaning up previews
                 final previewMap = context.read<PreviewMap>();
-                final linksToDelete = codeGen.getLinksForCode(code);
-                for (final link in linksToDelete) {
-                  previewMap.deletePreviewForLink(link);
-                }
-                codeGen.clearList(code);
+                deleteNoteWithPreviews(codeGen, previewMap, code);
 
                 showDesktopNotification(
                   context,
@@ -287,7 +197,7 @@ class _DesktopHomePageState extends State<DesktopHomePage> {
                 );
               },
               style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.redAccent,
+                backgroundColor: colors.dangerClr,
                 foregroundColor: Colors.white,
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(8),
@@ -309,6 +219,83 @@ class _DesktopHomePageState extends State<DesktopHomePage> {
 }
 
 // Pulsing Highlight Wrapper
+
+/// Home-page header row: filter title with a rounded count badge.
+class _HomeHeader extends StatelessWidget {
+  const _HomeHeader({required this.title, required this.count});
+
+  final String title;
+  final int count;
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = Provider.of<AppColors>(context);
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(24, 28, 24, 8),
+      child: Row(
+        children: [
+          Text(
+            title,
+            style: TextStyle(
+              fontFamily: 'GoogleSans',
+              fontWeight: FontWeight.bold,
+              fontSize: 28,
+              color: colors.textClr,
+            ),
+          ),
+          const SizedBox(width: 12),
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+            decoration: BoxDecoration(
+              color: colors.pill.withValues(alpha: 0.5),
+              borderRadius: BorderRadius.circular(20),
+            ),
+            child: Text(
+              '$count',
+              style: TextStyle(
+                fontFamily: 'GoogleSans',
+                fontSize: 13,
+                fontWeight: FontWeight.bold,
+                color: colors.textClr,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+/// Centered empty-state with the lottie animation and a filter-specific
+/// message.
+class _EmptyState extends StatelessWidget {
+  const _EmptyState({required this.message});
+
+  final String message;
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = Provider.of<AppColors>(context);
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          LottieBuilder.asset('assets/empty.lottie', height: 180),
+          Text(
+            message,
+            style: TextStyle(
+              fontFamily: 'GoogleSans',
+              fontSize: 16,
+              color: colors.textClr,
+              height: 2,
+            ),
+            textAlign: TextAlign.center,
+          ),
+        ],
+      ),
+    );
+  }
+}
 
 /// Wraps a child with a pulsing border animation when [isHighlighted] is true.
 class _MaybeHighlighted extends StatefulWidget {

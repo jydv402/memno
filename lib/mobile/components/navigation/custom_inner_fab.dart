@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:memno/logic/functionality/edit_mode.dart';
 import 'package:memno/logic/theme/app_colors.dart';
 import 'package:memno/logic/theme/app_settings.dart';
 import 'package:memno/mobile/components/pill_button.dart';
@@ -20,7 +21,7 @@ class CustomInnerFAB extends StatelessWidget {
   final VoidCallback onCancel;
   final VoidCallback onCollapse;
   final TextEditingController controller;
-  final int isEditMode;
+  final EditMode isEditMode;
   final FocusNode fabFocus;
   final bool isEmbedded;
 
@@ -110,7 +111,7 @@ class CustomInnerFAB extends StatelessWidget {
                           onConfirm();
                         },
                         icon: Icon(
-                          isEditMode == 0
+                          isEditMode == EditMode.add
                               ? Icons.add_rounded
                               : Icons.check_rounded,
                           color: colors.accnt,
@@ -125,9 +126,9 @@ class CustomInnerFAB extends StatelessWidget {
                           ).triggerHaptic();
                           onCancel();
                         },
-                        icon: const Icon(
+                        icon: Icon(
                           Icons.close_rounded,
-                          color: Colors.red,
+                          color: colors.dangerClr,
                         ),
                       ),
                       const Spacer(),

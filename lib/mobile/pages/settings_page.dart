@@ -10,6 +10,7 @@ import 'package:memno/logic/functionality/preview_map.dart';
 import 'package:memno/logic/theme/app_colors.dart';
 import 'package:memno/logic/theme/app_settings.dart';
 import 'package:provider/provider.dart';
+import 'package:update_checker_bottom_sheet/update_checker_bottom_sheet.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class SettingsPage extends StatelessWidget {
@@ -69,7 +70,11 @@ class SettingsPage extends StatelessWidget {
           SettingsTile(
             title: "Check for updates",
             onTap: () async {
-              await checkAppUpdate(context, true);
+              await checkAppUpdate(
+                context,
+                true,
+                UpdateCheckerStyle.bottomSheet,
+              );
             },
             trailingIcon: Icons.file_download_outlined,
           ),
@@ -84,27 +89,7 @@ class SettingsPage extends StatelessWidget {
             },
           ),
           // Settings for showing the storage used and to clear the cache
-          Consumer<PreviewMap>(
-            builder: (context, previewMap, _) {
-              return FutureBuilder<double>(
-                future: previewMap.getTotalCacheSizeMB(),
-                builder: (context, snapshot) {
-                  final size = snapshot.data ?? 0.0;
-                  return SettingsTile(
-                    title: "Clear Preview Cache",
-                    subtitle: "Used: ${size.toStringAsFixed(2)} MB",
-                    onTap: () async {
-                      await previewMap.clearImageCache();
-                      if (context.mounted) {
-                        showToastMsg(context, "Preview cache cleared");
-                      }
-                    },
-                    trailingIcon: Icons.delete_sweep_rounded,
-                  );
-                },
-              );
-            },
-          ),
+          const _CacheSizeTile(),
           // About section
           SettingsTitle(title: "Support", textClr: colors.textClr),
           SettingsTile(
@@ -125,6 +110,54 @@ class SettingsPage extends StatelessWidget {
           const SizedBox(height: 100),
         ],
       ),
+    );
+  }
+}
+
+/// "Clear Preview Cache" tile showing the used size.
+///
+/// The size future is owned by this State and refreshed whenever
+/// [PreviewMap] notifies — it is never re-created inside build().
+class _CacheSizeTile extends StatefulWidget {
+  const _CacheSizeTile();
+
+  @override
+  State<_CacheSizeTile> createState() => _CacheSizeTileState();
+}
+
+class _CacheSizeTileState extends State<_CacheSizeTile> {
+  Future<double>? _sizeFuture;
+  PreviewMap? _watchedPreviewMap;
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    final previewMap = Provider.of<PreviewMap>(context);
+    if (!identical(previewMap, _watchedPreviewMap)) {
+      _watchedPreviewMap = previewMap;
+      _sizeFuture = previewMap.getTotalCacheSizeMB();
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return FutureBuilder<double>(
+      future: _sizeFuture,
+      builder: (context, snapshot) {
+        final size = snapshot.data ?? 0.0;
+        return SettingsTile(
+          title: "Clear Preview Cache",
+          subtitle: "Used: ${size.toStringAsFixed(2)} MB",
+          onTap: () async {
+            final previewMap = context.read<PreviewMap>();
+            await previewMap.clearImageCache();
+            if (context.mounted) {
+              showToastMsg(context, "Preview cache cleared");
+            }
+          },
+          trailingIcon: Icons.delete_sweep_rounded,
+        );
+      },
     );
   }
 }
