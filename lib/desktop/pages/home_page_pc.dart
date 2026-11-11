@@ -82,29 +82,17 @@ class _DesktopHomePageState extends State<DesktopHomePage> {
 
         final codes = _filteredCodes(codeGen);
 
-        return AnimatedSwitcher(
-          duration: const Duration(milliseconds: 250),
-          switchInCurve: Curves.easeOut,
-          switchOutCurve: Curves.easeIn,
-          child: _buildContent(
-            key: ValueKey(widget.filter),
-            colors: colors,
-            codeGen: codeGen,
-            codes: codes,
-          ),
-        );
+        return _buildContent(colors: colors, codeGen: codeGen, codes: codes);
       },
     );
   }
 
   Widget _buildContent({
-    required Key key,
     required AppColors colors,
     required CodeGen codeGen,
     required List<int> codes,
   }) {
     return Column(
-      key: key,
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         //  Header Bar

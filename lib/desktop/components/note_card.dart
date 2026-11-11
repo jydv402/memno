@@ -9,7 +9,6 @@ import 'package:memno/logic/functionality/preview_map.dart';
 import 'package:memno/logic/theme/app_colors.dart';
 import 'package:memno/logic/theme/app_settings.dart';
 import 'package:provider/provider.dart';
-import 'package:url_launcher/url_launcher.dart';
 
 /// A card widget for displaying a single note entry or link in the desktop
 /// masonry grid layout.
@@ -27,7 +26,6 @@ class NoteCard extends StatefulWidget {
     required this.onCopy,
     required this.onShare,
     required this.onDelete,
-    this.onTapUrl,
   });
 
   /// 1-based index of this entry within the note page.
@@ -50,10 +48,6 @@ class NoteCard extends StatefulWidget {
 
   /// Called when the user taps the Delete action.
   final VoidCallback onDelete;
-
-  /// Called when the user taps a URL content. Only relevant when [isUrl] is
-  /// true.
-  final VoidCallback? onTapUrl;
 
   @override
   State<NoteCard> createState() => _NoteCardState();
@@ -166,11 +160,7 @@ class _NoteCardState extends State<NoteCard> {
               widget.content,
               onTap: (link) {
                 if (link.value != null) {
-                  final normalized = LinkUtils.normalizeUrl(link.value!);
-                  final uri = Uri.tryParse(normalized);
-                  if (uri != null) {
-                    launchUrl(uri, mode: LaunchMode.externalApplication);
-                  }
+                  LinkUtils.openExternalUrl(link.value!);
                 }
               },
               linkStyle: const TextStyle(

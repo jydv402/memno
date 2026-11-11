@@ -61,8 +61,6 @@ class AppColors extends ChangeNotifier with WidgetsBindingObserver {
   Color get accntText => isDarkMode ? _dark.accntText : _light.accntText;
   Color get textClr => isDarkMode ? _dark.textClr : _light.textClr;
   Color get iconClr => isDarkMode ? _dark.iconClr : _light.iconClr;
-  Color get btnClr => isDarkMode ? _dark.btnClr : _light.btnClr;
-  Color get btnIcon => isDarkMode ? _dark.btnIcon : _light.btnIcon;
   Color get pill => isDarkMode ? _dark.pill : _light.pill;
   Color get toastBg => isDarkMode ? _dark.toastBg : _light.toastBg;
   Color get toastText => isDarkMode ? _dark.toastText : _light.toastText;
@@ -81,8 +79,6 @@ class LightColors {
   final Color accntText = Colors.black;
   final Color textClr = Colors.black;
   final Color iconClr = Colors.black;
-  final Color btnClr = Colors.black;
-  final Color btnIcon = Colors.white;
   final Color pill = Colors.grey[300]!;
   final Color toastBg = Colors.grey[900]!;
   final Color toastText = Colors.white;
@@ -100,8 +96,6 @@ class DarkColors {
   final Color accntText = Colors.white;
   final Color textClr = Colors.white;
   final Color iconClr = Colors.white;
-  final Color btnClr = Colors.grey[800]!.withValues(alpha: 0.5);
-  final Color btnIcon = Colors.white;
   final Color pill = Colors.grey[800]!;
   final Color toastBg = Colors.grey[100]!;
   final Color toastText = Colors.black;

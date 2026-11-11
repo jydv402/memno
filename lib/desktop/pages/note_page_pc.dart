@@ -191,10 +191,6 @@ class _DesktopNotePageState extends State<DesktopNotePage> {
     );
   }
 
-  void _openUrl(String url) {
-    LinkUtils.openExternalUrl(url);
-  }
-
   bool _isUrl(String text) {
     return LinkUtils.hasLink(text);
   }
@@ -391,7 +387,6 @@ class _DesktopNotePageState extends State<DesktopNotePage> {
                   onCopy: () => _copyEntry(content),
                   onShare: () => _shareEntry(content),
                   onDelete: () => _deleteEntry(index),
-                  onTapUrl: isUrl ? () => _openUrl(content) : null,
                 ),
               );
             }),

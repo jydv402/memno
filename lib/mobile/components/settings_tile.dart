@@ -6,7 +6,6 @@ import 'package:provider/provider.dart';
 class SettingsTile extends StatelessWidget {
   final String title;
   final String? subtitle;
-  final Widget? trailing;
   final IconData? trailingIcon;
   final VoidCallback? onTap;
 
@@ -18,7 +17,6 @@ class SettingsTile extends StatelessWidget {
     super.key,
     required this.title,
     this.subtitle,
-    this.trailing,
     this.trailingIcon,
     this.onTap,
     this.value,
@@ -82,7 +80,7 @@ class SettingsTile extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(width: 16),
-                // Trailing widget (Switch, custom widget, or Icon)
+                // Trailing widget (Switch, or Icon)
                 if (value != null && onChanged != null)
                   Switch(
                     value: value!,
@@ -133,8 +131,6 @@ class SettingsTile extends StatelessWidget {
                       colors.accnt.withValues(alpha: 0.2),
                     ),
                   )
-                else if (trailing != null)
-                  trailing!
                 else if (trailingIcon != null)
                   Padding(
                     padding: const EdgeInsets.only(right: 16),

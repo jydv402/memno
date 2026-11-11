@@ -145,20 +145,6 @@ class PreviewMap extends ChangeNotifier {
     return null;
   }
 
-  /// Loads a preview asynchronously, initializing database if needed.
-  Future<LinkPreviewData?> loadPreview(
-    String link, {
-    bool saveLocally = true,
-  }) async {
-    try {
-      if (!_isInit) await _init();
-      return loadPreviewSync(link, saveLocally: saveLocally);
-    } catch (e) {
-      debugPrint('loadPreview error: $e');
-      return null;
-    }
-  }
-
   // Storage management operations
   Future<double> getTotalCacheSizeMB() async {
     try {
