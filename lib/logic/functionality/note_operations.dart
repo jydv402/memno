@@ -21,7 +21,7 @@ Future<void> deleteNoteWithPreviews(
 }
 
 /// Deletes the entry at [index] of note page [code] together with the cached
-/// preview of its link — but only when no surviving entry still references
+/// preview of its link, but only when no surviving entry still references
 /// the same link.
 Future<void> deleteEntryWithPreviews(
   CodeGen codeGen,
@@ -54,7 +54,7 @@ bool isLinkReferenced(CodeGen codeGen, String link) {
   return false;
 }
 
-/// Deletes every note page together with every cached preview — the wipe-all
+/// Deletes every note page together with every cached preview: the wipe-all
 /// counterpart of [deleteNoteWithPreviews]. Nothing survives, so no reference
 /// check is needed.
 Future<void> clearAllWithPreviews(

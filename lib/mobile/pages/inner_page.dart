@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:memno/mobile/components/inner_page_tile.dart';
 import 'package:memno/mobile/components/navigation/morphing_fab.dart';
 import 'package:memno/mobile/components/inner_page_top_bar.dart';
@@ -9,10 +9,22 @@ import 'package:memno/logic/functionality/edit_mode.dart';
 import 'package:memno/logic/theme/app_colors.dart';
 import 'package:provider/provider.dart';
 
-/// Main page widget for displaying and editing a list of links and a title.
+/// Main page widget for displaying and editing a list of links and a
+/// title.
+///
+/// [InnerPage] shows the note's title capsule, the entry tiles with their
+/// link previews, and the morphing input FAB used to add, edit, and
+/// delete entries or rename the note. It subscribes to [CodeGen] so the
+/// list updates live as records change.
 class InnerPage extends StatefulWidget {
+  /// Six-digit code of the note page being viewed and edited.
   final int code;
+
+  /// Whether the page renders embedded inside another surface (such as
+  /// the share target flow), which hides the automatic back button.
   final bool isEmbedded;
+
+  /// Creates the detail page for [code]; embedded mode is opt-in.
   const InnerPage({super.key, required this.code, this.isEmbedded = false});
 
   @override

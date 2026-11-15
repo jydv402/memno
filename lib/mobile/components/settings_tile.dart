@@ -1,18 +1,37 @@
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:memno/logic/theme/app_colors.dart';
 import 'package:memno/logic/theme/app_settings.dart';
 import 'package:provider/provider.dart';
 
+/// One rounded settings row: title, optional subtitle, and either a switch
+/// or a trailing icon on the right.
+///
+/// The tile works in two modes. With [value] and [onChanged] set it is a
+/// switch tile: the switch renders on the right and tapping anywhere on the
+/// tile toggles it. With [onTap] set it is a plain tappable row and
+/// [trailingIcon] is shown instead. Either way a light haptic fires through
+/// [AppSettings] on every tap.
 class SettingsTile extends StatelessWidget {
+  /// Primary label of the setting.
   final String title;
+
+  /// Secondary line under [title], typically the current value.
   final String? subtitle;
+
+  /// Icon shown on the right in tap mode; ignored in switch mode.
   final IconData? trailingIcon;
+
+  /// Action performed on tap in tap mode; omit for a display-only tile.
   final VoidCallback? onTap;
 
-  // For Switch functionality
+  /// Current switch state in switch mode.
   final bool? value;
+
+  /// Switch change handler in switch mode.
   final ValueChanged<bool>? onChanged;
 
+  /// Creates the tile; pass [value] with [onChanged] for switch mode, or
+  /// [onTap] for tap mode.
   const SettingsTile({
     super.key,
     required this.title,

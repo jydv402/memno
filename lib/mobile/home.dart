@@ -2,7 +2,7 @@ import 'dart:async';
 import 'dart:io' show Platform;
 
 import 'package:animations/animations.dart';
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:lottie/lottie.dart';
 import 'package:memno/logic/functionality/check_update.dart';
 import 'package:memno/logic/functionality/code_gen.dart';
@@ -23,7 +23,17 @@ import 'package:provider/provider.dart';
 import 'package:receive_sharing_intent/receive_sharing_intent.dart';
 import 'package:update_checker_bottom_sheet/update_checker_bottom_sheet.dart';
 
+/// Root screen of the mobile UI: the scrollable note grid with its accent
+/// header, search FAB, share-intent intake, and update check.
+///
+/// [HomePage] owns the note-filter toggle state (All, Liked, Empty), the
+/// debounced search-by-code query, and the expanding search bar. It also
+/// registers the share-intent listeners (warm stream and cold-start
+/// initial media) that push [ShareTargetPage], and runs the GitHub update
+/// check once per launch after the first frame.
 class HomePage extends StatefulWidget {
+  /// Creates the home screen; it has no parameters because all state is
+  /// internal and the providers come from the tree.
   const HomePage({super.key});
 
   @override

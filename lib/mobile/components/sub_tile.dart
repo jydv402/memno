@@ -1,5 +1,5 @@
 import 'package:animations/animations.dart';
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:memno/mobile/pages/inner_page.dart';
 import 'package:memno/mobile/components/show_toast.dart';
 import 'package:memno/logic/functionality/code_gen.dart';
@@ -12,7 +12,18 @@ import 'package:provider/provider.dart';
 
 import 'package:memno/mobile/components/pill_button.dart';
 
+/// The home-screen note tile: the open-container card that opens a note
+/// page when tapped, and hosts the delete-confirm swap.
+///
+/// [SubTileStack] renders one note as a rounded card holding an action
+/// pill bar (formatted date, like toggle, delete), the note title, the
+/// `#code`, and an entry-count badge that also opens the page. Tapping
+/// the card body plays an open-container transition to [InnerPage]. The
+/// delete action swaps the whole card for [ShowDltPrompt], which cascades
+/// the deletion through [deleteNoteWithPreviews] on confirmation.
 class SubTileStack extends StatefulWidget {
+  /// Creates the tile for note page [code]; [date] and [isLiked] come
+  /// from the note record snapshot the list passed down.
   const SubTileStack({
     super.key,
     required this.code,
@@ -20,8 +31,15 @@ class SubTileStack extends StatefulWidget {
     required this.isLiked,
   });
 
+  /// Six-digit code of the note page this tile represents.
   final int code;
+
+  /// Raw stored date string of the note; parsed for display with
+  /// [formatNoteDate], so it must be a `DateTime.toString()` value.
   final String date;
+
+  /// Whether the note is currently favorited, deciding the heart icon
+  /// and label until the like toggle notifies the provider.
   final bool isLiked;
 
   @override
@@ -232,7 +250,16 @@ class _SubTileStackState extends State<SubTileStack> {
   }
 }
 
+/// The in-tile delete confirmation, replacing the card content while
+/// active.
+///
+/// [ShowDltPrompt] asks the user to confirm with the current item count
+/// visible, and offers No and Yes buttons rendered as [ContainerButton]s.
+/// The caller keeps the card state and reacts through [onProceed] (run
+/// the delete cascade) and [onCancel] (restore the card).
 class ShowDltPrompt extends StatelessWidget {
+  /// Creates the prompt; [length] and [radius] style the message and
+  /// buttons, the callbacks decide the outcome.
   const ShowDltPrompt({
     super.key,
     required this.length,
@@ -241,9 +268,18 @@ class ShowDltPrompt extends StatelessWidget {
     required this.onCancel,
   });
 
+  /// Current entry count of the note, shown in the warning text so the
+  /// user knows how much they are deleting.
   final int length;
+
+  /// Corner radius passed through to the No and Yes buttons so they
+  /// match the card's pill shape.
   final double radius;
+
+  /// Invoked by the Yes button after the haptic; performs the deletion.
   final VoidCallback onProceed;
+
+  /// Invoked by the No button after the haptic; restores the card.
   final VoidCallback onCancel;
 
   @override
@@ -279,7 +315,13 @@ class ShowDltPrompt extends StatelessWidget {
   }
 }
 
+/// A rounded filled button with centered text, sized for dialog rows.
+///
+/// [ContainerButton] is the Yes/No button of [ShowDltPrompt]: a
+/// 120-logical-pixel-wide pill in the palette's pill color whose tap
+/// fires a light haptic through [AppSettings] before [onTap].
 class ContainerButton extends StatelessWidget {
+  /// Creates the button with its tap action, corner radius, and label.
   const ContainerButton({
     super.key,
     required this.onTap,
@@ -287,8 +329,13 @@ class ContainerButton extends StatelessWidget {
     required this.text,
   });
 
+  /// Action performed after the haptic fires.
   final VoidCallback onTap;
+
+  /// Corner radius of the pill in logical pixels.
   final double radius;
+
+  /// Button label, typically `Yes` or `No`.
   final String text;
 
   @override
@@ -316,9 +363,15 @@ class ContainerButton extends StatelessWidget {
   }
 }
 
+/// The selectable `#code` line of the note tile, in large type.
+///
+/// [CodeText] renders the note code as `#NNNNNN` in a selectable text so
+/// users can long-press-copy it straight from the home grid.
 class CodeText extends StatelessWidget {
+  /// Creates the display for [code].
   const CodeText({super.key, required this.code});
 
+  /// Six-digit note code rendered after a `#` prefix.
   final int code;
   @override
   Widget build(BuildContext context) {
@@ -336,9 +389,16 @@ class CodeText extends StatelessWidget {
   }
 }
 
+/// The note title line of the tile, read live from the note provider.
+///
+/// [HeadText] subscribes to [CodeGen] and renders the current title of
+/// [code] at 36 px in a single horizontal-scrolling line, so long titles
+/// scroll instead of wrapping the card.
 class HeadText extends StatelessWidget {
+  /// Creates the title display for note page [code].
   const HeadText({super.key, required this.code});
 
+  /// Six-digit code whose title is read from [CodeGen] on every build.
   final int code;
 
   @override
@@ -363,7 +423,13 @@ class HeadText extends StatelessWidget {
   }
 }
 
+/// The pill-shaped entry-count badge that doubles as an open-page button.
+///
+/// [LengthIndicator] shows how many entries the note holds (singular and
+/// plural handled) with an outward-arrow icon, and opens the note page
+/// on tap after a light haptic fires through [AppSettings].
 class LengthIndicator extends StatelessWidget {
+  /// Creates the badge for note page [code].
   const LengthIndicator({
     super.key,
     required this.radius,
@@ -372,9 +438,18 @@ class LengthIndicator extends StatelessWidget {
     required this.onTap,
   });
 
+  /// Diameter of the circular badge in logical pixels.
   final double radius;
+
+  /// Entry count displayed inside the badge.
   final int length;
+
+  /// Six-digit code of the note page the badge belongs to; the badge's
+  /// own rendering shows only [length], and the page identity is kept on
+  /// the widget so callers can key and reason about it.
   final int code;
+
+  /// Invoked after the haptic when the badge is tapped; opens the page.
   final VoidCallback onTap;
 
   @override

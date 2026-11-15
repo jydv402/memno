@@ -16,6 +16,16 @@ analyzer:
     - windows/**
     - macos/**
     - linux/**
+    # Generated Hive adapter files are never hand-edited or hand-documented.
+    - "**/*.g.dart"
+  errors:
+    # Documentation is a contract on the public surface. Promoted to error so
+    # an undocumented public member, a broken doc link, a JavaDoc-style block,
+    # or a dangling library doc fails the build instead of slipping through.
+    public_member_api_docs: error
+    dangling_library_doc_comments: error
+    slash_for_doc_comments: error
+    comment_references: error
 include: package:flutter_lints/flutter.yaml
 
 linter:
@@ -30,6 +40,12 @@ linter:
   # `// ignore_for_file: name_of_lint` syntax on the line or in the file
   # producing the lint.
   rules:
+    # Documentation is a contract on the public surface.
+    - public_member_api_docs
+    - dangling_library_doc_comments
+    - slash_for_doc_comments
+    - comment_references
+
     # avoid_print: false  # Uncomment to disable the `avoid_print` rule
     # prefer_single_quotes: true  # Uncomment to enable the `prefer_single_quotes` rule
 

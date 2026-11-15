@@ -1,11 +1,24 @@
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:memno/logic/theme/app_colors.dart';
 import 'package:memno/logic/theme/app_settings.dart';
 import 'package:provider/provider.dart';
 
+/// The tall lime title capsule at the top of a note page, with an edit
+/// button tucked into its bottom-right corner.
+///
+/// [InnerPageTopBar] shows the note title at 48 px; a horizontal scroll
+/// view swallows overflow instead of wrapping so long titles stay one
+/// line. [onPressed] opens the title editor after a light haptic fires
+/// through [AppSettings].
 class InnerPageTopBar extends StatelessWidget {
+  /// Note title text as stored; rendered with tab indent as authored.
   final String head;
+
+  /// Invoked by the edit button after the haptic; omit for a read-only
+  /// bar such as the embedded preview mode.
   final VoidCallback? onPressed;
+
+  /// Creates the bar for [head]; [onPressed] may be null.
   const InnerPageTopBar({super.key, required this.head, this.onPressed});
 
   @override

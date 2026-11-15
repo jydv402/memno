@@ -1,5 +1,5 @@
 import 'package:animations/animations.dart';
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:glassmorphism/glassmorphism.dart';
 import 'package:memno/logic/functionality/code_gen.dart';
 import 'package:memno/logic/theme/app_colors.dart';
@@ -7,9 +7,17 @@ import 'package:memno/mobile/pages/inner_page.dart';
 import 'package:memno/logic/theme/app_settings.dart';
 import 'package:provider/provider.dart';
 
+/// The glass entry-input FAB of the mobile home screen: a round frosted
+/// button that opens the new-note input sheet.
+///
+/// [CustomFAB] is the home-screen variant, wrapped in an open-container
+/// transition and wired to create a fresh note; note pages use the
+/// note-scoped morphing variant instead.
 class CustomFAB extends StatefulWidget {
+  /// Creates the FAB; [onSearch] is invoked for the search affordance.
   const CustomFAB({super.key, required this.onSearch});
 
+  /// Invoked when the user picks the search action.
   final VoidCallback onSearch;
 
   @override

@@ -1,6 +1,6 @@
 import 'dart:io';
 
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_chat_core/flutter_chat_core.dart';
 import 'package:flutter_link_previewer/flutter_link_previewer.dart';
@@ -15,7 +15,16 @@ import 'package:memno/mobile/components/show_toast.dart';
 import 'package:provider/provider.dart';
 import 'package:share_plus/share_plus.dart';
 
+/// One entry card of the mobile note page: a horizontal action-pill bar on
+/// top and either link content with a metadata preview or plain-text
+/// content below.
+///
+/// [InnerPageTile] is a StatefulWidget only so it can own the preview
+/// lifecycle: [_InnerPageTileState._syncPreview] loads the cached preview
+/// from `initState` and `didUpdateWidget`, never inside build, keeping the
+/// `Selector` that watches the preview cache pure.
 class InnerPageTile extends StatefulWidget {
+  /// Creates the tile for one entry of note page [code].
   const InnerPageTile({
     super.key,
     required this.code,
@@ -25,10 +34,22 @@ class InnerPageTile extends StatefulWidget {
     required this.onEdit,
   });
 
+  /// Six-digit code of the note page holding this entry.
   final int code;
+
+  /// 1-based position of this entry within the note page, shown on the tag
+  /// badge and passed as `index - 1` to the delete cascade, which expects
+  /// a 0-based index.
   final int index;
+
+  /// Full entry text: the URL plus any trailing note the user wrote.
   final String value;
+
+  /// Whether the tile is rendered inside a narrower shared surface, which
+  /// shrinks the preview's minimum width.
   final bool isEmbedded;
+
+  /// Opens the entry editor with this entry preloaded.
   final VoidCallback onEdit;
 
   @override
@@ -54,7 +75,7 @@ class _InnerPageTileState extends State<InnerPageTile> {
   }
 
   /// Ensures the cached preview for this tile's link is loaded into the
-  /// in-memory cache. Runs once per value change from the widget lifecycle —
+  /// in-memory cache. Runs once per value change from the widget lifecycle;
   /// never inside build() or a Selector, which must stay pure.
   void _syncPreview() {
     _firstLink = LinkUtils.extractFirstLink(widget.value);

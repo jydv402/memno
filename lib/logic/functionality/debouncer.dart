@@ -1,10 +1,14 @@
 import 'dart:async';
 
 /// Debounces repeated calls: each call cancels the previous pending action
-/// and schedules [action] to run after [duration] of quiet time.
+/// and schedules the new action to run after the configured quiet time.
 class Debouncer {
+  /// Creates a debouncer that waits [duration] of quiet time before firing;
+  /// a typical value for a search box is 300 ms.
   Debouncer(this.duration);
 
+  /// Quiet time that must elapse after the last call before the pending
+  /// callback runs.
   final Duration duration;
   Timer? _timer;
 

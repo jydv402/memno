@@ -1,7 +1,15 @@
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:memno/logic/theme/app_colors.dart';
 
+/// The lime header capsule of the mobile home screen: the filter toggle on
+/// the left and the total note count on the right.
+///
+/// [TopAccentBox] renders the brand accent color at the top of the home
+/// page. The toggle widget is passed in already built ([customToggle]) and
+/// is scaled down to fit narrow screens; [length] drives the pluralized
+/// count label.
 class TopAccentBox extends StatelessWidget {
+  /// Creates the header capsule with its accent palette and content.
   const TopAccentBox({
     super.key,
     required this.colors,
@@ -9,8 +17,15 @@ class TopAccentBox extends StatelessWidget {
     required this.customToggle,
   });
 
+  /// Palette providing the accent, pill tint, and count text colors;
+  /// passed explicitly rather than read from context so the widget stays
+  /// cheap to test.
   final AppColors colors;
+
+  /// Total number of visible note pages, driving the count label.
   final int length;
+
+  /// The filter toggle (All, Liked, or Empty) rendered on the left.
   final Widget customToggle;
 
   @override

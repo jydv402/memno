@@ -1,13 +1,26 @@
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:memno/logic/theme/app_colors.dart';
 import 'package:memno/logic/theme/app_settings.dart';
 import 'package:provider/provider.dart';
 
+/// The mobile search-by-code row: an autofocused code field plus a round
+/// close button that exits search mode.
+///
+/// [SearchTile] is the only text input on the home screen; every keystroke
+/// goes to [onSearch] which filters the note list live. The close button
+/// fires a light haptic through [AppSettings] and then invokes [onPressed],
+/// which the home page uses to collapse back to the FAB.
 class SearchTile extends StatelessWidget {
+  /// Controller owning the query text; the parent clears it on exit.
   final TextEditingController searchController;
+
+  /// Called with the current text on every keystroke.
   final Function(String) onSearch;
+
+  /// Called after the haptic when the close button is tapped.
   final VoidCallback onPressed;
 
+  /// Creates the search row; all three parameters are required.
   const SearchTile({
     super.key,
     required this.searchController,

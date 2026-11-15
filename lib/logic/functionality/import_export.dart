@@ -3,7 +3,7 @@ import 'dart:io' show File, Platform;
 
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/foundation.dart';
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:hive/hive.dart';
 import 'package:memno/desktop/components/desktop_notification.dart';
 import 'package:memno/mobile/components/show_toast.dart';
@@ -12,15 +12,30 @@ import 'package:memno/logic/functionality/code_gen.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:provider/provider.dart';
 
-/// Handles JSON-based backup import and export functionality for note databases.
+/// Handles JSON-based backup import and export functionality for note
+/// databases.
+///
+/// The export is a single JSON envelope carrying the app name, version,
+/// schema version, UTC export timestamp, and every [CodeData] record; the
+/// import reads the same envelope, merges records into the live box keyed
+/// by code, and then asks the note controller to reload from disk. All
+/// user-facing feedback is routed through [_showNotification], which picks
+/// the platform-appropriate channel.
 class ImportExport {
   late Box<CodeData>? _codeBox;
 
+  /// Creates the helper and starts opening the `codeData` box; the first
+  /// export or import call awaits the same load again, so construction is
+  /// never a blocking prerequisite.
   ImportExport() {
     _loadCodeBox();
   }
 
-  /// Loads the code box if it is not already opened.
+  /// Opens or reuses the `codeData` Hive box, storing it in [_codeBox];
+  /// failures leave the field null and are only logged.
+  ///
+  /// The late nullable field is the honest shape of "box loading is async
+  /// and may fail": callers check for null instead of racing the future.
   Future<void> _loadCodeBox() async {
     try {
       if (!Hive.isBoxOpen('codeData')) {
@@ -33,7 +48,15 @@ class ImportExport {
     }
   }
 
-  /// Exports all notes and app metadata to a JSON file.
+  /// Exports all notes and app metadata to a JSON file chosen by the user.
+  ///
+  /// The envelope carries `app`, `version`, `schema_version` (fixed at 1
+  /// for this format), `exported_at` (UTC ISO-8601), and `notes` (the
+  /// [CodeData.toJSON] records). On desktop the returned path is written
+  /// to directly; other platforms rely on the picker's own save handling.
+  /// Cancellation is reported as its own notification rather than an
+  /// error. Every failure is caught and surfaced as a notification, so a
+  /// bad picker state can never crash the settings page.
   Future<void> exportToJSON(BuildContext context) async {
     try {
       await _loadCodeBox();
@@ -69,8 +92,6 @@ class ImportExport {
         result = await FilePicker.saveFile(
           dialogTitle: 'Export Memno Notes',
           fileName: 'memno_notes.json',
-          type: FileType.custom,
-          allowedExtensions: ['json'],
           bytes: bytes,
         );
         if (result != null) {
@@ -81,8 +102,6 @@ class ImportExport {
         result = await FilePicker.saveFile(
           dialogTitle: 'Export Memno Notes',
           fileName: 'memno_notes.json',
-          type: FileType.custom,
-          allowedExtensions: ['json'],
           bytes: bytes,
         );
       }
@@ -107,7 +126,14 @@ class ImportExport {
     }
   }
 
-  /// Imports notes from a JSON file and reloads the active database.
+  /// Imports notes from a JSON file picked by the user and reloads the
+  /// active database so the UI reflects them.
+  ///
+  /// Records are merged into the live box keyed by [CodeData.code], so an
+  /// import overwrites same-code notes and keeps everything else. A
+  /// malformed or truncated file is caught and reported as a notification
+  /// without touching storage, because the merge only starts after the
+  /// whole file has decoded.
   Future<void> importFromJSON(BuildContext context) async {
     try {
       await _loadCodeBox();

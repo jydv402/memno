@@ -1,6 +1,6 @@
 import 'dart:math' as math;
 
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:memno/logic/theme/app_colors.dart';
 import 'package:provider/provider.dart';
 
@@ -9,6 +9,8 @@ import 'package:provider/provider.dart';
 /// Displays the 6-digit code on a document icon area, with a title below.
 /// On hover, the card scales up and tilts slightly to simulate being picked up.
 class FileIconTile extends StatefulWidget {
+  /// Creates the tile; the code, title, entry count, and like state are
+  /// display-only values pulled from the note record by the caller.
   const FileIconTile({
     super.key,
     required this.code,
@@ -38,6 +40,8 @@ class FileIconTile extends StatefulWidget {
   /// Optional callback invoked when right-click delete is selected.
   final VoidCallback? onDelete;
 
+  /// Optional callback invoked when right-click like is selected; hidden
+  /// from the context menu when null.
   final VoidCallback? onLike;
 
   @override

@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:memno/desktop/components/desktop_notification.dart';
 import 'package:memno/logic/functionality/code_gen.dart';
 import 'package:memno/logic/functionality/import_export.dart';
@@ -12,8 +12,10 @@ import 'package:url_launcher/url_launcher.dart';
 /// Desktop-optimized settings page with a two-column layout.
 ///
 /// Left column shows section headers; right column contains the controls.
-/// No OTA update section — desktop doesn't need it.
+/// No OTA update section: desktop doesn't need it.
 class DesktopSettingsPage extends StatelessWidget {
+  /// Creates the page; it is stateless because every section reads its
+  /// live state from providers.
   const DesktopSettingsPage({super.key});
 
   @override
@@ -457,7 +459,7 @@ class _SavePreviewsCard extends StatelessWidget {
 /// Preview-cache card: shows the used size and clears the cache.
 ///
 /// The size future is owned by this State and refreshed whenever
-/// [PreviewMap] notifies — it is never re-created inside build().
+/// [PreviewMap] notifies: it is never re-created inside build().
 class _PreviewCacheCard extends StatefulWidget {
   const _PreviewCacheCard();
 

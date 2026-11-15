@@ -1,6 +1,6 @@
 import 'dart:math';
 
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:memno/logic/database/code_data.dart';
 
@@ -11,12 +11,19 @@ class CodeGen extends ChangeNotifier {
   late Box<CodeData> _codeBox;
   bool _isReady = false;
 
+  /// Creates the controller and starts loading the `codeData` Hive box in
+  /// the background; [isReady] flips once storage is available.
   CodeGen() {
     init();
   }
 
-  /// Initializes Hive database box and migrates legacy auto-increment keys
-  /// to use the unique 6-digit code as the key.
+  /// Opens the `codeData` Hive box and migrates legacy auto-increment keys
+  /// so every record is keyed by its own 6-digit [CodeData.code].
+  ///
+  /// The migration is best effort: a record that fails to move stays put and
+  /// the failure is only logged, because losing user data during a key
+  /// rewrite would be worse than a miskeyed duplicate. Notifies listeners
+  /// exactly once at the end so the first frame sees the final state.
   Future<void> init() async {
     _codeBox = await Hive.openBox<CodeData>('codeData');
 
@@ -45,13 +52,23 @@ class CodeGen extends ChangeNotifier {
     notifyListeners();
   }
 
+  /// Whether [init] finished and the box can be read and written.
   bool get isReady => _isReady;
 
+  /// Returns every stored note code in Hive key order; the list is fresh
+  /// each call, so callers may sort or filter it freely.
   List<int> get codeList {
     return _codeBox.keys.cast<int>().toList();
   }
 
-  /// Generates unique 6-digit note page code.
+  /// Generates a unique 6-digit note page code in the range 100000 to
+  /// 999999, persists an empty record for it, and returns the code.
+  ///
+  /// The new note starts with no entries, the literal title `"Untitled"`,
+  /// today's date, and an unlike state. The retry loop only terminates
+  /// once the random code does not collide with an existing key; with
+  /// 900000 candidates collisions are vanishingly rare but the loop makes
+  /// the guarantee exact.
   Future<int> generateCode() async {
     var rnd = Random();
     int code;
@@ -73,22 +90,25 @@ class CodeGen extends ChangeNotifier {
     notifyListeners();
   }
 
-  /// Returns the length of the link/entry list for a code.
+  /// Returns the entry count for [code]; an unknown code counts as 0.
   int getLinkListLength(int code) {
     return _codeBox.get(code)?.links.length ?? 0;
   }
 
-  /// Returns the date string for a code.
+  /// Returns the stored date string for [code], or the empty string when
+  /// the code is unknown; the format is whatever `DateTime.toString()`
+  /// produced on the device that wrote it.
   String getDateForCode(int code) {
     return _codeBox.get(code)?.date ?? "";
   }
 
-  /// Returns the liked/favorite status for a code.
+  /// Returns the favorite state for [code]; an unknown code reads as false.
   bool getLikeForCode(int code) {
     return _codeBox.get(code)?.liked ?? false;
   }
 
-  /// Toggles the liked/favorite status for a code.
+  /// Flips the favorite state for [code] and persists it; a no-op for an
+  /// unknown code.
   Future<void> toggleLike(int code) async {
     final codeData = _codeBox.get(code);
     if (codeData == null) return;
@@ -97,12 +117,18 @@ class CodeGen extends ChangeNotifier {
     notifyListeners();
   }
 
-  /// Returns the list of links/entries for a code.
+  /// Returns the live entry list for [code], or an empty list when the code
+  /// is unknown.
+  ///
+  /// The returned list is the record's own backing list, so appending to it
+  /// changes the record only after a save; prefer [addLink], [editLink], or
+  /// [deleteLink], which save for you.
   List<String> getLinksForCode(int code) {
     return _codeBox.get(code)?.links ?? [];
   }
 
-  /// Updates heading/title text for a code.
+  /// Writes [head] as the title of [code], bumps its edit date, and
+  /// persists both; a no-op for an unknown code.
   Future<void> addHead(int code, String head) async {
     final codeData = _codeBox.get(code);
     if (codeData == null) return;
@@ -112,12 +138,14 @@ class CodeGen extends ChangeNotifier {
     notifyListeners();
   }
 
-  /// Returns the heading/title text for a code.
+  /// Returns the title of [code], or `"Untitled"` when the code is unknown
+  /// or was created without a user-supplied title.
   String getHeadForCode(int code) {
     return _codeBox.get(code)?.head ?? "Untitled";
   }
 
-  /// Adds a link/entry to a specific note code.
+  /// Appends [link] to the entry list of [code], bumps its edit date, and
+  /// persists both; a no-op for an unknown code.
   Future<void> addLink(int code, String link) async {
     final codeData = _codeBox.get(code);
     if (codeData == null) return;
@@ -127,7 +155,12 @@ class CodeGen extends ChangeNotifier {
     notifyListeners();
   }
 
-  /// Edits a link/entry at a given index within a specific note code.
+  /// Replaces the entry at [index] of [code] with [newLink], bumps its edit
+  /// date, and persists both.
+  ///
+  /// [index] is 0-based and must be within the current entry list; out-of
+  /// range indexes and unknown codes are silently ignored rather than
+  /// throwing, so a stale UI can never crash the storage layer.
   Future<void> editLink(int code, int index, String newLink) async {
     final codeData = _codeBox.get(code);
     if (codeData == null) return;
@@ -139,7 +172,14 @@ class CodeGen extends ChangeNotifier {
     }
   }
 
-  /// Deletes a link/entry at a given index within a specific note code.
+  /// Removes the entry at [index] of [code], bumps its edit date, and
+  /// persists both.
+  ///
+  /// [index] is 0-based and must be within the current entry list;
+  /// out-of-range indexes and unknown codes are silently ignored. This
+  /// method touches only the note record; callers that also want the link's
+  /// cached preview deleted must use the delete cascade in
+  /// `note_operations.dart` instead.
   Future<void> deleteLink(int code, int index) async {
     final codeData = _codeBox.get(code);
     if (codeData == null) return;
@@ -151,13 +191,18 @@ class CodeGen extends ChangeNotifier {
     }
   }
 
-  /// Clears all codes, links, and entries from the database.
+  /// Removes every note record from the box and notifies listeners.
+  ///
+  /// Orphaned preview files and records are not touched here; use
+  /// `clearAllWithPreviews` in `note_operations.dart` for the wipe-all
+  /// variant that also frees preview storage.
   Future<void> clearAll() async {
     await _codeBox.clear();
     notifyListeners();
   }
 
-  /// Reloads the code box from storage.
+  /// Re-opens the `codeData` Hive box, marks the controller ready, and
+  /// notifies listeners; used after an import writes new records to disk.
   Future<void> reloadCodeBox() async {
     _codeBox = await Hive.openBox<CodeData>('codeData');
     _isReady = true;

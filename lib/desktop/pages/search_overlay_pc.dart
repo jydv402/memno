@@ -1,6 +1,6 @@
 import 'dart:ui';
 
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:flutter/services.dart';
 import 'package:memno/logic/functionality/code_gen.dart';
 import 'package:memno/logic/functionality/debouncer.dart';
@@ -22,6 +22,8 @@ class DesktopSearchOverlay extends StatefulWidget {
   /// Called when a search result is selected, passing the note code.
   final ValueChanged<int> onResultSelected;
 
+  /// Creates the overlay; [onResultSelected] receives the chosen note code
+  /// before the overlay pops itself.
   const DesktopSearchOverlay({super.key, required this.onResultSelected});
 
   @override

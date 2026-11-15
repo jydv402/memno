@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:flutter/services.dart';
 import 'package:memno/desktop/components/desktop_notification.dart';
 import 'package:memno/desktop/components/note_card.dart';
@@ -29,6 +29,8 @@ class DesktopNotePage extends StatefulWidget {
   /// Callback to return to the grid home view.
   final VoidCallback onBack;
 
+  /// Creates the detail page for [code]; [onBack] returns to the grid and
+  /// is invoked by the top bar's back button.
   const DesktopNotePage({super.key, required this.code, required this.onBack});
 
   @override

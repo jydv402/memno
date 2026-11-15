@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:memno/mobile/pages/inner_page.dart';
 import 'package:memno/mobile/components/show_toast.dart';
 import 'package:memno/mobile/components/haptic_app_bar.dart';
@@ -9,11 +9,20 @@ import 'package:memno/logic/theme/app_colors.dart';
 import 'package:memno/logic/theme/app_settings.dart';
 import 'package:provider/provider.dart';
 
-/// Page shown when the user shares text/link from another app.
-/// Lists all existing code pages and lets the user pick one or create a new one.
+/// Page shown when the user shares text or a link from another app.
+///
+/// [ShareTargetPage] shows the shared text in an editable preview card,
+/// lists all existing code pages (filterable by the debounced search
+/// query), and either appends the text to a picked page via
+/// [CodeGen.addLink] or creates a brand-new page for it, replacing
+/// itself with [InnerPage] on success. It is pushed by the global
+/// navigator key from the share-intent handler in `main.dart`.
 class ShareTargetPage extends StatefulWidget {
+  /// Raw text received from the sharing app; pre-filled into the
+  /// editable preview card and saved verbatim on pick.
   final String sharedText;
 
+  /// Creates the share target for [sharedText].
   const ShareTargetPage({super.key, required this.sharedText});
 
   @override
@@ -161,7 +170,7 @@ class _ShareTargetPageState extends State<ShareTargetPage> {
           );
         },
       ),
-      // Bottom FAB — Create New + Search
+      // Bottom FAB: Create New + Search
       floatingActionButton: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 4),
         child: Row(

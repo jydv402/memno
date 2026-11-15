@@ -1,6 +1,6 @@
 import 'dart:async';
 import 'dart:ui';
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:memno/logic/theme/app_colors.dart';
 import 'package:memno/logic/theme/app_settings.dart';
 import 'package:provider/provider.dart';
@@ -21,12 +21,33 @@ class _DockItem {
   });
 }
 
+/// The auto-hiding, macOS-style floating dock for the desktop shell.
+///
+/// [DesktopDock] expands on hover and collapses to a thin pill after a
+/// short idle delay. Placement follows the user's dock-edge preference and
+/// the same widget renders horizontally (bottom or top) or vertically
+/// (left or right). Navigation items report selection through
+/// [onDestinationChanged]; the two action items call [onSearchTap] and
+/// [onNewPage] instead.
 class DesktopDock extends StatefulWidget {
+  /// Index of the destination shown as selected; matches the shell's
+  /// destination indexing where 0 is All Notes, 1 Liked, 2 Empty, and 3
+  /// Settings.
   final int selectedIndex;
+
+  /// Called with the destination index when a navigation item is tapped.
   final ValueChanged<int> onDestinationChanged;
+
+  /// Called when the Search action item is tapped; the shell opens the
+  /// spotlight overlay.
   final VoidCallback onSearchTap;
+
+  /// Called when the New Page action item is tapped; the shell creates a
+  /// note and opens it.
   final VoidCallback onNewPage;
 
+  /// Creates the dock; all four callbacks are required because a dock
+  /// without navigation or actions is meaningless.
   const DesktopDock({
     super.key,
     required this.selectedIndex,

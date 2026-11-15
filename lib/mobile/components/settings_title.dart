@@ -1,8 +1,14 @@
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 
+/// A large section heading shown between settings groups.
 class SettingsTitle extends StatelessWidget {
+  /// Heading text; the full section title as displayed.
   final String title;
+
+  /// Heading color, passed by the caller so the page controls emphasis.
   final Color textClr;
+
+  /// Creates the heading with the required [title] and [textClr].
   const SettingsTitle({super.key, required this.title, required this.textClr});
 
   @override

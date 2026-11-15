@@ -1,14 +1,27 @@
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:glassmorphism/glassmorphism.dart';
 import 'package:memno/logic/theme/app_settings.dart';
 import 'package:provider/provider.dart';
 
+/// The 50 px frosted-glass pill shown when the entry-input FAB is closed.
+///
+/// [CollapsedInnerFAB] is the collapsed phase of the morphing FAB: a
+/// glassmorphism container with a tinted gradient border and a single tap
+/// target that expands it.
 class CollapsedInnerFAB extends StatelessWidget {
+  /// Creates the collapsed pill; [onExpand] opens the input sheet.
   const CollapsedInnerFAB({super.key, required this.onExpand});
+
+  /// Invoked on tap; the parent flips its expanded state.
   final VoidCallback onExpand;
 
+  /// Corner radius of the glass pill in logical pixels.
   final double radius = 50.0;
+
+  /// Height of the glass pill in logical pixels.
   final double height = 50.0;
+
+  /// Width of the glass pill in logical pixels.
   final double width = 50.0;
 
   @override

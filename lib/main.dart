@@ -1,7 +1,7 @@
 import 'dart:io' show Platform;
 
 import 'package:flutter/foundation.dart' show kIsWeb;
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:path/path.dart' as p;
 import 'package:memno/logic/database/code_data.dart';
@@ -18,6 +18,15 @@ import 'package:provider/provider.dart';
 /// Global navigator key used by share intent handler to push ShareTargetPage.
 final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 
+/// Boots Hive, registers the three generated adapters, wires the provider
+/// tree, and starts the app on the platform-appropriate shell.
+///
+/// Desktop platforms (Windows, macOS, Linux) root at [DesktopShell]; every
+/// other platform roots at the mobile [HomePage]. Storage lives under
+/// `~/.memno` on desktop so it is easy to locate and back up, and in the
+/// standard app-support directory elsewhere. Hive initialization failures
+/// are caught and logged rather than fatal: the app can still start, and
+/// the controllers surface their own empty state.
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   // Initialize Hive and register adapters
@@ -66,9 +75,18 @@ void main() async {
   );
 }
 
+/// Root widget: reads the palette and settings from the provider tree and
+/// builds the material app, choosing the shell by platform.
+///
+/// Both themes seed their [ColorScheme] from the app's lime accent so
+/// material widgets harmonize with the custom palette; the theme mode is
+/// passed straight through from [AppSettings.themeMode].
 class MyApp extends StatelessWidget {
+  /// Creates the root widget.
   const MyApp({super.key});
 
+  /// Whether the current platform is one of the desktop targets (Windows,
+  /// macOS, or Linux); evaluated per build so tests can run on any host.
   static bool get _isDesktopPlatform =>
       Platform.isWindows || Platform.isMacOS || Platform.isLinux;
 

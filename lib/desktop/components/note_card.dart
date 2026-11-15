@@ -1,6 +1,6 @@
 import 'dart:io' show File;
 
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:flutter_chat_core/flutter_chat_core.dart';
 import 'package:flutter_link_previewer/flutter_link_previewer.dart';
 import 'package:linkfy_text/linkfy_text.dart';
@@ -17,6 +17,8 @@ import 'package:provider/provider.dart';
 /// typography). An action bar with Edit, Copy, Share, and Delete buttons is
 /// revealed on hover.
 class NoteCard extends StatefulWidget {
+  /// Creates the card; every callback is required because an entry the
+  /// user cannot edit, copy, share, or delete would be a dead end.
   const NoteCard({
     super.key,
     required this.index,
@@ -74,7 +76,7 @@ class _NoteCardState extends State<NoteCard> {
   }
 
   /// Ensures the cached preview for this card's link is loaded into the
-  /// in-memory cache. Runs once per content change from the widget lifecycle —
+  /// in-memory cache. Runs once per content change from the widget lifecycle;
   /// never inside build() or a Selector, which must stay pure.
   void _syncPreview() {
     _firstLink = LinkUtils.extractFirstLink(widget.content);

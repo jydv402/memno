@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:flutter/services.dart';
 import 'package:memno/desktop/pages/home_page_pc.dart';
 import 'package:memno/desktop/pages/note_page_pc.dart';
@@ -11,17 +11,22 @@ import 'package:memno/logic/functionality/note_list.dart';
 import 'package:memno/logic/theme/app_colors.dart';
 import 'package:provider/provider.dart';
 
-/// Serves as the main entry point and shell layout for the desktop interface.
-/// Manages the overall page scaffold, coordinates hotkeys/keyboard shortcuts,
-/// maintains navigation state across All, Liked, Empty, and Settings views,
-/// handles spotlight search modal display, and coordinates notifications.
+/// Root shell of the desktop UI: hosts the page content area, the floating
+/// [DesktopDock], the global keyboard shortcuts, and the search overlay.
 ///
-/// Root scaffold for the desktop UI.
+/// The body is a [Stack]: a full-bleed content area (home grid, note page, or
+/// settings, chosen by navigation state), a keyboard-shortcuts help button
+/// pinned near the bottom-left corner, and the dock overlaid on top of
+/// everything so it floats over the content instead of reserving space.
 ///
-/// Combines a [DesktopSidebar] with an [Expanded] content area that displays
-/// the home grid, note detail page, or settings depending on navigation state.
-/// Provides keyboard shortcuts and auto-collapses the sidebar at narrow widths.
+/// All navigation state lives in this widget: the selected dock destination
+/// (indexed like [NoteFilter.values], with destination 3 meaning Settings),
+/// the currently open note code, and the note code highlighted after a search
+/// selection. The shortcuts themselves follow desktop conventions and are
+/// also listed in the reference dialog opened by the help button.
 class DesktopShell extends StatefulWidget {
+  /// Creates the shell; navigation starts on the All Notes grid with no note
+  /// open and nothing highlighted.
   const DesktopShell({super.key});
 
   @override
@@ -29,17 +34,22 @@ class DesktopShell extends StatefulWidget {
 }
 
 class _DesktopShellState extends State<DesktopShell> {
-  /// Index of the currently active navigation destination (All, Liked, Empty, Settings).
+  /// Dock destination currently active, indexed like [NoteFilter.values]
+  /// (0: all, 1: liked, 2: empty) with 3 as a pseudo-destination for Settings.
   int _selectedDestination = 0;
 
-  /// When non-null, shows the note page instead of the grid.
+  /// Six-digit code of the note currently open in the detail page, or null
+  /// when the grid or settings page is showing.
   int? _openedNoteCode;
 
-  /// Code to highlight in the grid (from search result).
+  /// Note code to outline with the pulsing highlight in the grid, set when a
+  /// [DesktopSearchOverlay] result is chosen; null means no highlight.
   int? _highlightedCode;
 
-  // Navigation Helpers
+  // Navigation state is mutated only through the three helpers below so the
+  // priority rules in _buildContent stay in sync with every entry point.
 
+  /// Opens [code] in the note detail page and clears any search highlight.
   void _openNote(int code) {
     setState(() {
       _openedNoteCode = code;
@@ -47,12 +57,15 @@ class _DesktopShellState extends State<DesktopShell> {
     });
   }
 
+  /// Closes the open note and returns the shell to the last grid destination.
   void _closeNote() {
     setState(() {
       _openedNoteCode = null;
     });
   }
 
+  /// Switches the active dock destination to [index], closing any open note
+  /// and clearing the search highlight so the new view starts clean.
   void _changeDestination(int index) {
     setState(() {
       _selectedDestination = index;
@@ -61,6 +74,12 @@ class _DesktopShellState extends State<DesktopShell> {
     });
   }
 
+  /// Opens the Spotlight-style [DesktopSearchOverlay] as a modal dialog with a
+  /// transparent barrier so the underlying content stays visible.
+  ///
+  /// Choosing a result highlights that code, closes any open note, and forces
+  /// the destination back to All Notes so the highlighted tile is guaranteed
+  /// to exist in the filtered grid.
   void _openSearch() {
     showDialog(
       context: context,
@@ -78,6 +97,13 @@ class _DesktopShellState extends State<DesktopShell> {
     );
   }
 
+  /// Generates a fresh note code, opens it in the detail page, and shows a
+  /// confirmation notification.
+  ///
+  /// Waits on [CodeGen.generateCode], guards against the widget being
+  /// unmounted during that await, then switches to All Notes so the new page
+  /// is findable in the grid. Side effects: navigation state change plus a
+  /// [showDesktopNotification] toast.
   void _createNewPage() {
     final codeProvider = context.read<CodeGen>();
     codeProvider.generateCode().then((newCode) {
@@ -105,22 +131,23 @@ class _DesktopShellState extends State<DesktopShell> {
           );
         }
 
+        // The whole shell is keyboard reachable: CallbackShortcuts sits above
+        // the content so bindings win before any focused child sees the key.
         return CallbackShortcuts(
           bindings: <ShortcutActivator, VoidCallback>{
-            // Ctrl+N: New page
             const SingleActivator(LogicalKeyboardKey.keyN, control: true):
                 _createNewPage,
 
-            // Ctrl+F: Search
             const SingleActivator(LogicalKeyboardKey.keyF, control: true):
                 _openSearch,
 
-            // Ctrl+,: Settings
+            // Comma is the conventional settings key on desktop platforms.
             const SingleActivator(LogicalKeyboardKey.comma, control: true): () {
               _changeDestination(3);
             },
 
-            // Ctrl+1/2/3: Switch filter
+            // Digits map positionally onto [NoteFilter.values]; Settings has
+            // no digit shortcut and is reached via Ctrl+, or the dock.
             const SingleActivator(
               LogicalKeyboardKey.digit1,
               control: true,
@@ -140,7 +167,8 @@ class _DesktopShellState extends State<DesktopShell> {
               _changeDestination(2);
             },
 
-            // Escape: Go back
+            // Escape backs out of an open note only; with no note open it is
+            // left untouched so the focused widget keeps handling it.
             const SingleActivator(LogicalKeyboardKey.escape): () {
               if (_openedNoteCode != null) {
                 _closeNote();
@@ -152,10 +180,10 @@ class _DesktopShellState extends State<DesktopShell> {
             child: Scaffold(
               body: Stack(
                 children: [
-                  // Content Area
                   Positioned.fill(child: _buildContent(colors)),
 
-                  // Keyboard Shortcuts Help Button
+                  // Sits in the corner rather than inside the dock so it stays
+                  // discoverable even while the dock is collapsed to a pill.
                   Positioned(
                     bottom: 24,
                     left: 24,
@@ -178,7 +206,8 @@ class _DesktopShellState extends State<DesktopShell> {
                     ),
                   ),
 
-                  // Floating Dock
+                  // Overlay on top of the content so it can float and
+                  // auto-collapse without reserving layout space.
                   Positioned.fill(
                     child: DesktopDock(
                       selectedIndex: _selectedDestination,

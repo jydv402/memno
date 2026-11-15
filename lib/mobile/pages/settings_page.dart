@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:memno/mobile/components/settings_tile.dart';
 import 'package:memno/mobile/components/settings_title.dart';
 import 'package:memno/mobile/components/haptic_app_bar.dart';
@@ -13,8 +13,20 @@ import 'package:provider/provider.dart';
 import 'package:update_checker_bottom_sheet/update_checker_bottom_sheet.dart';
 import 'package:url_launcher/url_launcher.dart';
 
+/// Mobile settings screen: appearance, haptics, data import and export,
+/// cache management, and links out to updates and project pages.
+///
+/// [SettingsPage] is a plain list of [SettingsTile] rows grouped by
+/// [SettingsTitle] headings; every row mutates its provider directly, so
+/// the page is stateless and reacts purely to provider notifications.
+/// It can also render embedded inside the desktop share flow, which only
+/// hides the automatic back button.
 class SettingsPage extends StatelessWidget {
+  /// Whether the page is embedded in another surface, hiding the
+  /// automatic back button when true.
   final bool isEmbedded;
+
+  /// Creates the settings screen; embedded mode is opt-in.
   const SettingsPage({super.key, this.isEmbedded = false});
 
   @override
@@ -117,7 +129,7 @@ class SettingsPage extends StatelessWidget {
 /// "Clear Preview Cache" tile showing the used size.
 ///
 /// The size future is owned by this State and refreshed whenever
-/// [PreviewMap] notifies — it is never re-created inside build().
+/// [PreviewMap] notifies: it is never re-created inside build().
 class _CacheSizeTile extends StatefulWidget {
   const _CacheSizeTile();
 

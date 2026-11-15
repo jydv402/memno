@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:lottie/lottie.dart';
 import 'package:memno/desktop/components/desktop_notification.dart';
 import 'package:memno/desktop/components/file_icon_tile.dart';
@@ -28,6 +28,9 @@ class DesktopHomePage extends StatefulWidget {
   /// Optional code to visually highlight (e.g. from search result navigation).
   final int? highlightedCode;
 
+  /// Creates the home page; [filter] drives both the header title and the
+  /// visible grid, while the other two parameters may stay null for a
+  /// read-only view.
   const DesktopHomePage({
     super.key,
     required this.filter,

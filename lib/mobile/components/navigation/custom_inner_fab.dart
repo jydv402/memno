@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:memno/logic/functionality/edit_mode.dart';
 import 'package:memno/logic/theme/app_colors.dart';
 import 'package:memno/logic/theme/app_settings.dart';
@@ -6,7 +6,13 @@ import 'package:memno/mobile/components/pill_button.dart';
 import 'package:provider/provider.dart';
 
 /// Custom floating action bar for adding/editing/deleting links or title.
+///
+/// [CustomInnerFAB] is the expanded phase of the morphing FAB: a
+/// horizontally scrollable pill bar holding the input field, a confirm
+/// button, and cancel/close buttons. It is stateless; the parent owns the
+/// text controller and focus node.
 class CustomInnerFAB extends StatelessWidget {
+  /// Creates the expanded action bar; [isEmbedded] defaults to false.
   const CustomInnerFAB({
     super.key,
     required this.onConfirm,
@@ -17,12 +23,28 @@ class CustomInnerFAB extends StatelessWidget {
     required this.fabFocus,
     this.isEmbedded = false,
   });
+
+  /// Invoked when the confirm (add or check) button is tapped.
   final VoidCallback onConfirm;
+
+  /// Invoked when the cancel (close) button is tapped, discarding input.
   final VoidCallback onCancel;
+
+  /// Invoked when the collapse (chevron) button is tapped.
   final VoidCallback onCollapse;
+
+  /// Text controller owning the entry text; disposed by the parent.
   final TextEditingController controller;
+
+  /// Current input mode, deciding whether the confirm button shows add or
+  /// check semantics.
   final EditMode isEditMode;
+
+  /// Focus node attached to the input field.
   final FocusNode fabFocus;
+
+  /// Whether the bar sits inside a narrower embedded surface, which
+  /// switches the confirm icon rather than the layout.
   final bool isEmbedded;
 
   @override

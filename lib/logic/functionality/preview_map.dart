@@ -2,7 +2,7 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:crypto/crypto.dart';
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:flutter_chat_core/flutter_chat_core.dart';
 import 'package:hive/hive.dart';
 import 'package:http/http.dart' as http;
@@ -10,20 +10,41 @@ import 'package:memno/logic/database/preview_data.dart';
 import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
 
-/// Manages caching, downloading, and persistence of link preview data and preview images.
+/// Manages caching, downloading, and persistence of link preview data and
+/// preview images.
+///
+/// [PreviewMap] layers three stores: an in-memory [cache] of parsed
+/// [LinkPreviewData] for instant rebuilds, the Hive box `previewsBox` of
+/// [PreviewDataModel] records for cold starts, and an optional directory of
+/// downloaded images for offline use (governed by the user's
+/// "Save Previews Locally" preference).
 class PreviewMap extends ChangeNotifier {
+  /// In-memory preview records keyed by the exact link string the UI asked
+  /// for. Cleared only by [deletePreviewForLink]; the entries survive
+  /// [clearImageCache] because metadata remains useful without images.
   final Map<String, LinkPreviewData> cache = {};
+
+  /// Local file paths for downloaded preview images, keyed by the same
+  /// link strings as [cache]; entries are removed by [deletePreviewForLink]
+  /// and cleared when the image cache is wiped; the preview metadata
+  /// records are intentionally kept.
   final Map<String, String> localImagePaths = {};
 
   Box<PreviewDataModel>? _previewBox;
   bool _isInit = false;
   String? _previewsDirPath;
 
+  /// Creates the provider and starts opening the `previewsBox` and the
+  /// image directory in the background.
   PreviewMap() {
     _init();
   }
 
-  /// Returns Hive-safe key for the given link.
+  /// Returns the Hive key for [link]: the link itself when it fits within
+  /// Hive's 255-byte key limit, otherwise its SHA-256 digest.
+  ///
+  /// The 255 cap exists because Hive rejects longer keys; hashing keeps
+  /// very long URLs addressable while short ones stay human-greppable.
   String _hiveKey(String link) {
     if (link.length <= 255) return link;
     return sha256.convert(utf8.encode(link)).toString();
@@ -52,7 +73,13 @@ class PreviewMap extends ChangeNotifier {
     notifyListeners();
   }
 
-  /// Saves preview data and caches image locally if enabled.
+  /// Saves the fetched preview [data] for [link] to Hive and the in-memory
+  /// [cache], optionally downloading the image to disk when [saveLocally]
+  /// is set.
+  ///
+  /// A failed image download downgrades gracefully: the metadata is still
+  /// stored, only `localImagePath` stays null. Every failure path is caught
+  /// and logged so a flaky network can never crash a rebuild.
   Future<void> savePreview({
     required String link,
     required LinkPreviewData data,
@@ -89,6 +116,12 @@ class PreviewMap extends ChangeNotifier {
     }
   }
 
+  /// Downloads the image at [url] into the previews directory and returns
+  /// the file path, or null on any failure.
+  ///
+  /// The file name is the SHA-256 digest of [link], so repeated saves of
+  /// the same link overwrite their own file instead of accumulating
+  /// duplicates, and the name never collides with another link's image.
   Future<String?> _downloadAndSaveImage(String link, String url) async {
     try {
       if (_previewsDirPath == null) await _init();
@@ -146,6 +179,12 @@ class PreviewMap extends ChangeNotifier {
   }
 
   // Storage management operations
+
+  /// Returns the total size of the preview image directory in megabytes as
+  /// a decimal fraction (1 MB is exactly 1048576 bytes).
+  ///
+  /// Recomputed from disk on every call; the owning widget caches the
+  /// returned future rather than calling this from build.
   Future<double> getTotalCacheSizeMB() async {
     try {
       if (_previewsDirPath == null) await _init();
@@ -165,6 +204,12 @@ class PreviewMap extends ChangeNotifier {
     }
   }
 
+  /// Deletes everything cached for [link]: the Hive record, its local
+  /// image file, and both in-memory entries.
+  ///
+  /// Callers should only delete a preview when no surviving note still
+  /// references the link; the delete cascade in `note_operations.dart`
+  /// owns that decision. Safe to call for a link with no cached data.
   Future<void> deletePreviewForLink(String link) async {
     try {
       if (!_isInit) await _init();
@@ -188,6 +233,13 @@ class PreviewMap extends ChangeNotifier {
     }
   }
 
+  /// Deletes every image file in the previews directory and nulls out the
+  /// `localImagePath` of each Hive record so the metadata keeps working
+  /// from the network while the disk space is reclaimed.
+  ///
+  /// In-memory [localImagePaths] is cleared with the files. Preview
+  /// metadata records are intentionally kept; use [deletePreviewForLink]
+  /// to remove a single link's record entirely.
   Future<void> clearImageCache() async {
     try {
       if (_previewsDirPath == null) await _init();
