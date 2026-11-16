@@ -22,13 +22,17 @@ class CodeDataAdapter extends TypeAdapter<CodeData> {
       fields[2] as String,
       fields[3] as bool,
       fields[4] as String,
+      updatedAt: fields[5] as int?,
+      updatedBy: fields[6] as String?,
+      rev: fields[7] as int?,
+      deleted: fields[8] as bool?,
     );
   }
 
   @override
   void write(BinaryWriter writer, CodeData obj) {
     writer
-      ..writeByte(5)
+      ..writeByte(9)
       ..writeByte(0)
       ..write(obj.code)
       ..writeByte(1)
@@ -38,7 +42,15 @@ class CodeDataAdapter extends TypeAdapter<CodeData> {
       ..writeByte(3)
       ..write(obj.liked)
       ..writeByte(4)
-      ..write(obj.head);
+      ..write(obj.head)
+      ..writeByte(5)
+      ..write(obj.updatedAt)
+      ..writeByte(6)
+      ..write(obj.updatedBy)
+      ..writeByte(7)
+      ..write(obj.rev)
+      ..writeByte(8)
+      ..write(obj.deleted);
   }
 
   @override

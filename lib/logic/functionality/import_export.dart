@@ -52,18 +52,25 @@ class ImportExport {
   ///
   /// The envelope carries `app`, `version`, `schema_version` (fixed at 1
   /// for this format), `exported_at` (UTC ISO-8601), and `notes` (the
-  /// [CodeData.toJSON] records). On desktop the returned path is written
-  /// to directly; other platforms rely on the picker's own save handling.
-  /// Cancellation is reported as its own notification rather than an
-  /// error. Every failure is caught and surfaced as a notification, so a
-  /// bad picker state can never crash the settings page.
+  /// [CodeData.toJSON] records). Tombstoned records are excluded: a backup
+  /// is a restore of live content, and writing a tombstone into the
+  /// schema-version-1 shape (which has no `deleted` key) would resurrect
+  /// the note on import, on this or any older app version. On desktop the
+  /// returned path is written to directly; other platforms rely on the
+  /// picker's own save handling. Cancellation is reported as its own
+  /// notification rather than an error. Every failure is caught and
+  /// surfaced as a notification, so a bad picker state can never crash the
+  /// settings page.
   Future<void> exportToJSON(BuildContext context) async {
     try {
       await _loadCodeBox();
       if (_codeBox == null) return;
 
-      // Collects notes
-      final notes = _codeBox!.values.map((note) => note.toJSON()).toList();
+      // Collects live notes only; tombstones must not leak into backups.
+      final notes = _codeBox!.values
+          .where((note) => !note.isDeleted)
+          .map((note) => note.toJSON())
+          .toList();
 
       // Retrieves app metadata
       final pkgInfo = await PackageInfo.fromPlatform();
