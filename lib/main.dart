@@ -9,6 +9,10 @@ import 'package:memno/logic/database/preview_data.dart';
 import 'package:memno/logic/database/toggles_data.dart';
 import 'package:memno/logic/functionality/code_gen.dart';
 import 'package:memno/logic/functionality/preview_map.dart';
+import 'package:memno/logic/sync/auth/google_auth_desktop.dart';
+import 'package:memno/logic/sync/auth/google_auth_mobile.dart';
+import 'package:memno/logic/sync/auth/sync_auth.dart';
+import 'package:memno/logic/sync/auth/sync_auth_controller.dart';
 import 'package:memno/desktop/desktop_shell.dart';
 import 'package:memno/mobile/home.dart';
 import 'package:memno/logic/theme/app_colors.dart';
@@ -68,6 +72,15 @@ void main() async {
         ChangeNotifierProxyProvider<AppSettings, AppColors>(
           create: (context) => AppColors(),
           update: (context, settings, colors) => colors!..update(settings),
+        ),
+        Provider<SyncAuth>(
+          create: (context) =>
+              Platform.isWindows || Platform.isMacOS || Platform.isLinux
+              ? GoogleAuthDesktop() as SyncAuth
+              : GoogleAuthMobile(),
+        ),
+        ChangeNotifierProvider<SyncAuthController>(
+          create: (context) => SyncAuthController(context.read<SyncAuth>()),
         ),
       ],
       child: const MyApp(),

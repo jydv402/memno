@@ -47,6 +47,7 @@ app.*.map.json
 *.keystore
 *.base64
 DESKTOP.md
+.env
 android/key.properties
 .vs/
 .vscode/

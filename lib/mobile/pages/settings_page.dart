@@ -6,6 +6,7 @@ import 'package:memno/mobile/components/show_toast.dart';
 import 'package:memno/logic/functionality/check_update.dart';
 import 'package:memno/logic/functionality/import_export.dart';
 import 'package:memno/logic/functionality/preview_map.dart';
+import 'package:memno/logic/sync/auth/sync_auth_controller.dart';
 
 import 'package:memno/logic/theme/app_colors.dart';
 import 'package:memno/logic/theme/app_settings.dart';
@@ -77,6 +78,9 @@ class SettingsPage extends StatelessWidget {
             },
             trailingIcon: Icons.arrow_downward_rounded,
           ),
+          // Settings for Sync
+          SettingsTitle(title: "Sync", textClr: colors.textClr),
+          const _SyncTile(),
           // Settings for updates
           SettingsTitle(title: "Updates", textClr: colors.textClr),
           SettingsTile(
@@ -123,6 +127,37 @@ class SettingsPage extends StatelessWidget {
         ],
       ),
     );
+  }
+}
+
+/// Google sign-in tile for the Sync section: flips between sign-in and
+/// sign-out through [SyncAuthController] and shows the account email as
+/// the subtitle when signed in.
+class _SyncTile extends StatelessWidget {
+  const _SyncTile();
+
+  @override
+  Widget build(BuildContext context) {
+    final auth = Provider.of<SyncAuthController>(context);
+    final signedIn = auth.signedIn && auth.account != null;
+    return SettingsTile(
+      title: signedIn ? "Sign out of Google" : "Sign in with Google",
+      subtitle: signedIn
+          ? "Signed in as ${auth.account!.email}"
+          : "Keeps your notes in sync across your devices",
+      onTap: auth.busy ? null : () => _toggle(context),
+      trailingIcon: signedIn ? Icons.logout_rounded : Icons.login_rounded,
+    );
+  }
+
+  Future<void> _toggle(BuildContext context) async {
+    final controller = context.read<SyncAuthController>();
+    final message = controller.signedIn
+        ? await controller.signOut()
+        : await controller.signIn();
+    if (context.mounted) {
+      showToastMsg(context, message);
+    }
   }
 }
 

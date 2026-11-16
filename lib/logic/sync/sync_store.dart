@@ -35,6 +35,18 @@ class SyncStore {
     return id;
   }
 
+  /// Reads the string stored under [key], or null when unset.
+  Future<String?> value(String key) async {
+    _box ??= await _openBox();
+    return _box!.get(key);
+  }
+
+  /// Stores [value] under [key].
+  Future<void> setValue(String key, String value) async {
+    _box ??= await _openBox();
+    await _box!.put(key, value);
+  }
+
   /// Opens or reuses the `syncBox` Hive box.
   Future<Box<String>> _openBox() async {
     if (Hive.isBoxOpen(boxName)) {

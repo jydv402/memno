@@ -4,6 +4,7 @@ import 'package:memno/logic/functionality/code_gen.dart';
 import 'package:memno/logic/functionality/import_export.dart';
 import 'package:memno/logic/functionality/note_operations.dart';
 import 'package:memno/logic/functionality/preview_map.dart';
+import 'package:memno/logic/sync/auth/sync_auth_controller.dart';
 import 'package:memno/logic/theme/app_colors.dart';
 import 'package:memno/logic/theme/app_settings.dart';
 import 'package:provider/provider.dart';
@@ -57,6 +58,9 @@ class DesktopSettingsPage extends StatelessWidget {
                 const SizedBox(height: 24),
 
                 const _Section(sectionTitle: 'Data', child: _DataCard()),
+                const SizedBox(height: 24),
+
+                const _Section(sectionTitle: 'Sync', child: _SyncCard()),
                 const SizedBox(height: 24),
 
                 const _Section(
@@ -531,6 +535,85 @@ class _PreviewCacheCardState extends State<_PreviewCacheCard> {
         );
       },
     );
+  }
+}
+
+/// Google sign-in card for the Sync section: shows the account when
+/// signed in and flips between sign-in and sign-out through
+/// [SyncAuthController], which owns the busy state and outcome messages.
+class _SyncCard extends StatelessWidget {
+  const _SyncCard();
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = Provider.of<AppColors>(context);
+    final auth = Provider.of<SyncAuthController>(context);
+    final signedIn = auth.signedIn && auth.account != null;
+
+    return _SettingsCard(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            signedIn
+                ? 'Your notes will sync across your devices through your '
+                      'Google Drive.'
+                : 'Connect your Google account to keep your notes in sync '
+                      'across your devices. Syncing starts rolling out soon; '
+                      'signing in now just prepares it.',
+            style: TextStyle(
+              fontFamily: 'GoogleSans',
+              fontSize: 14,
+              color: colors.textClr.withValues(alpha: 0.6),
+            ),
+          ),
+          const SizedBox(height: 16),
+          Row(
+            children: [
+              Expanded(
+                child: Text(
+                  signedIn
+                      ? 'Signed in as ${auth.account!.email}'
+                      : 'No Google account connected.',
+                  style: TextStyle(
+                    fontFamily: 'GoogleSans',
+                    fontSize: 16,
+                    color: colors.textClr,
+                  ),
+                ),
+              ),
+              if (auth.busy) ...[
+                const SizedBox(width: 12),
+                SizedBox(
+                  width: 18,
+                  height: 18,
+                  child: CircularProgressIndicator(
+                    strokeWidth: 2,
+                    color: colors.accnt,
+                  ),
+                ),
+                const SizedBox(width: 12),
+              ],
+              _SettingsButton(
+                icon: signedIn ? Icons.logout_rounded : Icons.login_rounded,
+                label: signedIn ? 'Sign out' : 'Sign in',
+                onPressed: auth.busy ? null : () => _toggle(context),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  Future<void> _toggle(BuildContext context) async {
+    final controller = context.read<SyncAuthController>();
+    final message = controller.signedIn
+        ? await controller.signOut()
+        : await controller.signIn();
+    if (context.mounted) {
+      showDesktopNotification(context, message);
+    }
   }
 }
 

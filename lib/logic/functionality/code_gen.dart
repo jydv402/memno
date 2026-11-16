@@ -3,6 +3,7 @@ import 'dart:math';
 import 'package:material_ui/material_ui.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:memno/logic/database/code_data.dart';
+import 'package:memno/logic/database/legacy_code_data_migration.dart';
 import 'package:memno/logic/sync/sync_store.dart';
 
 /// Manages code and entry database operations using Hive.
@@ -46,6 +47,20 @@ class CodeGen extends ChangeNotifier {
 
   /// Performs the one-time work of [init]; never called twice.
   Future<void> _openAndPrepare() async {
+    // One-time legacy migration: records written by the abandoned August
+    // 2026 sync prototype store a String id at field 5, which the strict
+    // generated adapter cannot read — the tolerant pass rewrites such
+    // frames before any typed open. Flag-guarded in the sync box, so it
+    // runs at most once per device.
+    try {
+      if (await _syncStore.value(legacyMigrationDoneKey) == null) {
+        await migrateLegacyCodeData();
+        await _syncStore.setValue(legacyMigrationDoneKey, '1');
+      }
+    } catch (e, st) {
+      debugPrint('Legacy codeData migration failed: $e\n$st');
+    }
+
     _codeBox = await Hive.openBox<CodeData>('codeData');
 
     // Migration: ensure all keys are the code itself

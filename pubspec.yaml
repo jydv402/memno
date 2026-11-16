@@ -69,6 +69,11 @@ dependencies:
   update_checker_bottom_sheet: ^0.0.7
 
   material_ui: ^1.11.0
+  google_sign_in: ^7.2.0
+  extension_google_sign_in_as_googleapis_auth: ^3.0.0
+  googleapis_auth: ^2.3.7
+  flutter_secure_storage: ^11.2.0
+
 dev_dependencies:
   # Testing & Code Quality
   flutter_test:
